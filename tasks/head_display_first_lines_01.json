@@ -1,0 +1,28 @@
+{
+    "id": "head_display_first_lines_01",
+    "title": "Display First Few Lines",
+    "description": "Display the first 3 lines of the file 'data/sample1.txt'.",
+    "command_to_practice": "head",
+    "example_solution": "head -n 3 data/sample1.txt",
+    "difficulty": "easy",
+    "hints": [
+        "The 'head' command is used to output the first part of files.",
+        "Use the '-n' option to specify the number of lines.",
+        "The command is 'head -n 3 data/sample1.txt'"
+    ],
+    "input_details": {
+        "working_directory": ".",
+        "required_files_for_task": [ "data/sample1.txt" ]
+    },
+    "evaluation": {
+        "method": "exact_match",
+        "expected_stdout": "apple\nbanana\norange\n"
+    },
+    "setup_files": [
+        {
+            "action": "create_file",
+            "path": "data/sample1.txt",
+            "content": "apple\nbanana\norange\ngrape\npineapple\nstrawberry\nblueberry\nraspberry\nblackberry\nkiwi\n"
+        }
+    ]
+}

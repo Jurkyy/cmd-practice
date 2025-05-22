@@ -15,10 +15,10 @@
     "evaluation": {
         "method": "contains_substring",
         "expected_stdout_substrings": [
-            "documentation",
-            "tasks",
-            "src",
-            "data"
+            "words_and_numbers",
+            "sample",
+            "students",
+            "to_be_deleted"
         ],
         "expected_stderr": ""
     },

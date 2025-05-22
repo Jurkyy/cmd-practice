@@ -25,6 +25,47 @@ PATH_EXECUTABLES: List[str] = [] # Type hint for clarity
 PATH_CACHE_FILE = ".path_executables_cache.json"
 CACHE_MAX_AGE_SECONDS = 24 * 60 * 60  # 1 day
 
+HIGHSCORE_FILE = "highscores.json"
+
+def load_highscores() -> Dict[str, int]:
+    """Loads highscores from the JSON file."""
+    if not os.path.exists(HIGHSCORE_FILE):
+        return {}
+    try:
+        with open(HIGHSCORE_FILE, 'r') as f:
+            return json.load(f)
+    except (json.JSONDecodeError, IOError) as e:
+        print(f"{Colors.RED}Error loading highscores: {e}. Starting with empty scores.{Colors.ENDC}")
+        return {}
+
+def save_highscore(user: str, score: int):
+    """Saves or updates a user's highscore."""
+    scores = load_highscores()
+    # Update score only if it's higher or user doesn't exist
+    if score > scores.get(user, -1):
+        scores[user] = score
+        try:
+            with open(HIGHSCORE_FILE, 'w') as f:
+                json.dump(scores, f, indent=4)
+            print(f"{Colors.GREEN}Highscore for {user} saved!{Colors.ENDC}")
+        except IOError as e:
+            print(f"{Colors.RED}Error saving highscore: {e}{Colors.ENDC}")
+
+def display_highscores():
+    """Displays the top 5 highscores."""
+    scores = load_highscores()
+    if not scores:
+        print(f"{Colors.YELLOW}No highscores recorded yet.{Colors.ENDC}")
+        return
+
+    print(f"\n{Colors.HEADER}{Colors.BOLD}{'='*15} TOP HIGHSCORES {'='*14}{Colors.ENDC}")
+    # Sort scores by value in descending order
+    sorted_scores = sorted(scores.items(), key=lambda item: item[1], reverse=True)
+    
+    for i, (user, score) in enumerate(sorted_scores[:5]): # Display top 5
+        print(f"{Colors.CYAN}{i+1}. {user:<20} {score:>5} points{Colors.ENDC}")
+    print(f"{Colors.HEADER}{Colors.BOLD}{'='*40}{Colors.ENDC}")
+
 def load_path_executables_from_cache() -> List[str] | None:
     """Tries to load path executables from the cache file."""
     if os.path.exists(PATH_CACHE_FILE):
@@ -238,6 +279,7 @@ def display_task(task: Task):
 def run_practice_session():
     """Main function to run the command-line practice session."""
     print(f"{Colors.GREEN}{Colors.BOLD}Welcome to the Command-Line Practice Tool!{Colors.ENDC}")
+    display_highscores() # Display highscores at the start
     all_tasks = load_all_tasks()
 
     if not all_tasks:
@@ -293,17 +335,24 @@ def run_practice_session():
     print(f"{Colors.GREEN}Starting session with {len(tasks)} {difficulty_choice.capitalize()} task(s)...{Colors.ENDC}")
     # --- End Difficulty Selection ---
 
+    # Initialize session statistics
+    session_stats = {
+        "tasks_attempted": 0,
+        "tasks_correct": 0,
+        "tasks_correct_first_try": 0,
+        "total_hints_used": 0,
+        "total_attempts_overall": 0, # Counts each command run
+        "commands_practiced": set(),
+        "difficulties_attempted": {}, # e.g. {"easy": {"correct": 1, "total": 2}}
+        "session_start_time": time.time()
+    }
+    user_name = input(f"{Colors.YELLOW}Enter your name for this session: {Colors.ENDC}").strip()
+    if not user_name:
+        user_name = "Anonymous"
+
     current_task_index = 0
     hint_level = 0
     user_command = "" # Initialize user_command
-
-    # --- Score Tracking Initialization ---
-    session_tasks_attempted = 0
-    session_tasks_correct = 0
-    session_tasks_correct_first_try = 0
-    # For more detailed tracking, you could store IDs of completed tasks
-    # completed_task_ids_session = set()
-    # --- End Score Tracking Initialization ---
 
     while current_task_index < len(tasks):
         task = tasks[current_task_index]
@@ -318,25 +367,25 @@ def run_practice_session():
         while True: # Inner loop for retrying the current task
             prompt_text = task.input_details.get("prompt_for_command", "Enter your command:")
             if current_task_attempts == 0: # First attempt for this task
-                user_command = input(f"\n{Colors.YELLOW}{prompt_text}{Colors.ENDC}\n{Colors.YELLOW}(Type 'hint', 'skip', or 'quit'){Colors.ENDC}\n> ")
+                user_command = input(f"\n{Colors.YELLOW}{prompt_text}{Colors.ENDC}\n{Colors.YELLOW}(Type 'hint', 'skip', 'quit', or 'man <command>'){Colors.ENDC}\n> ")
             else: # Subsequent attempts
-                user_command = input(f"\n{Colors.YELLOW}Try again or type 'hint', 'skip', 'quit':{Colors.ENDC}\n> ")
+                user_command = input(f"\n{Colors.YELLOW}Try again or type 'hint', 'skip', 'quit', or 'man <command>':{Colors.ENDC}\n> ")
 
             if current_task_attempts == 0: # First actual command submitted for this task
-                session_tasks_attempted +=1
+                session_stats["tasks_attempted"] +=1
 
             current_task_attempts += 1
+            user_command_lower = user_command.lower().strip()
 
-            if user_command.lower().strip() == 'quit':
+            if user_command_lower == 'quit':
                 print(f"{Colors.GREEN}Thanks for practicing! Exiting.{Colors.ENDC}")
-                # Display final score before breaking out of everything
-                break # Breaks inner (retry) loop
-            elif user_command.lower().strip() == 'skip':
+                break 
+            elif user_command_lower == 'skip':
                 print(f"{Colors.YELLOW}Skipping task.{Colors.ENDC}")
                 current_task_index += 1
                 hint_level = 0
-                break # Breaks inner (retry) loop, advances to next task
-            elif user_command.lower().strip() == 'hint':
+                break 
+            elif user_command_lower == 'hint':
                 if task.hints:
                     if hint_level < len(task.hints):
                         print(f"{Colors.GREEN}Hint ({hint_level + 1}/{len(task.hints)}): {task.hints[hint_level]}{Colors.ENDC}")
@@ -345,10 +394,43 @@ def run_practice_session():
                         print(f"{Colors.YELLOW}No more hints available for this task.{Colors.ENDC}")
                 else:
                     print(f"{Colors.YELLOW}No hints available for this task.{Colors.ENDC}")
-                # Doesn't count as a task attempt for scoring, user gets another chance to input command
-                current_task_attempts -=1 # Decrement because hint is not an attempt at solution
-                session_tasks_attempted -=1 # Also decrement session attempts if this was the first action
-                continue # Continues inner (retry) loop, re-prompts for command
+                current_task_attempts -=1 
+                if current_task_attempts < 0: current_task_attempts = 0 # Ensure not negative
+                if session_stats["tasks_attempted"] > 0 and current_task_attempts == 0: # if it was the first action and now it's not an attempt
+                     session_stats["tasks_attempted"] -=1
+                session_stats["total_hints_used"] += 1
+                continue 
+            elif user_command_lower.startswith("man "):
+                man_command_parts = user_command.strip().split()
+                if len(man_command_parts) > 1:
+                    command_to_lookup = man_command_parts[1]
+                    if command_to_lookup == task.command_to_practice and task.man_page_info:
+                        print(f"\n{Colors.CYAN}{Colors.BOLD}--- Man Page Info for '{command_to_lookup}' ---{Colors.ENDC}")
+                        print(f"{Colors.YELLOW}{task.man_page_info}{Colors.ENDC}")
+                        print(f"{Colors.CYAN}{Colors.BOLD}------------------------------------{Colors.ENDC}")
+                    elif command_to_lookup == task.command_to_practice and not task.man_page_info:
+                        print(f"{Colors.YELLOW}No specific man page info available for '{command_to_lookup}' for this task.{Colors.ENDC}")
+                    else:
+                        # Check all loaded tasks for man page info for the requested command
+                        found_man_info = None
+                        for t in all_tasks: # all_tasks is available from the outer scope
+                            if t.command_to_practice == command_to_lookup and t.man_page_info:
+                                found_man_info = t.man_page_info
+                                break
+                        if found_man_info:
+                            print(f"\n{Colors.CYAN}{Colors.BOLD}--- Man Page Info for '{command_to_lookup}' (General) ---{Colors.ENDC}")
+                            print(f"{Colors.YELLOW}{found_man_info}{Colors.ENDC}")
+                            print(f"{Colors.CYAN}{Colors.BOLD}-------------------------------------------{Colors.ENDC}")
+                        else:
+                            print(f"{Colors.YELLOW}No man page info found for '{command_to_lookup}' in the current task or general task list. Try 'man <command_name_of_current_task>'.{Colors.ENDC}")
+                else:
+                    print(f"{Colors.YELLOW}Usage: man <command_name>{Colors.ENDC}")
+                current_task_attempts -=1
+                if current_task_attempts < 0: current_task_attempts = 0 # Ensure not negative
+                if session_stats["tasks_attempted"] > 0 and current_task_attempts == 0: # if it was the first action and now it's not an attempt
+                     session_stats["tasks_attempted"] -=1
+                session_stats["total_attempts_overall"] += 1
+                continue
 
             is_correct, actual_stdout, actual_stderr = evaluate_command(user_command, task)
 
@@ -363,11 +445,13 @@ def run_practice_session():
 
             if is_correct:
                 print(f"\n{Colors.GREEN}{Colors.BOLD}Correct! Well done.{Colors.ENDC}")
-                session_tasks_correct += 1
+                session_stats["tasks_correct"] += 1
                 if current_task_attempts == 1:
-                    session_tasks_correct_first_try += 1
+                    session_stats["tasks_correct_first_try"] += 1
                     print(f"{Colors.GREEN}{Colors.BOLD}Solved on the first try!{Colors.ENDC}")
-                # completed_task_ids_session.add(task.id)
+                session_stats["commands_practiced"].add(user_command)
+                session_stats["difficulties_attempted"].setdefault(difficulty_choice, {"correct": 0, "total": 0})["correct"] += 1
+                session_stats["difficulties_attempted"].setdefault(difficulty_choice, {"correct": 0, "total": 0})["total"] += 1
                 current_task_index += 1
                 hint_level = 0
                 input(f"{Colors.GREEN}Press Enter to continue to the next task...{Colors.ENDC}")
@@ -383,18 +467,26 @@ def run_practice_session():
     if current_task_index >= len(tasks) and (not user_command or user_command.lower().strip() != 'quit'):
         print(f"\n{Colors.GREEN}{Colors.BOLD}Congratulations! You've completed all available tasks for this session.{Colors.ENDC}")
 
-    # --- Display Session Score --- 
-    print(f"\n{Colors.HEADER}{Colors.BOLD}--- Session Summary ---{Colors.ENDC}")
-    total_tasks_in_selection = len(tasks)
-    print(f"{Colors.BLUE}Difficulty selected: {difficulty_choice.capitalize()}{Colors.ENDC}")
-    print(f"{Colors.BLUE}Total tasks in this selection: {total_tasks_in_selection}{Colors.ENDC}")
-    print(f"{Colors.GREEN}Tasks attempted: {session_tasks_attempted}{Colors.ENDC}")
-    print(f"{Colors.GREEN}Tasks solved correctly: {session_tasks_correct}{Colors.ENDC}")
-    print(f"{Colors.GREEN}Tasks solved on the first try: {session_tasks_correct_first_try}{Colors.ENDC}")
-    # Potential simple score:
-    score = (session_tasks_correct_first_try * 10) + ((session_tasks_correct - session_tasks_correct_first_try) * 5)
-    print(f"{Colors.GREEN}Your score for this session: {score}{Colors.ENDC}")
-    print(f"{Colors.HEADER}{Colors.BOLD}-----------------------{Colors.ENDC}")
+    # --- Session Summary ---
+    session_duration = time.time() - session_stats["session_start_time"]
+    print(f"\n{Colors.HEADER}{Colors.BOLD}{'='*15} SESSION SUMMARY {'='*15}{Colors.ENDC}")
+    print(f"{Colors.BLUE}Session duration: {time.strftime('%H:%M:%S', time.gmtime(session_duration))}{Colors.ENDC}")
+    print(f"{Colors.BLUE}Tasks attempted: {session_stats['tasks_attempted']}{Colors.ENDC}")
+    print(f"{Colors.GREEN}Tasks solved: {session_stats['tasks_correct']}{Colors.ENDC}")
+    print(f"{Colors.GREEN}Solved on first try: {session_stats['tasks_correct_first_try']}{Colors.ENDC}")
+    print(f"{Colors.YELLOW}Total hints used: {session_stats['total_hints_used']}{Colors.ENDC}")
+    print(f"{Colors.CYAN}Total commands run: {session_stats['total_attempts_overall']}{Colors.ENDC}")
+    
+    if session_stats["tasks_correct"] > 0:
+        save_highscore(user_name, session_stats["tasks_correct"]) # Save score based on tasks correct
+
+    print(f"{Colors.BLUE}Commands practiced: {Colors.YELLOW}{', '.join(sorted(list(session_stats['commands_practiced']))) if session_stats['commands_practiced'] else 'None'}{Colors.ENDC}")
+    print(f"{Colors.BLUE}Difficulty breakdown:{Colors.ENDC}")
+    for difficulty, stats in session_stats["difficulties_attempted"].items():
+        print(f"{Colors.BLUE}{difficulty.capitalize()}:")
+        print(f"{Colors.BLUE}  Correct: {stats['correct']}")
+        print(f"{Colors.BLUE}  Total: {stats['total']}")
+    print(f"{Colors.HEADER}{Colors.BOLD}{'='*40}{Colors.ENDC}")
 
 if __name__ == "__main__":
     try:
