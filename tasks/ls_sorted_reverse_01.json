@@ -1,40 +1,40 @@
 {
     "id": "ls_sorted_reverse_01",
     "title": "List Files Sorted in Reverse",
-    "description": "In the directory 'my_docs', list all visible files and directories, sorted alphabetically in reverse order. Display only the names.",
+    "description": "In the directory 'data/my_docs', list all visible files and directories, sorted alphabetically in reverse order. Display only the names.",
     "command_to_practice": "ls",
-    "example_solution": "ls -r my_docs",
+    "example_solution": "ls -r data/my_docs",
     "difficulty": "easy",
     "setup_files": [
         {
             "action": "create_directory",
-            "path": "my_docs"
+            "path": "data/my_docs"
         },
         {
             "action": "create_file",
-            "path": "my_docs/report.txt",
+            "path": "data/my_docs/report.txt",
             "content": "This is a report."
         },
         {
             "action": "create_file",
-            "path": "my_docs/alpha.doc",
+            "path": "data/my_docs/alpha.doc",
             "content": "Document A."
         },
         {
             "action": "create_file",
-            "path": "my_docs/zeta_config.conf",
+            "path": "data/my_docs/zeta_config.conf",
             "content": "Configuration Z."
         },
         {
             "action": "create_file",
-            "path": "my_docs/beta_notes.md",
+            "path": "data/my_docs/beta_notes.md",
             "content": "Notes B."
         }
     ],
     "input_details": {
         "prompt_for_command": "Enter ls command: ",
         "working_directory": ".",
-        "required_files_for_task": [ "my_docs" ]
+        "required_files_for_task": [ "data/my_docs" ]
     },
     "evaluation": {
         "method": "exact_match",

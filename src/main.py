@@ -320,8 +320,138 @@ def run_practice_session():
         print(f"{Colors.RED}No tasks found. Please add some task files to the 'tasks' directory.{Colors.ENDC}")
         return
 
+    # --- Command Selection ---
+    def get_task_individual_commands(command_str: str) -> List[str]:
+        if not command_str:
+            return []
+        # Split by comma, strip whitespace from each part, filter out empty strings, then unique and sort.
+        return sorted(list(set(c.strip() for c in command_str.split(',') if c.strip())))
+
+    all_unique_individual_commands = set()
+    if all_tasks:
+        for task in all_tasks:
+            for cmd_part in get_task_individual_commands(task.command_to_practice):
+                all_unique_individual_commands.add(cmd_part)
+    
+    # This is the list of unique individual commands like ["awk", "find", "grep", "ls", "mv", ...]
+    available_individual_commands = sorted(list(all_unique_individual_commands))
+    
+    selected_commands_list: List[str] = [] # Stores user's chosen *individual* commands
+    filter_by_all_commands = False
+
+    if available_individual_commands:
+        while True:
+            print(f"\n{Colors.HEADER}Select command(s) to practice (optional):{Colors.ENDC}")
+            
+            command_task_counts_display = {"all": len(all_tasks)}
+            for ind_cmd in available_individual_commands:
+                count = 0
+                for task in all_tasks:
+                    if ind_cmd in get_task_individual_commands(task.command_to_practice):
+                        count += 1
+                command_task_counts_display[ind_cmd] = count
+
+            # options_display will be like ["all", "awk", "find", "grep", ...]
+            options_display = ["all"] + available_individual_commands
+            for i, cmd_option_disp in enumerate(options_display):
+                count = command_task_counts_display[cmd_option_disp]
+                print(f"  {Colors.YELLOW}{i + 1}. {cmd_option_disp.capitalize()} ({count} task{'s' if count != 1 else ''}){Colors.ENDC}")
+            
+            try:
+                choice_input_str = input(f"{Colors.YELLOW}Enter numbers or names, comma-separated (e.g., '1,3' or 'grep,find', 'all', or press Enter for all): {Colors.ENDC}").strip().lower()
+                
+                if not choice_input_str or choice_input_str == "all":
+                    filter_by_all_commands = True
+                    selected_commands_list = [] 
+                    break
+
+                choices_from_input = [c.strip() for c in choice_input_str.split(',') if c.strip()]
+                if not choices_from_input: # Handles input like "," or just spaces leading to no valid parts
+                    filter_by_all_commands = True # Treat as pressing Enter
+                    selected_commands_list = []
+                    break
+
+                current_selection_valid = True
+                temp_selected_individual_commands: List[str] = []
+
+                for choice_part in choices_from_input:
+                    command_found_for_part = False
+                    if choice_part.isdigit():
+                        choice_idx = int(choice_part) - 1
+                        if 0 <= choice_idx < len(options_display):
+                            selected_name_from_option = options_display[choice_idx] # This is an individual command or "all"
+                            if selected_name_from_option == "all": 
+                                filter_by_all_commands = True
+                                temp_selected_individual_commands = [] 
+                                break # Break from choice_part loop, outer will break due to filter_by_all_commands
+                            if selected_name_from_option not in temp_selected_individual_commands:
+                                temp_selected_individual_commands.append(selected_name_from_option)
+                            command_found_for_part = True
+                        else:
+                            print(f"{Colors.RED}Invalid number choice: {choice_part}.{Colors.ENDC}")
+                            current_selection_valid = False; break 
+                    else: # It's a name (should be an individual command name)
+                        if choice_part in available_individual_commands: # Exact match
+                            if choice_part not in temp_selected_individual_commands:
+                                temp_selected_individual_commands.append(choice_part)
+                            command_found_for_part = True
+                        else: # Try prefix matching against available_individual_commands
+                            possible_matches = [ind_cmd for ind_cmd in available_individual_commands if ind_cmd.startswith(choice_part)]
+                            if len(possible_matches) == 1:
+                                matched_cmd = possible_matches[0]
+                                print(f"{Colors.YELLOW}Interpreted '{choice_part}' as '{matched_cmd}'.{Colors.ENDC}")
+                                if matched_cmd not in temp_selected_individual_commands:
+                                    temp_selected_individual_commands.append(matched_cmd)
+                                command_found_for_part = True
+                            elif len(possible_matches) > 1:
+                                print(f"{Colors.RED}Ambiguous command '{choice_part}'. Matches: {', '.join(possible_matches)}. Please be more specific or use numbers.{Colors.ENDC}")
+                                current_selection_valid = False; break
+                            else: 
+                                print(f"{Colors.RED}Invalid command name: '{choice_part}'. Not found in the list of individual commands.{Colors.ENDC}")
+                                current_selection_valid = False; break
+                
+                if filter_by_all_commands: break # Exit while loop if "all" was chosen
+
+                if current_selection_valid and temp_selected_individual_commands:
+                    selected_commands_list = sorted(list(set(temp_selected_individual_commands))) 
+                    break # Exit while loop with valid selections
+                elif current_selection_valid and not temp_selected_individual_commands: 
+                    # This case should be rare if choices_from_input was not empty but all parts were invalid
+                    print(f"{Colors.RED}No valid commands selected. Please try again or press Enter for all.{Colors.ENDC}")
+                # If not current_selection_valid, error was already printed, loop continues.
+            except ValueError: 
+                print(f"{Colors.RED}Invalid input format. Please enter numbers or command names, comma-separated.{Colors.ENDC}")
+    else: # No available_individual_commands from tasks at all
+        filter_by_all_commands = True 
+
+    # Task Filtering Logic
+    filtered_by_command_tasks: List[Task] = []
+    command_display_name = "All Commands" 
+
+    if filter_by_all_commands or not selected_commands_list: # If "all" or no specific commands were effectively chosen
+        filtered_by_command_tasks = all_tasks
+        # command_display_name remains "All Commands"
+    else:
+        temp_filtered_list = []
+        for task in all_tasks:
+            task_inds = get_task_individual_commands(task.command_to_practice)
+            # Include task if any of its individual commands are in the user's selected list
+            if any(sel_cmd in task_inds for sel_cmd in selected_commands_list):
+                temp_filtered_list.append(task)
+        filtered_by_command_tasks = temp_filtered_list
+        if selected_commands_list: # Ensure display name is updated only if there are selections
+             command_display_name = ", ".join([cmd.capitalize() for cmd in selected_commands_list])
+
+    if not filtered_by_command_tasks:
+        if filter_by_all_commands or not selected_commands_list : # No specific filter applied or filter yielded nothing from all_tasks
+             print(f"{Colors.RED}No tasks found at all. Please check the 'tasks' directory or your filter.{Colors.ENDC}")
+        else: # Specific commands were selected, but no tasks matched them
+             print(f"{Colors.RED}No tasks found for the selected command(s): {command_display_name}. Exiting.{Colors.ENDC}")
+        return
+    # --- End Command Selection ---
+
     # --- Difficulty Selection ---
-    available_difficulties = sorted(list(set(task.difficulty for task in all_tasks if task.difficulty)))
+    available_difficulties = sorted(list(set(task.difficulty for task in filtered_by_command_tasks if task.difficulty)))
     
     # Define the desired order for difficulties
     difficulty_order = ["easy", "medium", "hard"]
@@ -339,14 +469,14 @@ def run_practice_session():
     difficulty_choice = ""
 
     while True:
-        print(f"\n{Colors.HEADER}Select a difficulty level to practice:{Colors.ENDC}")
-        # Calculate task counts for each difficulty
-        task_counts = {"all": len(all_tasks)}
+        print(f"\n{Colors.HEADER}Select a difficulty level to practice (for command(s): {command_display_name}):{Colors.ENDC}")
+        # Calculate task counts for each difficulty based on already filtered tasks
+        task_counts = {"all": len(filtered_by_command_tasks)}
         for diff_level in custom_sorted_difficulties:
-            task_counts[diff_level] = sum(1 for task in all_tasks if task.difficulty == diff_level)
+            task_counts[diff_level] = sum(1 for task in filtered_by_command_tasks if task.difficulty == diff_level)
 
         for i, level in enumerate(prompt_options):
-            count = task_counts[level]
+            count = task_counts.get(level, 0) # Use .get for safety if a difficulty level has 0 tasks after command filtering
             print(f"  {Colors.YELLOW}{i + 1}. {level.capitalize()} ({count} task{'s' if count != 1 else ''}){Colors.ENDC}")
         
         try:
@@ -375,19 +505,17 @@ def run_practice_session():
 
     tasks: List[Task] = []
     if difficulty_choice == "all":
-        tasks = all_tasks
+        tasks = filtered_by_command_tasks # Use command-filtered tasks
     else:
-        tasks = [task for task in all_tasks if task.difficulty == difficulty_choice]
+        tasks = [task for task in filtered_by_command_tasks if task.difficulty == difficulty_choice]
 
     if not tasks:
-        print(f"{Colors.RED}No tasks found for the selected difficulty '{difficulty_choice.capitalize()}'. Exiting.{Colors.ENDC}")
-        # Optionally, you could load all tasks or re-prompt here
-        # For now, just exiting if no tasks match.
+        print(f"{Colors.RED}No tasks found for the selected command(s) '{command_display_name}' and difficulty '{difficulty_choice.capitalize()}'. Exiting.{Colors.ENDC}")
         return
     
     random.shuffle(tasks) # Randomize the order of the selected tasks
     
-    print(f"{Colors.GREEN}Starting session with {len(tasks)} {difficulty_choice.capitalize()} task(s)...{Colors.ENDC}")
+    print(f"{Colors.GREEN}Starting session with {len(tasks)} task(s) (Command(s): {command_display_name}, Difficulty: {difficulty_choice.capitalize()})...{Colors.ENDC}")
     # --- End Difficulty Selection ---
 
     # Initialize session statistics

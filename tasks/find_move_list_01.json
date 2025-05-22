@@ -1,45 +1,45 @@
 {
     "id": "find_move_list_01",
     "title": "Find, Move, and List Files",
-    "description": "In the 'source_dir' directory, find all files with the '.log' extension. Move these files to the 'destination_dir' directory. Finally, list the contents of 'destination_dir' in long format, sorted by modification time (newest first).",
+    "description": "In the 'data/source_dir' directory, find all files with the '.log' extension. Move these files to the 'data/destination_dir' directory. Finally, list the contents of 'data/destination_dir' in long format, sorted by modification time (newest first).",
     "command_to_practice": "find, mv, ls",
-    "example_solution": "find source_dir -name '*.log' -exec mv {} destination_dir/ \\; && ls -lt destination_dir",
+    "example_solution": "find data/source_dir -name '*.log' -exec mv {} data/destination_dir/ \\; && ls -lt data/destination_dir",
     "difficulty": "medium",
     "setup_files": [
         {
             "action": "create_directory",
-            "path": "source_dir"
+            "path": "data/source_dir"
         },
         {
             "action": "create_directory",
-            "path": "destination_dir"
+            "path": "data/destination_dir"
         },
         {
             "action": "create_file",
-            "path": "source_dir/app.log",
+            "path": "data/source_dir/app.log",
             "content": "Log entry 1"
         },
         {
             "action": "create_file",
-            "path": "source_dir/server.log",
+            "path": "data/source_dir/server.log",
             "content": "Log entry 2"
         },
         {
             "action": "create_file",
-            "path": "source_dir/data.txt",
+            "path": "data/source_dir/data.txt",
             "content": "Some data"
         }
     ],
     "input_details": {
         "prompt_for_command": "Enter command(s): ",
         "working_directory": ".",
-        "required_files_for_task": [ "source_dir", "destination_dir" ]
+        "required_files_for_task": [ "data/source_dir", "data/destination_dir" ]
     },
     "evaluation": {
         "method": "complex_script_evaluation",
         "check_destination_dir_contents": {
-            "expected_files": [ "app.log", "server.log" ],
-            "unexpected_files": [ "data.txt" ]
+            "expected_files": [ "data/app.log", "data/server.log" ],
+            "unexpected_files": [ "data/data.txt" ]
         },
         "expected_stdout_pattern": "total .*\\n.* app\\.log\\n.* server\\.log",
         "expected_stderr": ""

@@ -7,6 +7,7 @@ This project is an interactive command-line tool designed to help users practice
 ## Features
 
 *   **Interactive Tasks**: Practice a variety of commands (e.g., `find`, `grep`, `awk`, `sed`, `ls`, `cut`, `rm`, `ping`, `head`, `tail`, `wc`, `uniq`, `sort`).
+*   **Task Selection by Command**: Filter and select tasks based on specific commands you want to practice.
 *   **Difficulty Levels**: Tasks are categorized by difficulty (easy, medium, hard).
 *   **Hints**: Get hints if you're stuck on a task.
 *   **Man Page Info**: Access concise "man page" style information for commands using the `man <command>` feature.

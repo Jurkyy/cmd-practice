@@ -1,15 +1,21 @@
 {
     "id": "grep_avonturen_01",
     "title": "Find lines with 'avonturen'",
-    "description": "Find all lines in the file 'data/sample_doc.txt' that contain the word 'avonturen'.",
+    "description": "Find all lines in the file 'data/avonturen.txt' that contain the word 'avonturen'.",
     "command_to_practice": "grep",
-    "example_solution": "grep avonturen data/sample_doc.txt",
+    "example_solution": "grep avonturen data/avonturen.txt",
     "difficulty": "easy",
-    "setup_files": [ ],
+    "setup_files": [
+        {
+            "action": "create_file",
+            "path": "data/avonturen.txt",
+            "content": "This is a test document for command-line practice.\nLet's see if you can find specific words.\nThis line contains the word avonturen.\nAnother line here, just for fun.\nMore avonturen can be found if you look closely.\nNot all lines have the target word.\nThe end of the avonturen in this document."
+        }
+    ],
     "input_details": {
         "prompt_for_command": "Enter the grep command to find lines with 'avonturen':",
         "working_directory": ".",
-        "required_files_for_task": [ "data/sample_doc.txt" ]
+        "required_files_for_task": [ "data/avonturen.txt" ]
     },
     "evaluation": {
         "method": "exact_match",

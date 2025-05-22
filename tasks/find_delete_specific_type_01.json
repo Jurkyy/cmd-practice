@@ -8,45 +8,45 @@
     "setup_files": [
         {
             "action": "create_directory",
-            "path": "temp_files"
+            "path": "data/temp_files"
         },
         {
             "action": "create_directory",
-            "path": "temp_files/subdir"
+            "path": "data/temp_files/subdir"
         },
         {
             "action": "create_file",
-            "path": "temp_files/file1.txt",
+            "path": "data/temp_files/file1.txt",
             "content": "Important data"
         },
         {
             "action": "create_file",
-            "path": "temp_files/cache.tmp",
+            "path": "data/temp_files/cache.tmp",
             "content": "Temporary cache data"
         },
         {
             "action": "create_file",
-            "path": "temp_files/subdir/another.tmp",
+            "path": "data/temp_files/subdir/another.tmp",
             "content": "More temp stuff"
         },
         {
             "action": "create_file",
-            "path": "temp_files/subdir/config.ini",
+            "path": "data/temp_files/subdir/config.ini",
             "content": "Config settings"
         }
     ],
     "input_details": {
         "prompt_for_command": "Enter command(s): ",
         "working_directory": ".",
-        "required_files_for_task": [ "temp_files" ]
+        "required_files_for_task": [ "data/temp_files" ]
     },
     "evaluation": {
-        "method": "exact_match_stdout_and_stderr_optional_check_command",
+        "method": "exact_match",
         "expected_stdout": "file1.txt\nsubdir",
         "expected_stderr": "",
         "check_command_contains": [
             { "substring": "find" },
-            { "substring": "temp_files" },
+            { "substring": "data/temp_files" },
             { "substring": "*.tmp" },
             { "substring": "-delete", "optional": true, "is_regex": false },
             { "substring": "rm", "optional": true, "is_regex": false }

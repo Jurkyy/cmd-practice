@@ -8,38 +8,38 @@
     "setup_files": [
         {
             "action": "create_directory",
-            "path": "project_files"
+            "path": "data/project_files"
         },
         {
             "action": "create_directory",
-            "path": "project_files/module_a"
+            "path": "data/project_files/module_a"
         },
         {
             "action": "create_file",
-            "path": "project_files/main.py",
+            "path": "data/project_files/main.py",
             "content": "# Main application file\nimport os\nsys.path.append('.')\nprint(\"Hello, World!\")\n# End of main"
         },
         {
             "action": "create_file",
-            "path": "project_files/module_a/utils.py",
+            "path": "data/project_files/module_a/utils.py",
             "content": "# Utility functions\ndef helper_function():\n  pass\n# Another line\n# And one more"
         },
         {
             "action": "create_file",
-            "path": "project_files/old_script.py",
+            "path": "data/project_files/old_script.py",
             "content": "# This is an old script\nprint(\"legacy code\")",
             "last_modified_days_ago": 2
         },
         {
             "action": "create_file",
-            "path": "project_files/data.txt",
+            "path": "data/project_files/data.txt",
             "content": "This is not a python file and should be ignored."
         }
     ],
     "input_details": {
         "prompt_for_command": "Enter command: ",
         "working_directory": ".",
-        "required_files_for_task": [ "project_files" ]
+        "required_files_for_task": [ "data/project_files" ]
     },
     "evaluation": {
         "method": "exact_match",

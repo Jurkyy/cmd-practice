@@ -1,21 +1,21 @@
 {
     "id": "awk_conditional_sum_01",
     "title": "Awk: Sum Values Based on Condition",
-    "description": "Given a CSV file named 'sales_data.csv' with columns 'Product,Category,Quantity,Price', calculate the total revenue (Quantity * Price) for all products in the 'Electronics' category. Output only the final sum.",
+    "description": "Given a CSV file named 'data/sales_data.csv' with columns 'Product,Category,Quantity,Price', calculate the total revenue (Quantity * Price) for all products in the 'Electronics' category. Output only the final sum.",
     "command_to_practice": "awk",
-    "example_solution": "awk -F',' '$2 == \"Electronics\" { sum += $3 * $4 } END { print sum }' sales_data.csv",
+    "example_solution": "awk -F',' '$2 == \"Electronics\" { sum += $3 * $4 } END { print sum }' data/sales_data.csv",
     "difficulty": "hard",
     "setup_files": [
         {
             "action": "create_file",
-            "path": "sales_data.csv",
+            "path": "data/sales_data.csv",
             "content": "Product,Category,Quantity,Price\nLaptop,Electronics,5,1200\nMouse,Electronics,20,25\nKeyboard,Electronics,10,75\nBook,Books,50,15\nPen,Stationery,100,2\nDesk,Furniture,2,150\nMonitor,Electronics,8,300"
         }
     ],
     "input_details": {
         "prompt_for_command": "Enter awk command: ",
         "working_directory": ".",
-        "required_files_for_task": [ "sales_data.csv" ]
+        "required_files_for_task": [ "data/sales_data.csv" ]
     },
     "evaluation": {
         "method": "exact_match",

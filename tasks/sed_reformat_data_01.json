@@ -1,21 +1,21 @@
 {
     "id": "sed_reformat_data_01",
     "title": "Sed: Reformat Text Data",
-    "description": "You have a file 'user_profiles.txt' where each line contains user data in the format: 'UserID: [ID], Name: [Full Name], Email: [EmailAddress]'. Transform each line into '[Full Name] ([ID]) - [EmailAddress]'.",
+    "description": "You have a file 'user_profiles.txt' in the 'data' directory where each line contains user data in the format: 'UserID: [ID], Name: [Full Name], Email: [EmailAddress]'. Transform each line into '[Full Name] ([ID]) - [EmailAddress]'.",
     "command_to_practice": "sed",
-    "example_solution": "sed -E 's/UserID: ([^,]+), Name: ([^,]+), Email: (.*)/\\2 (\\1) - \\3/' user_profiles.txt",
+    "example_solution": "sed -E 's/UserID: ([^,]+), Name: ([^,]+), Email: (.*)/\\2 (\\1) - \\3/' data/user_profiles.txt",
     "difficulty": "hard",
     "setup_files": [
         {
             "action": "create_file",
-            "path": "user_profiles.txt",
+            "path": "data/user_profiles.txt",
             "content": "UserID: 001, Name: Alice Wonderland, Email: alice@example.com\nUserID: 002, Name: Bob The Builder, Email: bob@example.org\nUserID: 003, Name: Charles Xavier, Email: charles@school.edu"
         }
     ],
     "input_details": {
         "prompt_for_command": "Enter sed command: ",
         "working_directory": ".",
-        "required_files_for_task": [ "user_profiles.txt" ]
+        "required_files_for_task": [ "data/user_profiles.txt" ]
     },
     "evaluation": {
         "method": "exact_match",
