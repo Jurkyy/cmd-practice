@@ -8,7 +8,8 @@ class Task:
     def __init__(self, id: str, title: str, description: str, command_to_practice: str,
                  example_solution: str, setup_files: List[Dict[str, str]],
                  input_details: Dict[str, Any], evaluation: Dict[str, Any],
-                 hints: List[str]):
+                 hints: List[str], difficulty: str = "medium", 
+                 man_page_info: str = ""):
         self.id = id
         self.title = title
         self.description = description
@@ -18,9 +19,11 @@ class Task:
         self.input_details = input_details
         self.evaluation = evaluation
         self.hints = hints
+        self.difficulty = difficulty
+        self.man_page_info = man_page_info
 
     def __repr__(self) -> str:
-        return f"<Task id='{self.id}' title='{self.title}'>"
+        return f"<Task id='{self.id}' title='{self.title}' difficulty='{self.difficulty}'>"
 
 def load_task_from_file(filepath: str) -> Task | None:
     """Loads a single task from a JSON file."""

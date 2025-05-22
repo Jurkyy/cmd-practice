@@ -238,78 +238,163 @@ def display_task(task: Task):
 def run_practice_session():
     """Main function to run the command-line practice session."""
     print(f"{Colors.GREEN}{Colors.BOLD}Welcome to the Command-Line Practice Tool!{Colors.ENDC}")
-    tasks = load_all_tasks()
+    all_tasks = load_all_tasks()
 
-    if not tasks:
+    if not all_tasks:
         print(f"{Colors.RED}No tasks found. Please add some task files to the 'tasks' directory.{Colors.ENDC}")
         return
+
+    # --- Difficulty Selection ---
+    available_difficulties = sorted(list(set(task.difficulty for task in all_tasks if task.difficulty)))
+    prompt_options = ["all"] + available_difficulties
+    difficulty_choice = ""
+
+    while True:
+        print(f"\n{Colors.HEADER}Select a difficulty level to practice:{Colors.ENDC}")
+        for i, level in enumerate(prompt_options):
+            print(f"  {Colors.YELLOW}{i + 1}. {level.capitalize()}{Colors.ENDC}")
+        
+        try:
+            choice_input = input(f"{Colors.YELLOW}Enter number or name (e.g., '1' or 'all'): {Colors.ENDC}").strip().lower()
+            if not choice_input:
+                raise ValueError("Input cannot be empty.")
+
+            selected_level = ""
+            if choice_input.isdigit():
+                choice_idx = int(choice_input) - 1
+                if 0 <= choice_idx < len(prompt_options):
+                    selected_level = prompt_options[choice_idx]
+                else:
+                    print(f"{Colors.RED}Invalid number choice. Please try again.{Colors.ENDC}")
+                    continue
+            elif choice_input in prompt_options:
+                selected_level = choice_input
+            else:
+                print(f"{Colors.RED}Invalid difficulty name. Please choose from the list.{Colors.ENDC}")
+                continue
+            
+            difficulty_choice = selected_level
+            break
+        except ValueError as e:
+            print(f"{Colors.RED}Invalid input: {e}. Please enter a valid number or name.{Colors.ENDC}")
+
+    tasks: List[Task] = []
+    if difficulty_choice == "all":
+        tasks = all_tasks
+    else:
+        tasks = [task for task in all_tasks if task.difficulty == difficulty_choice]
+
+    if not tasks:
+        print(f"{Colors.RED}No tasks found for the selected difficulty '{difficulty_choice.capitalize()}'. Exiting.{Colors.ENDC}")
+        # Optionally, you could load all tasks or re-prompt here
+        # For now, just exiting if no tasks match.
+        return
+    
+    print(f"{Colors.GREEN}Starting session with {len(tasks)} {difficulty_choice.capitalize()} task(s)...{Colors.ENDC}")
+    # --- End Difficulty Selection ---
 
     current_task_index = 0
     hint_level = 0
     user_command = "" # Initialize user_command
 
+    # --- Score Tracking Initialization ---
+    session_tasks_attempted = 0
+    session_tasks_correct = 0
+    session_tasks_correct_first_try = 0
+    # For more detailed tracking, you could store IDs of completed tasks
+    # completed_task_ids_session = set()
+    # --- End Score Tracking Initialization ---
+
     while current_task_index < len(tasks):
         task = tasks[current_task_index]
+        current_task_attempts = 0 # Track attempts for this specific task
+        # Only increment session_tasks_attempted once per task when the user first sees it or makes an attempt.
+        # For simplicity, let's count an attempt when they submit their first command for this task instance.
+        # A more precise way would be upon first display, but this is fine.
         
-        # Call setup_task_environment before displaying the task and asking for input
         setup_task_environment(task)
         display_task(task)
 
-        prompt_text = task.input_details.get("prompt_for_command", "Enter your command:")
-        user_command = input(f"\n{Colors.YELLOW}{prompt_text}{Colors.ENDC}\n{Colors.YELLOW}(Type 'hint', 'skip', or 'quit'){Colors.ENDC}\n> ")
+        while True: # Inner loop for retrying the current task
+            prompt_text = task.input_details.get("prompt_for_command", "Enter your command:")
+            if current_task_attempts == 0: # First attempt for this task
+                user_command = input(f"\n{Colors.YELLOW}{prompt_text}{Colors.ENDC}\n{Colors.YELLOW}(Type 'hint', 'skip', or 'quit'){Colors.ENDC}\n> ")
+            else: # Subsequent attempts
+                user_command = input(f"\n{Colors.YELLOW}Try again or type 'hint', 'skip', 'quit':{Colors.ENDC}\n> ")
 
-        if user_command.lower().strip() == 'quit':
-            print(f"{Colors.GREEN}Thanks for practicing! Exiting.{Colors.ENDC}")
-            break
-        elif user_command.lower().strip() == 'skip':
-            print(f"{Colors.YELLOW}Skipping task.{Colors.ENDC}")
-            current_task_index += 1
-            hint_level = 0
-            continue
-        elif user_command.lower().strip() == 'hint':
-            if task.hints:
-                if hint_level < len(task.hints):
-                    print(f"{Colors.GREEN}Hint ({hint_level + 1}/{len(task.hints)}): {task.hints[hint_level]}{Colors.ENDC}")
-                    hint_level += 1
-                else:
-                    print(f"{Colors.YELLOW}No more hints available for this task.{Colors.ENDC}")
-            else:
-                print(f"{Colors.YELLOW}No hints available for this task.{Colors.ENDC}")
-            continue
+            if current_task_attempts == 0: # First actual command submitted for this task
+                session_tasks_attempted +=1
 
-        is_correct, actual_stdout, actual_stderr = evaluate_command(user_command, task)
+            current_task_attempts += 1
 
-        print(f"\n{Colors.BOLD}--- Output ---{Colors.ENDC}")
-        if actual_stdout:
-            print(f"{Colors.CYAN}Stdout:{Colors.ENDC}")
-            print(actual_stdout)
-        if actual_stderr:
-            print(f"{Colors.RED}Stderr:{Colors.ENDC}")
-            print(actual_stderr)
-        print(f"{Colors.BOLD}--------------{Colors.ENDC}")
-
-        if is_correct:
-            print(f"\n{Colors.GREEN}{Colors.BOLD}Correct! Well done. Moving to the next task.{Colors.ENDC}")
-            current_task_index += 1
-            hint_level = 0
-            input(f"{Colors.GREEN}Press Enter to continue...{Colors.ENDC}")
-        else:
-            print(f"\n{Colors.RED}{Colors.BOLD}Incorrect. Please try again.{Colors.ENDC}")
-            action = input(f"{Colors.YELLOW}Type 'r' to retry, 'skip' to move to the next task, or 'quit': {Colors.ENDC}").lower()
-            if action == 'quit':
+            if user_command.lower().strip() == 'quit':
                 print(f"{Colors.GREEN}Thanks for practicing! Exiting.{Colors.ENDC}")
-                break
-            elif action == 'skip':
+                # Display final score before breaking out of everything
+                break # Breaks inner (retry) loop
+            elif user_command.lower().strip() == 'skip':
                 print(f"{Colors.YELLOW}Skipping task.{Colors.ENDC}")
                 current_task_index += 1
                 hint_level = 0
-            elif action == 'r':
-                continue
-            else: 
-                continue
+                break # Breaks inner (retry) loop, advances to next task
+            elif user_command.lower().strip() == 'hint':
+                if task.hints:
+                    if hint_level < len(task.hints):
+                        print(f"{Colors.GREEN}Hint ({hint_level + 1}/{len(task.hints)}): {task.hints[hint_level]}{Colors.ENDC}")
+                        hint_level += 1
+                    else:
+                        print(f"{Colors.YELLOW}No more hints available for this task.{Colors.ENDC}")
+                else:
+                    print(f"{Colors.YELLOW}No hints available for this task.{Colors.ENDC}")
+                # Doesn't count as a task attempt for scoring, user gets another chance to input command
+                current_task_attempts -=1 # Decrement because hint is not an attempt at solution
+                session_tasks_attempted -=1 # Also decrement session attempts if this was the first action
+                continue # Continues inner (retry) loop, re-prompts for command
+
+            is_correct, actual_stdout, actual_stderr = evaluate_command(user_command, task)
+
+            print(f"\n{Colors.BOLD}--- Output ---{Colors.ENDC}")
+            if actual_stdout:
+                print(f"{Colors.CYAN}Stdout:{Colors.ENDC}")
+                print(actual_stdout)
+            if actual_stderr:
+                print(f"{Colors.RED}Stderr:{Colors.ENDC}")
+                print(actual_stderr)
+            print(f"{Colors.BOLD}--------------{Colors.ENDC}")
+
+            if is_correct:
+                print(f"\n{Colors.GREEN}{Colors.BOLD}Correct! Well done.{Colors.ENDC}")
+                session_tasks_correct += 1
+                if current_task_attempts == 1:
+                    session_tasks_correct_first_try += 1
+                    print(f"{Colors.GREEN}{Colors.BOLD}Solved on the first try!{Colors.ENDC}")
+                # completed_task_ids_session.add(task.id)
+                current_task_index += 1
+                hint_level = 0
+                input(f"{Colors.GREEN}Press Enter to continue to the next task...{Colors.ENDC}")
+                break # Breaks inner (retry) loop, advances to next task
+            else:
+                print(f"\n{Colors.RED}{Colors.BOLD}Incorrect. Please try again.{Colors.ENDC}")
+                # User will be prompted by the 'Try again or type...' input at the start of the inner loop
+                # No need for specific retry/skip/quit here as the main input handles it.
+        
+        if user_command.lower().strip() == 'quit': # If quit was chosen, break outer (tasks) loop too
+            break
                 
     if current_task_index >= len(tasks) and (not user_command or user_command.lower().strip() != 'quit'):
-        print(f"\n{Colors.GREEN}{Colors.BOLD}Congratulations! You've completed all available tasks.{Colors.ENDC}")
+        print(f"\n{Colors.GREEN}{Colors.BOLD}Congratulations! You've completed all available tasks for this session.{Colors.ENDC}")
+
+    # --- Display Session Score --- 
+    print(f"\n{Colors.HEADER}{Colors.BOLD}--- Session Summary ---{Colors.ENDC}")
+    total_tasks_in_selection = len(tasks)
+    print(f"{Colors.BLUE}Difficulty selected: {difficulty_choice.capitalize()}{Colors.ENDC}")
+    print(f"{Colors.BLUE}Total tasks in this selection: {total_tasks_in_selection}{Colors.ENDC}")
+    print(f"{Colors.GREEN}Tasks attempted: {session_tasks_attempted}{Colors.ENDC}")
+    print(f"{Colors.GREEN}Tasks solved correctly: {session_tasks_correct}{Colors.ENDC}")
+    print(f"{Colors.GREEN}Tasks solved on the first try: {session_tasks_correct_first_try}{Colors.ENDC}")
+    # Potential simple score:
+    score = (session_tasks_correct_first_try * 10) + ((session_tasks_correct - session_tasks_correct_first_try) * 5)
+    print(f"{Colors.GREEN}Your score for this session: {score}{Colors.ENDC}")
+    print(f"{Colors.HEADER}{Colors.BOLD}-----------------------{Colors.ENDC}")
 
 if __name__ == "__main__":
     try:

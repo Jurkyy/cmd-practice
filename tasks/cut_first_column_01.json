@@ -4,6 +4,8 @@
     "description": "From the file 'data/words_and_numbers.csv', extract only the first column (the words). The delimiter is a comma.",
     "command_to_practice": "cut",
     "example_solution": "cut -d',' -f1 data/words_and_numbers.csv",
+    "difficulty": "easy",
+    "man_page_info": "cut - remove sections from each line of files.\nExample: cut OPTION... [FILE]...\nKey options: -d (delimiter), -f (fields), -c (characters).",
     "setup_files": [ ],
     "input_details": {
         "prompt_for_command": "Enter the cut command to extract the first column:",

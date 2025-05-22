@@ -4,6 +4,8 @@
     "description": "Find all files named 'sample_doc.txt' within the 'data' directory and its subdirectories.",
     "command_to_practice": "find",
     "example_solution": "find data -name sample_doc.txt",
+    "difficulty": "medium",
+    "man_page_info": "find - search for files in a directory hierarchy.\nExample: find [PATHNAME] [EXPRESSION]\nKey expressions: -name (filename), -type (f for file, d for dir), -user (owner).",
     "setup_files": [ ],
     "input_details": {
         "prompt_for_command": "Enter the find command to locate 'sample_doc.txt' in the 'data' directory:",

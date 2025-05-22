@@ -4,7 +4,9 @@
     "description": "Find all lines in the file 'data/sample_doc.txt' that contain the word 'avonturen'.",
     "command_to_practice": "grep",
     "example_solution": "grep avonturen data/sample_doc.txt",
+    "difficulty": "easy",
     "setup_files": [ ],
+    "man_page_info": "grep - searches for PATTERNS in each FILE.\nExample: grep [OPTIONS] PATTERN [FILE...].\nKey options: -i (ignore case), -v (invert match), -r (recursive), -n (line numbers).",
     "input_details": {
         "prompt_for_command": "Enter the grep command to find lines with 'avonturen':",
         "working_directory": ".",

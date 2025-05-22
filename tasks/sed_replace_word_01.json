@@ -4,6 +4,8 @@
     "description": "In the file 'data/sample_doc.txt', replace all occurrences of the word 'avonturen' with 'adventures'.",
     "command_to_practice": "sed",
     "example_solution": "sed 's/avonturen/adventures/g' data/sample_doc.txt",
+    "difficulty": "medium",
+    "man_page_info": "sed - stream editor for filtering and transforming text.\nExample: sed [OPTION]... 'script' [INPUTFILE...]\nKey commands: s (substitute, e.g., s/old/new/g).",
     "setup_files": [ ],
     "input_details": {
         "prompt_for_command": "Enter the sed command to replace words:",

@@ -1,9 +1,11 @@
 {
     "id": "ls_long_format_01",
-    "title": "List items in long format",
-    "description": "List all files and directories in the current directory (your project root) in long format. The output will vary based on your system, so we will check for the presence of key files/directories.",
+    "title": "List files in long format",
+    "description": "List all files and directories in the 'data/' directory using the long format, showing details like permissions, owner, size, and modification date.",
     "command_to_practice": "ls",
-    "example_solution": "ls -l",
+    "example_solution": "ls -l data/",
+    "difficulty": "easy",
+    "man_page_info": "ls - list directory contents.\nExample: ls [OPTION]... [FILE]...\nKey options: -l (long listing), -a (all files including hidden), -h (human readable sizes).",
     "setup_files": [ ],
     "input_details": {
         "prompt_for_command": "Enter the command to list directory contents in long format:",
