@@ -6,6 +6,7 @@ import os
 import glob
 import json # For caching
 import time # For cache timestamp
+import random # For shuffling tasks
 
 # ANSI escape codes for colors
 class Colors:
@@ -20,7 +21,7 @@ class Colors:
     CYAN = '\033[96m'   # For stdout/stderr distinctions
 
 # --- Autocompletion Setup ---
-COMMAND_KEYWORDS = ['hint', 'skip', 'quit']
+COMMAND_KEYWORDS = ['hint', 'skip', 'quit', 'show']
 PATH_EXECUTABLES: List[str] = [] # Type hint for clarity
 PATH_CACHE_FILE = ".path_executables_cache.json"
 CACHE_MAX_AGE_SECONDS = 24 * 60 * 60  # 1 day
@@ -288,13 +289,32 @@ def run_practice_session():
 
     # --- Difficulty Selection ---
     available_difficulties = sorted(list(set(task.difficulty for task in all_tasks if task.difficulty)))
-    prompt_options = ["all"] + available_difficulties
+    
+    # Define the desired order for difficulties
+    difficulty_order = ["easy", "medium", "hard"]
+    
+    # Sort available_difficulties according to difficulty_order
+    # Start with levels that are in our defined order
+    custom_sorted_difficulties = [d for d in difficulty_order if d in available_difficulties]
+    # Add any other difficulties not in our predefined order (e.g., if a new one was added to a task file)
+    # These will be appended at the end, sorted alphabetically among themselves.
+    for d in available_difficulties:
+        if d not in custom_sorted_difficulties:
+            custom_sorted_difficulties.append(d)
+            
+    prompt_options = ["all"] + custom_sorted_difficulties
     difficulty_choice = ""
 
     while True:
         print(f"\n{Colors.HEADER}Select a difficulty level to practice:{Colors.ENDC}")
+        # Calculate task counts for each difficulty
+        task_counts = {"all": len(all_tasks)}
+        for diff_level in custom_sorted_difficulties:
+            task_counts[diff_level] = sum(1 for task in all_tasks if task.difficulty == diff_level)
+
         for i, level in enumerate(prompt_options):
-            print(f"  {Colors.YELLOW}{i + 1}. {level.capitalize()}{Colors.ENDC}")
+            count = task_counts[level]
+            print(f"  {Colors.YELLOW}{i + 1}. {level.capitalize()} ({count} task{'s' if count != 1 else ''}){Colors.ENDC}")
         
         try:
             choice_input = input(f"{Colors.YELLOW}Enter number or name (e.g., '1' or 'all'): {Colors.ENDC}").strip().lower()
@@ -331,6 +351,8 @@ def run_practice_session():
         # Optionally, you could load all tasks or re-prompt here
         # For now, just exiting if no tasks match.
         return
+    
+    random.shuffle(tasks) # Randomize the order of the selected tasks
     
     print(f"{Colors.GREEN}Starting session with {len(tasks)} {difficulty_choice.capitalize()} task(s)...{Colors.ENDC}")
     # --- End Difficulty Selection ---
@@ -400,6 +422,71 @@ def run_practice_session():
                      session_stats["tasks_attempted"] -=1
                 session_stats["total_hints_used"] += 1
                 continue 
+            elif user_command_lower == 'show':
+                print(f"\n{Colors.HEADER}{Colors.BOLD}--- Showing Task Files ---{Colors.ENDC}")
+                relevant_files = task.input_details.get("required_files_for_task")
+                if relevant_files:
+                    files_shown_count = 0
+                    for file_path_from_task in relevant_files:
+                        # Assume file_path_from_task is relative to CURRENT_TASK_WORKING_DIR
+                        # or an absolute path if it starts with os.sep
+                        if os.path.isabs(file_path_from_task):
+                            full_path = file_path_from_task
+                        else:
+                            full_path = os.path.join(CURRENT_TASK_WORKING_DIR, file_path_from_task)
+                        
+                        if os.path.exists(full_path):
+                            try:
+                                # Check if it's a directory first
+                                if os.path.isdir(full_path):
+                                    print(f"{Colors.YELLOW}Skipping directory: {file_path_from_task}{Colors.ENDC}")
+                                    # Optionally, list directory contents if desired in future
+                                    # print(f"{Colors.BLUE}Contents of directory {file_path_from_task}:{Colors.ENDC}")
+                                    # for item in os.listdir(full_path):
+                                    #     print(f"  {item}")
+                                    continue
+                                with open(full_path, 'r') as f:
+                                    content = f.read()
+                                print(f"{Colors.CYAN}File: {file_path_from_task}{Colors.ENDC}")
+                                print(f"{Colors.BLUE}{'-'*20}{Colors.ENDC}")
+                                print(content.strip()) # .strip() to remove trailing newlines from print
+                                print(f"{Colors.BLUE}{'-'*20}{Colors.ENDC}")
+                                files_shown_count += 1
+                            except IOError as e:
+                                print(f"{Colors.RED}Error reading file {file_path_from_task}: {e}{Colors.ENDC}")
+                            except Exception as e:
+                                print(f"{Colors.RED}An unexpected error occurred while trying to show {file_path_from_task}: {e}{Colors.ENDC}")
+                        else:
+                            # Check if it was a setup file to show its intended content
+                            found_in_setup = False
+                            if task.setup_files:
+                                for setup_action in task.setup_files:
+                                    if setup_action.get("action") == "create_file" and setup_action.get("path") == file_path_from_task:
+                                        content = setup_action.get("content", "[No content defined in setup]")
+                                        print(f"{Colors.CYAN}File (from setup): {file_path_from_task}{Colors.ENDC}")
+                                        print(f"{Colors.BLUE}(Note: This file was expected to be created by the task setup but was not found on disk. Displaying intended content.){Colors.ENDC}")
+                                        print(f"{Colors.BLUE}{'-'*20}{Colors.ENDC}")
+                                        print(content.strip())
+                                        print(f"{Colors.BLUE}{'-'*20}{Colors.ENDC}")
+                                        files_shown_count += 1
+                                        found_in_setup = True
+                                        break
+                            if not found_in_setup:
+                                print(f"{Colors.YELLOW}File not found: {file_path_from_task} (at {full_path}){Colors.ENDC}")
+                    if files_shown_count == 0 and not relevant_files:
+                        print(f"{Colors.YELLOW}No specific files are listed as relevant for this task, or they could not be displayed.{Colors.ENDC}")
+                    elif files_shown_count == 0 and relevant_files: # Files were listed but none shown (e.g. all were dirs or not found)
+                         print(f"{Colors.YELLOW}Could not display any of the relevant files for this task.{Colors.ENDC}")
+                else:
+                    print(f"{Colors.YELLOW}No specific files are listed as relevant for this task.{Colors.ENDC}")
+                print(f"{Colors.HEADER}{Colors.BOLD}------------------------{Colors.ENDC}")
+                
+                current_task_attempts -=1 
+                if current_task_attempts < 0: current_task_attempts = 0
+                if session_stats["tasks_attempted"] > 0 and current_task_attempts == 0:
+                     session_stats["tasks_attempted"] -=1
+                # No need to increment session_stats["total_attempts_overall"] for 'show'
+                continue
             elif user_command_lower.startswith("man "):
                 man_command_parts = user_command.strip().split()
                 if len(man_command_parts) > 1:

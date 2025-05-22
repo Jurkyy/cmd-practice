@@ -1,0 +1,31 @@
+{
+    "id": "awk_sed_complex_transform_01",
+    "title": "Transform CSV Data with awk and sed",
+    "description": "From 'data/user_data.csv', select users who are older than 30. For these users, format their output as 'Name (USER_ID)', but replace any instance of the word 'Alice' with 'Alicia'. The initial data is comma-separated.",
+    "command_to_practice": "awk",
+    "example_solution": "awk -F, '$3 > 30 {print $1 \" (\" $2 \")\"}' data/user_data.csv | sed 's/Alice/Alicia/g'",
+    "difficulty": "hard",
+    "man_page_info": "awk: pattern scanning and processing language. sed: stream editor for filtering and transforming text. Use 'man awk' and 'man sed' for details. Remember awk uses $N for fields, and sed's substitute command is 's/old/new/g'.",
+    "setup_files": [
+        {
+            "action": "create_file",
+            "path": "data/user_data.csv",
+            "content": "Name,UserID,Age,City\nAlice Smith,AS001,25,New York\nBob Johnson,BJ002,35,Chicago\nCarol Williams,CW003,42,New York\nDavid Brown,DB004,28,Los Angeles\nAlice Wonder,AW005,31,Chicago"
+        }
+    ],
+    "input_details": {
+        "prompt_for_command": "Enter your awk and sed command chain:",
+        "working_directory": ".",
+        "required_files_for_task": [ "data/user_data.csv" ]
+    },
+    "evaluation": {
+        "method": "exact_match",
+        "expected_stdout": "Bob Johnson (BJ002)\nCarol Williams (CW003)\nAlicia Wonder (AW005)\n",
+        "expected_stderr": ""
+    },
+    "hints": [
+        "First, use awk to filter by age (field 3) and format the output. Example: awk -F, '$3 > 30 {print $1 \" (\" $2 \")\"}' data/user_data.csv",
+        "Then, pipe the output of awk to sed to replace 'Alice' with 'Alicia'. Example: awk_command | sed 's/Alice/Alicia/g'",
+        "Ensure your awk print statement correctly concatenates the name, a space, an opening parenthesis, the UserID, and a closing parenthesis."
+    ]
+}

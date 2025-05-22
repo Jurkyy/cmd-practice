@@ -1,0 +1,51 @@
+{
+    "id": "find_specific_files_sorted_02",
+    "title": "Find and Sort Specific Log Files by Size",
+    "description": "Find all files in the 'data/filesystem_medium' directory and its subdirectories that are larger than 10 bytes and have the '.log' extension. Output the results sorted alphabetically.",
+    "command_to_practice": "find",
+    "example_solution": "find data/filesystem_medium -type f -size +10c -name \"*.log\" | sort",
+    "difficulty": "medium",
+    "man_page_info": "find: search for files in a directory hierarchy. sort: sort lines of text files. Use 'man find' and 'man sort' for more details. Remember to escape wildcards like '*' in find's -name pattern if not using quotes, or use quotes: -name \"*.log\"",
+    "setup_files": [
+        {
+            "action": "create_file",
+            "path": "data/filesystem_medium/file1.txt",
+            "content": "Small text file."
+        },
+        {
+            "action": "create_file",
+            "path": "data/filesystem_medium/small.log",
+            "content": "tiny log"
+        },
+        {
+            "action": "create_file",
+            "path": "data/filesystem_medium/big_alpha.log",
+            "content": "This is a larger log file for testing alpha."
+        },
+        {
+            "action": "create_file",
+            "path": "data/filesystem_medium/sub_dir/another_large.log",
+            "content": "This is another large log file in a subdirectory."
+        },
+        {
+            "action": "create_file",
+            "path": "data/filesystem_medium/sub_dir/image.jpg",
+            "content": "This is an image file and is fairly large but not a log."
+        }
+    ],
+    "input_details": {
+        "prompt_for_command": "Enter your command to find and sort log files:",
+        "working_directory": ".",
+        "required_files_for_task": [ "data/filesystem_medium" ]
+    },
+    "evaluation": {
+        "method": "exact_match",
+        "expected_stdout": "data/filesystem_medium/big_alpha.log\ndata/filesystem_medium/sub_dir/another_large.log\n",
+        "expected_stderr": ""
+    },
+    "hints": [
+        "Use 'find <path> -type f -size +<size_in_bytes>c -name \"*.log\"' to find files.",
+        "The '+10c' in '-size +10c' means greater than 10 bytes.",
+        "Pipe the output of 'find' to 'sort' for alphabetical sorting: 'find_command | sort'."
+    ]
+}
