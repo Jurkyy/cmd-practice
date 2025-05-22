@@ -1,0 +1,10 @@
+README.md
+pyproject.toml
+src/evaluator.py
+src/main.py
+src/task_loader.py
+src/cmd_practice_tool.egg-info/PKG-INFO
+src/cmd_practice_tool.egg-info/SOURCES.txt
+src/cmd_practice_tool.egg-info/dependency_links.txt
+src/cmd_practice_tool.egg-info/entry_points.txt
+src/cmd_practice_tool.egg-info/top_level.txt

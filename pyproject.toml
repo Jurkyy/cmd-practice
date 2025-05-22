@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+backend-path = "." 
+
+[project]
+name = "cmd-practice-tool"
+version = "0.1.0"
+description = "An interactive command-line tool to practice shell commands."
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT License"} 
+authors = [
+  {name = "Wolfgang Leonard", email = "wolfbubberman@gmail.com"},
+]
+
+dependencies = [
+    # No external pypi packages seem to be explicitly imported in src/main.py
+    # 'readline' is a standard library module, often handled by Python itself
+    # or build environment. If specific readline bindings like 'gnureadline'
+    # were needed for some systems, they'd be listed here.
+    # For now, keeping this empty. Add dependencies as needed.
+]
+
+[project.scripts]
+cmd-practice = "src.main:run_practice_session"
+
+[tool.setuptools]
+# This line tells setuptools that 'src' is a package directory.
+packages = ["src"]
+
+[tool.uv]
+package = true # Explicitly tell uv to treat this as a package
+# uv specific configurations can go here if needed in the future 

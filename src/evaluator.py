@@ -1,7 +1,7 @@
 import subprocess
 import shlex
 import os
-from task_loader import Task # Assuming Task class is in task_loader.py
+from .task_loader import Task # Assuming Task class is in task_loader.py
 from typing import Tuple, List, Any
 
 def execute_command(command_str: str, working_directory: str = ".") -> Tuple[str, str, int]:

@@ -1,0 +1,127 @@
+# Command-Line Practice Tool
+
+## Overview
+
+This project is an interactive command-line tool designed to help users practice and improve their skills with various shell commands. Users are presented with tasks, and they can enter commands to solve them, receiving feedback, hints, and relevant "man page" information. The tool also tracks scores and supports different difficulty levels.
+
+## Features
+
+*   **Interactive Tasks**: Practice a variety of commands (e.g., `find`, `grep`, `awk`, `sed`, `ls`, `cut`, `rm`, `ping`, `head`, `tail`, `wc`, `uniq`, `sort`).
+*   **Difficulty Levels**: Tasks are categorized by difficulty (easy, medium, hard).
+*   **Hints**: Get hints if you're stuck on a task.
+*   **Man Page Info**: Access concise "man page" style information for commands using the `man <command>` feature.
+*   **Setup Files**: Tasks can automatically create necessary files and directory structures.
+*   **Input Autocompletion**: Basic autocompletion for commands and file paths.
+*   **Scoring & Highscores**: Tracks tasks attempted, solved, and solved on the first try. Saves highscores per user.
+*   **Centralized Man Pages**: Man page information is stored in `man_pages.json` for easy updates.
+*   **Extensible**: Easily add new tasks by creating JSON files in the `tasks/` directory.
+
+## Prerequisites
+
+*   Python (3.8 or newer recommended)
+*   [uv](https://github.com/astral-sh/uv): A fast Python package installer and resolver.
+*   [direnv](https://direnv.net/): An environment switcher for the shell.
+
+## Setup
+
+1.  **Clone the repository (if you haven't already):**
+    ```bash
+    git clone <your-repository-url>
+    cd <your-repository-name>
+    ```
+
+2.  **Set up the Python environment using `uv`:**
+    *   Create a virtual environment (if you haven't already):
+        ```bash
+        uv venv
+        ```
+    *   Install dependencies and the project itself. Your `pyproject.toml` is configured with a `build-system` and `tool.setuptools` to correctly package the `src` directory. `uv` will use `uv.lock` if it exists and is up-to-date with `pyproject.toml`. Otherwise, it resolves dependencies from `pyproject.toml` and updates `uv.lock`.
+        Ensure your `pyproject.toml` also has `[tool.uv] package = true` for `uv sync` to correctly install your project scripts.
+        ```bash
+        uv sync
+        ```
+    *   If you were previously using a `requirements.txt` file primarily, ensure your dependencies are now listed in `pyproject.toml` under the `[project.dependencies]` section for `uv sync` to pick them up correctly. If `requirements.txt` is still needed for some specific workflow, `uv pip install -r requirements.txt` can still be used after activating the venv.
+
+3.  **Enable `direnv`:**
+    Run the following command in the project's root directory (where the `.envrc` file is located):
+    ```bash
+    direnv allow
+    ```
+    This will automatically activate the Python virtual environment (created by `uv` in `.venv/`) whenever you `cd` into the project directory, thanks to the `.envrc` file:
+    ```
+    watch_file uv.lock
+    source .venv/bin/activate
+    ```
+
+## Running the Application
+
+Once the setup is complete and the virtual environment is active (either via `direnv` or manually sourcing `source .venv/bin/activate`):
+
+There are two main ways to run the application:
+
+1.  **Directly using the Python interpreter:**
+    ```bash
+    python src/main.py
+    ```
+
+2.  **Using the installed console script (recommended after setup):**
+    After running `uv sync` (and ensuring `[tool.uv] package = true` is in your `pyproject.toml`), the script defined in `pyproject.toml` (`cmd-practice`) should be available. You can then run:
+    ```bash
+    cmd-practice
+    ```
+    This is often more convenient and is the standard way to run applications packaged with `pyproject.toml`.
+
+    *Troubleshooting:* If `cmd-practice` is not found after `uv sync`:
+    *   Ensure `[tool.uv] package = true` is in your `pyproject.toml`.
+    *   Try explicitly installing the project in editable mode: `uv pip install -e .`
+    *   Make sure your virtual environment is active.
+    *   Check if the script is in your virtual environment's `bin` (or `Scripts` on Windows) directory (e.g., `.venv/bin/cmd-practice`).
+
+You will be greeted by the application and can start practicing commands.
+
+## Project Structure
+
+*   `src/main.py`: The main application script.
+*   `src/task_loader.py`: Handles loading task definitions from JSON files.
+*   `src/evaluator.py`: Responsible for evaluating the user's commands.
+*   `pyproject.toml`: Project metadata and dependency specifications (used by `uv`).
+*   `uv.lock`: Lockfile for Python dependencies managed by `uv`.
+*   `tasks/`: Contains JSON files, each defining a practice task.
+*   `man_pages.json`: Centralized storage for "man page" information used by the `man` command in the tool.
+*   `.envrc`: `direnv` configuration to auto-activate the virtual environment.
+*   `highscores.json`: Stores user highscores. (Generated on first run/save)
+
+## Adding New Tasks
+
+To add a new task:
+
+1.  Create a new JSON file in the `tasks/` directory (e.g., `tasks/my_new_task_01.json`).
+2.  Follow the structure of existing task files. Key fields include:
+    *   `id`: Unique identifier for the task.
+    *   `title`: Display title for the task.
+    *   `description`: What the user needs to achieve.
+    *   `command_to_practice`: The primary command this task focuses on (e.g., "grep").
+    *   `example_solution`: A correct command string.
+    *   `difficulty`: "easy", "medium", or "hard".
+    *   `setup_files` (optional): An array of objects to create files/directories needed for the task.
+        *   `action`: e.g., "create_file".
+        *   `path`: File path (can include subdirectories).
+        *   `content`: Content for the file.
+    *   `input_details`:
+        *   `prompt_for_command`: Custom prompt text.
+        *   `working_directory`: Directory where the command should be virtually executed.
+        *   `required_files_for_task` (optional): List of files relevant to the task, shown with the `show` command.
+    *   `evaluation`:
+        *   `method`: e.g., "exact_match", "contains_substring".
+        *   `expected_stdout`: Expected standard output.
+        *   `expected_stderr`: Expected standard error.
+        *   (Other evaluation-specific fields as needed).
+    *   `hints` (optional): An array of strings providing hints.
+
+3.  The `man_page_info` for the `command_to_practice` should be added/updated in the central `man_pages.json` file if not already present or if the existing information can be improved.
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit pull requests or open issues for bugs, feature requests, or new task ideas.
+
+--- 

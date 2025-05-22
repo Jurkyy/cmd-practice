@@ -1,5 +1,5 @@
-from task_loader import load_all_tasks, Task
-from evaluator import evaluate_command
+from .task_loader import load_all_tasks, Task
+from .evaluator import evaluate_command
 from typing import List, Dict
 import readline # For autocompletion
 import os
