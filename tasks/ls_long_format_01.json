@@ -1,0 +1,27 @@
+{
+    "id": "ls_long_format_01",
+    "title": "List items in long format",
+    "description": "List all files and directories in the current directory (your project root) in long format. The output will vary based on your system, so we will check for the presence of key files/directories.",
+    "command_to_practice": "ls",
+    "example_solution": "ls -l",
+    "setup_files": [ ],
+    "input_details": {
+        "prompt_for_command": "Enter the command to list directory contents in long format:",
+        "working_directory": ".",
+        "required_files_for_task": [ ]
+    },
+    "evaluation": {
+        "method": "contains_substring",
+        "expected_stdout_substrings": [
+            "documentation",
+            "tasks",
+            "src",
+            "data"
+        ],
+        "expected_stderr": ""
+    },
+    "hints": [
+        "The 'ls' command is used to list directory contents.",
+        "Look for an option that shows more details or a 'long' format."
+    ]
+}

@@ -1,0 +1,25 @@
+{
+    "id": "awk_extract_column_01",
+    "title": "Extract Names with awk",
+    "description": "From the file 'data/students.csv', extract and print only the second column (Name), excluding the header.",
+    "command_to_practice": "awk",
+    "example_solution": "awk -F, 'NR > 1 {print $2}' data/students.csv",
+    "setup_files": [
+        { "action": "create_file", "path": "data/students.csv", "content": "ID,Name,Score\n1,Alice,85\n2,Bob,92\n3,Charlie,78" }
+    ],
+    "input_details": {
+        "prompt_for_command": "Enter the awk command to extract names:",
+        "working_directory": ".",
+        "required_files_for_task": [ "data/students.csv" ]
+    },
+    "evaluation": {
+        "method": "exact_match",
+        "expected_stdout": "Alice\nBob\nCharlie",
+        "expected_stderr": ""
+    },
+    "hints": [
+        "Use '-F,' to set the field separator to a comma.",
+        "'NR > 1' can be used to skip the header row.",
+        "'{print $2}' will print the second field."
+    ]
+}

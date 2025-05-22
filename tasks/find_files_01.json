@@ -1,0 +1,22 @@
+{
+    "id": "find_files_01",
+    "title": "Find specific files",
+    "description": "Find all files named 'sample_doc.txt' within the 'data' directory and its subdirectories.",
+    "command_to_practice": "find",
+    "example_solution": "find data -name sample_doc.txt",
+    "setup_files": [ ],
+    "input_details": {
+        "prompt_for_command": "Enter the find command to locate 'sample_doc.txt' in the 'data' directory:",
+        "working_directory": ".",
+        "required_files_for_task": [ "data/sample_doc.txt", "data/subdir/sample_doc.txt" ]
+    },
+    "evaluation": {
+        "method": "exact_match",
+        "expected_stdout": "data/sample_doc.txt\ndata/subdir/sample_doc.txt",
+        "expected_stderr": ""
+    },
+    "hints": [
+        "Use the 'find' command. Specify the starting directory first.",
+        "The '-name' option is used to search for files by their name."
+    ]
+}
