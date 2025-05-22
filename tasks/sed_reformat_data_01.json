@@ -1,0 +1,32 @@
+{
+    "id": "sed_reformat_data_01",
+    "title": "Sed: Reformat Text Data",
+    "description": "You have a file 'user_profiles.txt' where each line contains user data in the format: 'UserID: [ID], Name: [Full Name], Email: [EmailAddress]'. Transform each line into '[Full Name] ([ID]) - [EmailAddress]'.",
+    "command_to_practice": "sed",
+    "example_solution": "sed -E 's/UserID: ([^,]+), Name: ([^,]+), Email: (.*)/\\2 (\\1) - \\3/' user_profiles.txt",
+    "difficulty": "hard",
+    "setup_files": [
+        {
+            "action": "create_file",
+            "path": "user_profiles.txt",
+            "content": "UserID: 001, Name: Alice Wonderland, Email: alice@example.com\nUserID: 002, Name: Bob The Builder, Email: bob@example.org\nUserID: 003, Name: Charles Xavier, Email: charles@school.edu"
+        }
+    ],
+    "input_details": {
+        "prompt_for_command": "Enter sed command: ",
+        "working_directory": ".",
+        "required_files_for_task": [ "user_profiles.txt" ]
+    },
+    "evaluation": {
+        "method": "exact_match",
+        "expected_stdout": "Alice Wonderland (001) - alice@example.com\nBob The Builder (002) - bob@example.org\nCharles Xavier (003) - charles@school.edu",
+        "expected_stderr": ""
+    },
+    "hints": [
+        "You will need to use `sed` with a substitution command `s/.../.../`.",
+        "Enable extended regular expressions with `-E` (or `-r` on some systems) for easier group capturing.",
+        "Capture the ID, Full Name, and Email using parentheses `(...)` in your regex.",
+        "Refer to the captured groups in the replacement string using `\\1`, `\\2`, `\\3`, etc.",
+        "Remember to match the literal text like 'UserID: ', ', Name: ', and ', Email: '. The `[^,]+` pattern can be useful for matching text up to the next comma."
+    ]
+}

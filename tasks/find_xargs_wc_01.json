@@ -1,0 +1,55 @@
+{
+    "id": "find_xargs_wc_01",
+    "title": "Find, Xargs, and Wc: Count Lines in Recently Modified Files",
+    "description": "In the 'project_files' directory and its subdirectories, find all Python files ('*.py') that have been modified in the last 1 day. Then, use 'xargs' to pass these files to 'wc -l' to count the total number of lines across all found files. The final output should be just the total line count.",
+    "command_to_practice": "find, xargs, wc",
+    "example_solution": "find project_files -name '*.py' -mtime -1 -print0 | xargs -0 wc -l | tail -n1 | awk '{print $1}'",
+    "difficulty": "medium",
+    "setup_files": [
+        {
+            "action": "create_directory",
+            "path": "project_files"
+        },
+        {
+            "action": "create_directory",
+            "path": "project_files/module_a"
+        },
+        {
+            "action": "create_file",
+            "path": "project_files/main.py",
+            "content": "# Main application file\nimport os\nsys.path.append('.')\nprint(\"Hello, World!\")\n# End of main"
+        },
+        {
+            "action": "create_file",
+            "path": "project_files/module_a/utils.py",
+            "content": "# Utility functions\ndef helper_function():\n  pass\n# Another line\n# And one more"
+        },
+        {
+            "action": "create_file",
+            "path": "project_files/old_script.py",
+            "content": "# This is an old script\nprint(\"legacy code\")",
+            "last_modified_days_ago": 2
+        },
+        {
+            "action": "create_file",
+            "path": "project_files/data.txt",
+            "content": "This is not a python file and should be ignored."
+        }
+    ],
+    "input_details": {
+        "prompt_for_command": "Enter command: ",
+        "working_directory": ".",
+        "required_files_for_task": [ "project_files" ]
+    },
+    "evaluation": {
+        "method": "exact_match",
+        "expected_stdout": "10",
+        "expected_stderr": ""
+    },
+    "hints": [
+        "Use `find <directory> -name '*.py' -mtime -1` to find Python files modified in the last day. The `-mtime -1` means less than 1 day (i.e., within the last 24 hours).",
+        "It is good practice to use `-print0` with `find` and `-0` with `xargs` to handle filenames with spaces or special characters.",
+        "`xargs wc -l` will run `wc -l` on the files found by `find`.",
+        "`wc -l` when run on multiple files will output individual counts and a 'total' line. You might need `tail -n1` to get only the total line, and then `awk '{print $1}'` to extract just the number from that line."
+    ]
+}

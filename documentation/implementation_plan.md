@@ -61,7 +61,7 @@ cmd-practice/
 *   A way to manually advance to the next task.
 *   Written in Python.
 
-## 5. Potential Enhancements (Post-MVP) - Phase 2+
+## 5. Potential Enhancements (Post-MVP) - Phase 2
 
 *   **Safety:** For commands like `rm`, implement a sandbox or dry-run mode.
 *   **More Tasks & Commands:** Expand to cover `find`, `rm` (with safety warnings!), `ping`, `awk`, `sed`, `wc`, `sort`, `uniq`, `head`, `tail`, etc.
@@ -97,3 +97,10 @@ cmd-practice/
     *   `json` (for task parsing)
     *   `subprocess` (for running commands)
     *   (No external libraries needed for MVP initially)
+
+## 8. Phase 3 (Successor to Phase 2)
+
+*   **Input Generation:** For some tasks, dynamically generate input files.
+*   **User Accounts:** If deployed or shared.
+*   **Interactive Mode:** Instead of one-shot commands, perhaps guide through multi-step processes.
+*   **Theming/UI:** If expanded beyond a very basic CLI.

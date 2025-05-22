@@ -1,5 +1,18 @@
+if __name__ == "__main__" and (__package__ is None or __package__ == ''):
+    import sys
+    import os
+    # Get the absolute path to the directory containing this file (src/)
+    current_file_dir = os.path.dirname(os.path.abspath(__file__))
+    # Get the absolute path to the parent directory (the project root)
+    project_root = os.path.dirname(current_file_dir)
+    # Add the project root to sys.path, so 'src' can be imported as a package
+    if project_root not in sys.path:
+        sys.path.insert(0, project_root)
+    # Set __package__ to tell Python that this module is part of the 'src' package
+    __package__ = "src"
+
 from .task_loader import load_all_tasks, Task
-from .evaluator import evaluate_command
+from .evaluator import evaluate_command, execute_command
 from typing import List, Dict
 import readline # For autocompletion
 import os

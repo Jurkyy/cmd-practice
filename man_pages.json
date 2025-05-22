@@ -1,15 +1,17 @@
 {
-    "find": "find: search for files in a directory hierarchy. sort: sort lines of text files. Use 'man find' and 'man sort' for more details. Remember to escape wildcards like '*' in find's -name pattern if not using quotes, or use quotes: -name \"*.log\"",
+    "find": "find: search for files in a directory hierarchy. Use 'man find' for more details. Key options: -name (find by name, e.g., '*.txt'), -mtime (find by modification time, e.g., -mtime -1 for <1 day), -exec (execute command, e.g., -exec rm {} \\;), -delete (delete found files). Use -print0 with xargs -0 for safety. Remember to escape wildcards like '*' or use quotes: -name \"*.log\"",
     "sort": "sort: sort lines of text files. Use 'man sort' for more details.",
-    "awk": "awk - pattern scanning and processing language.\nExample: awk [OPTIONS] 'program' [FILE...]\nKey concepts: -F (field separator), NR (record number), $N (Nth field). Use 'man awk' for more details. Also often used with sed (stream editor).",
-    "sed": "sed - stream editor for filtering and transforming text.\nExample: sed [OPTION]... 'script' [INPUTFILE...]\nKey commands: s (substitute, e.g., s/old/new/g). Use 'man sed' for details. Remember sed's substitute command is 's/old/new/g'.",
+    "awk": "awk - pattern scanning and processing language.\nExample: awk [OPTIONS] 'program' [FILE...]\nKey concepts: -F (field separator), $N (Nth field), NF (number of fields), NR (record number). Conditions (e.g., $1 == \"value\", $0 ~ /regex/), actions { print $0 }, BEGIN/END blocks. Loop through fields: for(i=1; i<=NF; i++) print $i. Use 'man awk' for more details.",
+    "sed": "sed - stream editor for filtering and transforming text.\nExample: sed [OPTION]... 'script' [INPUTFILE...]\nKey commands: s (substitute, e.g., s/old/new/g). Use -E or -r for extended regex. Capture groups (...) and backreferences (\\1, \\2) in replacement string. Use 'man sed' for details.",
     "head": "head: output the first part of files. Use 'man head' for details. Key option: -n (number of lines).",
     "tail": "tail: output the last part of files. Use 'man tail' for details. Key option: -n (number of lines).",
     "uniq": "uniq: report or omit repeated lines. By default, uniq filters adjacent matching lines. Use 'man uniq' for details. Key options: -c (count), -d (only print duplicate lines), -u (only print unique lines).",
     "wc": "wc: print newline, word, and byte counts for each file. Use 'man wc' for details. Key options: -l (lines), -w (words), -c (bytes), -m (characters).",
-    "ls": "ls - list directory contents.\nExample: ls [OPTION]... [FILE]...\nKey options: -l (long listing), -a (all files including hidden), -h (human readable sizes).",
+    "ls": "ls - list directory contents.\nExample: ls [OPTION]... [FILE]...\nKey options: -l (long listing), -a (all files including hidden), -h (human readable sizes), -t (sort by modification time), -r (reverse order for sorting).",
     "cut": "cut - remove sections from each line of files.\nExample: cut OPTION... [FILE]...\nKey options: -d (delimiter), -f (fields), -c (characters).",
-    "grep": "grep - searches for PATTERNS in each FILE.\nExample: grep [OPTIONS] PATTERN [FILE...].\nKey options: -i (ignore case), -v (invert match), -r (recursive), -n (line numbers).",
-    "rm": "rm - remove files or directories.\nExample: rm [OPTION]... FILE...\nKey options: -r (recursive for directories), -f (force, ignore nonexistent files). NOTE: In this tool, 'rm' runs in a safe dry-run mode!",
-    "ping": "ping - send ICMP ECHO_REQUEST to network hosts.\nExample: ping [OPTION]... HOST\nKey options (Linux): -c (count), -i (interval). For Windows, -n (count), -w (timeout)."
+    "grep": "grep - searches for PATTERNS in each FILE.\nExample: grep [OPTIONS] PATTERN [FILE...].\nKey options: -i (ignore case), -v (invert match), -r (recursive), -n (line numbers), -c (count matches), -C N (N lines of context).",
+    "rm": "rm - remove files or directories.\nExample: rm [OPTION]... FILE...\nKey options: -r (recursive for directories), -f (force, ignore nonexistent files). NOTE: In this tool, 'rm' runs in a safe dry-run mode unless used with find -delete!",
+    "ping": "ping - send ICMP ECHO_REQUEST to network hosts.\nExample: ping [OPTION]... HOST\nKey options (Linux): -c (count), -i (interval). For Windows, -n (count), -w (timeout).",
+    "mv": "mv - move (rename) files.\nExample: mv [OPTION]... SOURCE DESTINATION\nKey options: -i (interactive, prompt before overwrite), -u (update, move only when source is newer).",
+    "xargs": "xargs - build and execute command lines from standard input.\nExample: find . -print0 | xargs -0 rm\nKey options: -0 (null-terminated input, for use with find -print0), -I {} (replace occurrences of {} with input lines)."
 }

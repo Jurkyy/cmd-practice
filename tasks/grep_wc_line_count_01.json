@@ -1,0 +1,30 @@
+{
+    "id": "grep_wc_line_count_01",
+    "title": "Count Lines Matching a Pattern",
+    "description": "In the file `search_me.txt`, find all lines containing the word \"important\" (case-sensitive) and output only the count of such lines.",
+    "command_to_practice": "grep, wc",
+    "example_solution": "grep 'important' search_me.txt | wc -l",
+    "difficulty": "medium",
+    "setup_files": [
+        {
+            "action": "create_file",
+            "path": "search_me.txt",
+            "content": "This is a line.\nAnother line with important information.\nThis line is not so important.\nYet another line.\nAn important notice is here.\nFinal line, also important."
+        }
+    ],
+    "input_details": {
+        "prompt_for_command": "Enter command: ",
+        "working_directory": ".",
+        "required_files_for_task": [ "search_me.txt" ]
+    },
+    "evaluation": {
+        "method": "exact_match",
+        "expected_stdout": "3",
+        "expected_stderr": ""
+    },
+    "hints": [
+        "You'll need to pipe the output of `grep` to another command.",
+        "The `wc` command has an option to count lines. Check its man page (`man wc`).",
+        "Ensure your `grep` command is case-sensitive and looks for the exact word \"important\"."
+    ]
+}
