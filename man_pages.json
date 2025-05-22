@@ -1,0 +1,15 @@
+{
+    "find": "find: search for files in a directory hierarchy. sort: sort lines of text files. Use 'man find' and 'man sort' for more details. Remember to escape wildcards like '*' in find's -name pattern if not using quotes, or use quotes: -name \"*.log\"",
+    "sort": "sort: sort lines of text files. Use 'man sort' for more details.",
+    "awk": "awk - pattern scanning and processing language.\nExample: awk [OPTIONS] 'program' [FILE...]\nKey concepts: -F (field separator), NR (record number), $N (Nth field). Use 'man awk' for more details. Also often used with sed (stream editor).",
+    "sed": "sed - stream editor for filtering and transforming text.\nExample: sed [OPTION]... 'script' [INPUTFILE...]\nKey commands: s (substitute, e.g., s/old/new/g). Use 'man sed' for details. Remember sed's substitute command is 's/old/new/g'.",
+    "head": "head: output the first part of files. Use 'man head' for details. Key option: -n (number of lines).",
+    "tail": "tail: output the last part of files. Use 'man tail' for details. Key option: -n (number of lines).",
+    "uniq": "uniq: report or omit repeated lines. By default, uniq filters adjacent matching lines. Use 'man uniq' for details. Key options: -c (count), -d (only print duplicate lines), -u (only print unique lines).",
+    "wc": "wc: print newline, word, and byte counts for each file. Use 'man wc' for details. Key options: -l (lines), -w (words), -c (bytes), -m (characters).",
+    "ls": "ls - list directory contents.\nExample: ls [OPTION]... [FILE]...\nKey options: -l (long listing), -a (all files including hidden), -h (human readable sizes).",
+    "cut": "cut - remove sections from each line of files.\nExample: cut OPTION... [FILE]...\nKey options: -d (delimiter), -f (fields), -c (characters).",
+    "grep": "grep - searches for PATTERNS in each FILE.\nExample: grep [OPTIONS] PATTERN [FILE...].\nKey options: -i (ignore case), -v (invert match), -r (recursive), -n (line numbers).",
+    "rm": "rm - remove files or directories.\nExample: rm [OPTION]... FILE...\nKey options: -r (recursive for directories), -f (force, ignore nonexistent files). NOTE: In this tool, 'rm' runs in a safe dry-run mode!",
+    "ping": "ping - send ICMP ECHO_REQUEST to network hosts.\nExample: ping [OPTION]... HOST\nKey options (Linux): -c (count), -i (interval). For Windows, -n (count), -w (timeout)."
+}

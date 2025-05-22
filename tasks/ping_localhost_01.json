@@ -5,7 +5,6 @@
     "command_to_practice": "ping",
     "example_solution": "ping -c 3 127.0.0.1",
     "difficulty": "easy",
-    "man_page_info": "ping - send ICMP ECHO_REQUEST to network hosts.\nExample: ping [OPTION]... HOST\nKey options (Linux): -c (count), -i (interval). For Windows, -n (count), -w (timeout).",
     "setup_files": [ ],
     "input_details": {
         "prompt_for_command": "Enter the ping command:",

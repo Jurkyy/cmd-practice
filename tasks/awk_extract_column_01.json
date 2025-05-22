@@ -5,7 +5,6 @@
     "command_to_practice": "awk",
     "example_solution": "awk -F, 'NR > 1 {print $2}' data/students.csv",
     "difficulty": "medium",
-    "man_page_info": "awk - pattern scanning and processing language.\nExample: awk [OPTIONS] 'program' [FILE...]\nKey concepts: -F (field separator), NR (record number), $N (Nth field).",
     "setup_files": [
         { "action": "create_file", "path": "data/students.csv", "content": "ID,Name,Score\n1,Alice,85\n2,Bob,92\n3,Charlie,78" }
     ],

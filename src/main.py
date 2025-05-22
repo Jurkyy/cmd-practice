@@ -21,12 +21,31 @@ class Colors:
     CYAN = '\033[96m'   # For stdout/stderr distinctions
 
 # --- Autocompletion Setup ---
-COMMAND_KEYWORDS = ['hint', 'skip', 'quit', 'show']
+COMMAND_KEYWORDS = ['hint', 'skip', 'quit', 'show', 'help']
 PATH_EXECUTABLES: List[str] = [] # Type hint for clarity
 PATH_CACHE_FILE = ".path_executables_cache.json"
 CACHE_MAX_AGE_SECONDS = 24 * 60 * 60  # 1 day
 
 HIGHSCORE_FILE = "highscores.json"
+MAN_PAGES_FILE = "man_pages.json" # Added constant
+
+MAN_PAGES_DATA: Dict[str, str] = {} # Added global for man page data
+
+def load_man_pages():
+    """Loads man page information from the JSON file."""
+    global MAN_PAGES_DATA
+    if not os.path.exists(MAN_PAGES_FILE):
+        print(f"{Colors.RED}Man pages file '{MAN_PAGES_FILE}' not found.{Colors.ENDC}")
+        MAN_PAGES_DATA = {}
+        return
+
+    try:
+        with open(MAN_PAGES_FILE, 'r') as f:
+            MAN_PAGES_DATA = json.load(f)
+        # print(f"{Colors.YELLOW}Man pages loaded successfully.{Colors.ENDC}") # Optional: for debugging
+    except (json.JSONDecodeError, IOError) as e:
+        print(f"{Colors.RED}Error loading man pages: {e}. Man command might not work as expected.{Colors.ENDC}")
+        MAN_PAGES_DATA = {}
 
 def load_highscores() -> Dict[str, int]:
     """Loads highscores from the JSON file."""
@@ -121,6 +140,7 @@ def update_path_executables():
 
 # Call once at the start
 update_path_executables()
+load_man_pages() # Call to load man pages
 
 CURRENT_TASK_WORKING_DIR = "."
 
@@ -387,11 +407,11 @@ def run_practice_session():
         display_task(task)
 
         while True: # Inner loop for retrying the current task
-            prompt_text = task.input_details.get("prompt_for_command", "Enter your command:")
+            prompt_text = task.input_details.get("prompt_for_command", "Enter your command")
             if current_task_attempts == 0: # First attempt for this task
-                user_command = input(f"\n{Colors.YELLOW}{prompt_text}{Colors.ENDC}\n{Colors.YELLOW}(Type 'hint', 'skip', 'quit', or 'man <command>'){Colors.ENDC}\n> ")
+                user_command = input(f"\n{Colors.YELLOW}{prompt_text} (or type 'help'):{Colors.ENDC}\n> ")
             else: # Subsequent attempts
-                user_command = input(f"\n{Colors.YELLOW}Try again or type 'hint', 'skip', 'quit', or 'man <command>':{Colors.ENDC}\n> ")
+                user_command = input(f"\n{Colors.YELLOW}Try again (or type 'help'):{Colors.ENDC}\n> ")
 
             if current_task_attempts == 0: # First actual command submitted for this task
                 session_stats["tasks_attempted"] +=1
@@ -487,31 +507,26 @@ def run_practice_session():
                      session_stats["tasks_attempted"] -=1
                 # No need to increment session_stats["total_attempts_overall"] for 'show'
                 continue
+            elif user_command_lower == 'help':
+                print(f"\n{Colors.HEADER}{Colors.BOLD}--- Available Commands ---{Colors.ENDC}")
+                print(f"{Colors.CYAN}help{Colors.ENDC}                - Show this help message.")
+                print(f"{Colors.CYAN}hint{Colors.ENDC}                - Get a hint for the current task.")
+                print(f"{Colors.CYAN}show{Colors.ENDC}                - Show relevant files for the current task.")
+                print(f"{Colors.CYAN}man <command_name>{Colors.ENDC}  - Show manual page info for a specific command.")
+                print(f"{Colors.CYAN}skip{Colors.ENDC}                - Skip the current task.")
+                print(f"{Colors.CYAN}quit{Colors.ENDC}                - Exit the practice tool.")
+                print(f"{Colors.HEADER}{Colors.BOLD}------------------------{Colors.ENDC}")
+                current_task_attempts -=1 
+                if current_task_attempts < 0: current_task_attempts = 0
+                if session_stats["tasks_attempted"] > 0 and current_task_attempts == 0:
+                     session_stats["tasks_attempted"] -=1
+                continue
             elif user_command_lower.startswith("man "):
-                man_command_parts = user_command.strip().split()
-                if len(man_command_parts) > 1:
-                    command_to_lookup = man_command_parts[1]
-                    if command_to_lookup == task.command_to_practice and task.man_page_info:
-                        print(f"\n{Colors.CYAN}{Colors.BOLD}--- Man Page Info for '{command_to_lookup}' ---{Colors.ENDC}")
-                        print(f"{Colors.YELLOW}{task.man_page_info}{Colors.ENDC}")
-                        print(f"{Colors.CYAN}{Colors.BOLD}------------------------------------{Colors.ENDC}")
-                    elif command_to_lookup == task.command_to_practice and not task.man_page_info:
-                        print(f"{Colors.YELLOW}No specific man page info available for '{command_to_lookup}' for this task.{Colors.ENDC}")
-                    else:
-                        # Check all loaded tasks for man page info for the requested command
-                        found_man_info = None
-                        for t in all_tasks: # all_tasks is available from the outer scope
-                            if t.command_to_practice == command_to_lookup and t.man_page_info:
-                                found_man_info = t.man_page_info
-                                break
-                        if found_man_info:
-                            print(f"\n{Colors.CYAN}{Colors.BOLD}--- Man Page Info for '{command_to_lookup}' (General) ---{Colors.ENDC}")
-                            print(f"{Colors.YELLOW}{found_man_info}{Colors.ENDC}")
-                            print(f"{Colors.CYAN}{Colors.BOLD}-------------------------------------------{Colors.ENDC}")
-                        else:
-                            print(f"{Colors.YELLOW}No man page info found for '{command_to_lookup}' in the current task or general task list. Try 'man <command_name_of_current_task>'.{Colors.ENDC}")
+                command_name = user_command.split(" ", 1)[1].strip()
+                if command_name in MAN_PAGES_DATA:
+                    print(f"\n{Colors.GREEN}{MAN_PAGES_DATA[command_name]}{Colors.ENDC}")
                 else:
-                    print(f"{Colors.YELLOW}Usage: man <command_name>{Colors.ENDC}")
+                    print(f"{Colors.YELLOW}No man page info found for '{command_name}'. Try \'man {command_name}\' in your actual terminal.{Colors.ENDC}")
                 current_task_attempts -=1
                 if current_task_attempts < 0: current_task_attempts = 0 # Ensure not negative
                 if session_stats["tasks_attempted"] > 0 and current_task_attempts == 0: # if it was the first action and now it's not an attempt

@@ -5,7 +5,6 @@
     "command_to_practice": "rm",
     "example_solution": "rm data/to_be_deleted.txt",
     "difficulty": "easy",
-    "man_page_info": "rm - remove files or directories.\nExample: rm [OPTION]... FILE...\nKey options: -r (recursive for directories), -f (force, ignore nonexistent files). NOTE: In this tool, 'rm' runs in a safe dry-run mode!",
     "setup_files": [
         { "action": "create_file", "path": "data/to_be_deleted.txt", "content": "This is a temporary file for the rm dry-run task." }
     ],

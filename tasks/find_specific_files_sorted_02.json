@@ -5,7 +5,6 @@
     "command_to_practice": "find",
     "example_solution": "find data/filesystem_medium -type f -size +10c -name \"*.log\" | sort",
     "difficulty": "medium",
-    "man_page_info": "find: search for files in a directory hierarchy. sort: sort lines of text files. Use 'man find' and 'man sort' for more details. Remember to escape wildcards like '*' in find's -name pattern if not using quotes, or use quotes: -name \"*.log\"",
     "setup_files": [
         {
             "action": "create_file",

@@ -5,7 +5,6 @@
     "command_to_practice": "awk",
     "example_solution": "awk -F, '$3 > 30 {print $1 \" (\" $2 \")\"}' data/user_data.csv | sed 's/Alice/Alicia/g'",
     "difficulty": "hard",
-    "man_page_info": "awk: pattern scanning and processing language. sed: stream editor for filtering and transforming text. Use 'man awk' and 'man sed' for details. Remember awk uses $N for fields, and sed's substitute command is 's/old/new/g'.",
     "setup_files": [
         {
             "action": "create_file",
