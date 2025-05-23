@@ -1,3 +1,4 @@
 .path_executables_cache.json
 .venv/
 **/__pycache__/
+cmd_practice_tool.egg-info/
