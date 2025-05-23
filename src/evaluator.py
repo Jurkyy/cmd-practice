@@ -1,9 +1,9 @@
 import subprocess
 import shlex
 import os
-import glob # Added for glob expansion
-import shutil # Added for rmtree in tests
-from .task_loader import Task # Assuming Task class is in task_loader.py
+import shutil 
+import re 
+from .task_loader import Task 
 from typing import Tuple, List, Any
 
 # If Task is only needed for evaluate_command tests, MockTask can be self-contained for execute_command tests.
@@ -60,11 +60,30 @@ def evaluate_command(user_command: str, task: Task) -> Tuple[bool, str, str]:
         task.input_details.get("working_directory", ".")
     )
 
-    # For some tasks, a non-zero return code might be acceptable or even expected.
-    # For now, we assume 0 is success unless evaluation handles it differently.
-    # if return_code != 0 and not actual_stderr: # if command failed but no stderr, put a generic one
-    #    if not actual_stderr:
-    #        actual_stderr = f"Command returned non-zero exit code: {return_code}"
+    command_structure_ok = True
+    command_checks = task.evaluation.get("check_command_contains")
+    if command_checks and isinstance(command_checks, list): # Ensure it's a list
+        for check_item in command_checks:
+            if not isinstance(check_item, dict): # Ensure item is a dict
+                continue
+            substring = check_item.get("substring")
+            is_optional = check_item.get("optional", False)
+            use_regex = check_item.get("is_regex", False)
+
+            if not substring: # Skip if substring is not defined
+                continue
+
+            found = False
+            if use_regex:
+                if re.search(substring, user_command):
+                    found = True
+            else:
+                if substring in user_command:
+                    found = True
+            
+            if not found and not is_optional:
+                command_structure_ok = False
+                break
 
     eval_method = task.evaluation.get("method")
     expected_stdout = task.evaluation.get("expected_stdout", "")
@@ -72,47 +91,121 @@ def evaluate_command(user_command: str, task: Task) -> Tuple[bool, str, str]:
     if isinstance(expected_stdout, str):
         expected_stdout = expected_stdout.replace('\\n', '\n').strip()
 
-    is_correct = False
+    is_correct = False # Initialize is_correct
 
     if eval_method == "exact_match":
         # For exact match, we usually expect no errors and specific stdout
+        exact_match_output_conditions_met = False
         if return_code == 0 and actual_stdout == expected_stdout and not actual_stderr:
-            is_correct = True
+            exact_match_output_conditions_met = True
         # Allow for tasks that expect specific stderr
         elif return_code !=0 and task.evaluation.get("expected_stderr") and actual_stderr == task.evaluation.get("expected_stderr") and actual_stdout == expected_stdout:
-             is_correct = True
+             exact_match_output_conditions_met = True
         elif return_code == 0 and actual_stdout == expected_stdout and task.evaluation.get("allow_stderr_if_stdout_matches", False):
+            exact_match_output_conditions_met = True
+        
+        if exact_match_output_conditions_met and command_structure_ok: # Combine with command structure check
             is_correct = True
-
 
     elif eval_method == "contains_substring":
         # For contains_substring, we primarily check stdout. Stderr might be ignored or checked separately.
+        contains_substring_output_conditions_met = False
         if return_code == 0: # Usually expect success for this
-            expected_substrings: List[str] = task.evaluation.get("expected_stdout_substrings", [])
-            all_substrings_found = True
-            for sub in expected_substrings:
-                if sub not in actual_stdout:
-                    all_substrings_found = False
-                    break
-            if all_substrings_found and not expected_substrings: # If no substrings, but command success, it's correct.
-                 is_correct = True if not expected_substrings else False 
-            elif all_substrings_found and expected_substrings:
-                is_correct = True
+            expected_stdout_substrings: List[str] = task.evaluation.get("expected_stdout_substrings", [])
+            
+            if not expected_stdout_substrings: # If no output substrings to check, command success is enough for this part
+                contains_substring_output_conditions_met = True
+            else:
+                all_output_substrings_found = True
+                for sub in expected_stdout_substrings:
+                    if sub not in actual_stdout:
+                        all_output_substrings_found = False
+                        break
+                if all_output_substrings_found: # This implies expected_stdout_substrings is not empty
+                    contains_substring_output_conditions_met = True
+            
+        if contains_substring_output_conditions_met and command_structure_ok: # Combine with command structure check
+            is_correct = True
     
+    elif eval_method == "complex_script_evaluation": # NEW EVALUATION METHOD
+        filesystem_conditions_met = False # Assume false until proven true
+        stdout_condition_met = False
+        stderr_condition_met = False
+
+        # 1. Filesystem check
+        eval_config = task.evaluation
+        fs_check_config = eval_config.get("check_destination_dir_contents")
+        
+        if fs_check_config and isinstance(fs_check_config, dict):
+            working_dir = task.input_details.get("working_directory", ".")
+            # For this task, the target directory to check is 'data/destination_dir'
+            # This could be generalized by adding a "target_dir" field to fs_check_config in the JSON
+            target_dir_name = "data/destination_dir" # Specific to current task structure
+            full_target_dir_path = os.path.join(working_dir, target_dir_name)
+
+            if not os.path.isdir(full_target_dir_path):
+                print(f"Evaluator: Target directory for checks '{full_target_dir_path}' does not exist.")
+                filesystem_conditions_met = False
+            else:
+                actual_files_in_target_dir = os.listdir(full_target_dir_path)
+                
+                expected_files_ok = True
+                expected_file_paths = fs_check_config.get("expected_files", [])
+                if not expected_file_paths: # If empty, it's trivially true for this part
+                    pass
+                else:
+                    for item_path in expected_file_paths:
+                        basename_to_check = os.path.basename(item_path)
+                        if basename_to_check not in actual_files_in_target_dir:
+                            expected_files_ok = False
+                            # print(f"Evaluator: Expected file '{basename_to_check}' not found in '{full_target_dir_path}'.")
+                            break
+                
+                unexpected_files_ok = True
+                if expected_files_ok: # Only proceed if expected files were okay
+                    unexpected_file_paths = fs_check_config.get("unexpected_files", [])
+                    if not unexpected_file_paths: # If empty, it's trivially true
+                        pass
+                    else:
+                        for item_path in unexpected_file_paths:
+                            basename_to_check = os.path.basename(item_path)
+                            if basename_to_check in actual_files_in_target_dir:
+                                unexpected_files_ok = False
+                                # print(f"Evaluator: Unexpected file '{basename_to_check}' found in '{full_target_dir_path}'.")
+                                break
+                
+                if expected_files_ok and unexpected_files_ok:
+                    filesystem_conditions_met = True
+        else:
+            # If no fs_check_config, consider it passing this condition, or decide if it should be mandatory
+            filesystem_conditions_met = True # Or False if this check is mandatory for this method
+
+        # 2. Stdout check (using regex pattern)
+        expected_stdout_pattern = eval_config.get("expected_stdout_pattern", "")
+        if expected_stdout_pattern:
+            # Using re.MULTILINE if pattern is expected to span multiple lines, which is common for ls output.
+            # Using re.DOTALL if '.' should match newlines, but usually not needed for line-based patterns.
+            if re.search(expected_stdout_pattern, actual_stdout, re.MULTILINE):
+                stdout_condition_met = True
+        elif not actual_stdout: # If no pattern and no stdout, it's a match for stdout.
+            stdout_condition_met = True
+
+
+        # 3. Stderr check
+        expected_stderr = eval_config.get("expected_stderr", "")
+        if actual_stderr == expected_stderr:
+            stderr_condition_met = True
+
+        # 4. Final correctness
+        if command_structure_ok and filesystem_conditions_met and stdout_condition_met and stderr_condition_met:
+            is_correct = True
+
     # Add more evaluation methods here as needed (e.g., regex_match, script_check)
     # For script_check, you might run another script that takes user_stdout and returns true/false
 
     return is_correct, actual_stdout, actual_stderr
 
 if __name__ == '__main__':
-    # import sys
-    # import os
-    # current_dir = os.path.dirname(os.path.abspath(__file__))
-    # parent_dir = os.path.dirname(current_dir)
-    # if parent_dir not in sys.path:
-    # sys.path.insert(0, parent_dir)
-    # from src.task_loader import Task # This was for the __main__ block
-
     # Basic test for execute_command
     print("Testing execute_command...")
     stdout, stderr, retcode = execute_command("echo Hello World")

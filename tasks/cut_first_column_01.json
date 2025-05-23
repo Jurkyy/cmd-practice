@@ -14,7 +14,10 @@
     "evaluation": {
         "method": "exact_match",
         "expected_stdout": "apple\nbanana\norange\ngrape\nkiwi",
-        "expected_stderr": ""
+        "expected_stderr": "",
+        "check_command_contains": [
+            { "substring": "data/words_and_numbers.csv" }
+        ]
     },
     "hints": [
         "The 'cut' command is used to remove sections from each line of files.",

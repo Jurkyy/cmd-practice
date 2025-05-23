@@ -38,11 +38,18 @@
     "evaluation": {
         "method": "complex_script_evaluation",
         "check_destination_dir_contents": {
-            "expected_files": [ "data/app.log", "data/server.log" ],
-            "unexpected_files": [ "data/data.txt" ]
+            "expected_files": [ "data/destination_dir/app.log", "data/destination_dir/server.log" ],
+            "unexpected_files": [ "data/destination_dir/data.txt" ]
         },
         "expected_stdout_pattern": "total .*\\n.* app\\.log\\n.* server\\.log",
-        "expected_stderr": ""
+        "expected_stderr": "",
+        "check_command_contains": [
+            { "substring": "find" },
+            { "substring": "data/source_dir" },
+            { "substring": "*.log" },
+            { "substring": "mv" },
+            { "substring": "data/destination_dir" }
+        ]
     },
     "hints": [
         "Use `find` to locate files. The `-name` option is useful for matching filenames, and `-exec` can run a command on found files.",

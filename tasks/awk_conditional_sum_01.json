@@ -20,7 +20,12 @@
     "evaluation": {
         "method": "exact_match",
         "expected_stdout": "9650",
-        "expected_stderr": ""
+        "expected_stderr": "",
+        "check_command_contains": [
+            { "substring": "awk" },
+            { "substring": "data/sales_data.csv" },
+            { "substring": "Electronics" }
+        ]
     },
     "hints": [
         "Use `awk` with the `-F','` option to set the field separator to a comma.",

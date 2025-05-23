@@ -20,7 +20,12 @@
     "evaluation": {
         "method": "exact_match",
         "expected_stdout": "2023-10-22T09:15:30 :: Database connection failed - timeout\n2023-10-22T14:22:05 :: Null pointer exception in module UserAuth",
-        "expected_stderr": ""
+        "expected_stderr": "",
+        "check_command_contains": [
+            { "substring": "awk" },
+            { "substring": "sed" },
+            { "substring": "data/server.log" }
+        ]
     },
     "hints": [
         "In `awk`, you can combine conditions using `&&`. Use `$0 ~ /pattern/` to check if the whole line contains a pattern, and `$1 ~ /^2023-10-22/` to check if the first field starts with the date.",

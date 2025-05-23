@@ -14,7 +14,12 @@
     "evaluation": {
         "method": "exact_match",
         "expected_stdout": "data/sample_doc.txt\ndata/subdir/sample_doc.txt",
-        "expected_stderr": ""
+        "expected_stderr": "",
+        "check_command_contains": [
+            { "substring": "find" },
+            { "substring": "data" },
+            { "substring": "sample_doc.txt" }
+        ]
     },
     "hints": [
         "Use the 'find' command. Specify the starting directory first.",

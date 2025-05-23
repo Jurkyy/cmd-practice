@@ -44,7 +44,15 @@
     "evaluation": {
         "method": "exact_match",
         "expected_stdout": "9",
-        "expected_stderr": ""
+        "expected_stderr": "",
+        "check_command_contains": [
+            { "substring": "find" },
+            { "substring": "data/project_files" },
+            { "substring": "*.py" },
+            { "substring": "mtime" },
+            { "substring": "xargs" },
+            { "substring": "wc" }
+        ]
     },
     "hints": [
         "Use `find <directory> -name '*.py' -mtime -1` to find Python files modified in the last day. The `-mtime -1` means less than 1 day (i.e., within the last 24 hours).",

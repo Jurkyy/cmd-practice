@@ -16,7 +16,11 @@
     "evaluation": {
         "method": "exact_match",
         "expected_stdout": "",
-        "expected_stderr": ""
+        "expected_stderr": "",
+        "check_command_contains": [
+            { "substring": "rm" },
+            { "substring": "data/to_be_deleted.txt" }
+        ]
     },
     "hints": [
         "Use the 'rm' command followed by the path to the file.",

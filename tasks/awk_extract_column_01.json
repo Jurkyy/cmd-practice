@@ -16,7 +16,12 @@
     "evaluation": {
         "method": "exact_match",
         "expected_stdout": "Alice\nBob\nCharlie",
-        "expected_stderr": ""
+        "expected_stderr": "",
+        "check_command_contains": [
+            { "substring": "awk" },
+            { "substring": "data/students.csv" },
+            { "substring": "Name", "optional": true }
+        ]
     },
     "hints": [
         "Use '-F,' to set the field separator to a comma.",
