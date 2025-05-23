@@ -8,7 +8,7 @@
     "setup_files": [ ],
     "input_details": {
         "prompt_for_command": "Enter the ping command:",
-        "working_directory": "."
+        "working_directory": "data"
     },
     "evaluation": {
         "method": "contains_substring",
@@ -18,11 +18,17 @@
             "0% packet loss"
         ],
         "expected_stderr": "",
-        "allow_stderr_if_stdout_matches": true
+        "allow_stderr_if_stdout_matches": true,
+        "check_command_contains": [
+            { "substring": "ping" },
+            { "substring": "127.0.0.1" },
+            { "substring": "-c 3", "optional": true, "is_regex": false },
+            { "substring": "-n 3", "optional": true, "is_regex": false }
+        ]
     },
     "hints": [
-        "Use the '-c' option to specify the count of pings.",
+        "Use the '-c' option (for Linux/macOS) or '-n' (for Windows) to specify the count of pings.",
         "'localhost' is usually '127.0.0.1'.",
-        "The command might vary slightly based on your OS (e.g. for Windows, it is -n instead of -c). For this exercise, assume a Linux-like environment where -c is used."
+        "The evaluation will check for common ping output patterns for 3 successful pings to 127.0.0.1. For this exercise, assume a Linux-like environment where -c is primarily expected but -n might also pass if output is similar."
     ]
 }

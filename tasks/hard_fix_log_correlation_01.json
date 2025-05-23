@@ -1,0 +1,42 @@
+{
+    "id": "hard_fix_log_correlation_01",
+    "title": "Correlate FIX Execution Reports for Fills",
+    "description": "Analyze a FIX message log (`fix_messages.log`) where fields are delimited by `|`, to find all filled (partial: `39=1` or full: `39=2`) Execution Reports (`35=8`) for `ClOrdID` 'XYZ123'. Extract the `OrderID` (Tag 37) and `ExecID` (Tag 17) for each. Present the results as 'OrderID=<value>, ExecID=<value>' lines, sorted alphabetically by `ExecID`.",
+    "command_to_practice": "grep, awk, sort",
+    "difficulty": "hard",
+    "setup_files": [
+        {
+            "action": "create_file",
+            "path": "fix_messages.log",
+            "content": "8=FIX.4.2|9=120|35=D|49=SENDER|56=TARGET|34=1|52=20230101-10:00:00.000|11=XYZ123|21=1|38=100|40=2|54=1|55=AAPL|60=20230101-10:00:00.000|10=010|\n8=FIX.4.2|9=150|35=8|49=TARGET|56=SENDER|34=1|52=20230101-10:00:01.000|11=XYZ123|17=EXEC100|37=ORDER500|39=0|150=0|55=AAPL|6=150.00|14=0|10=011|\n8=FIX.4.2|9=160|35=8|49=TARGET|56=SENDER|34=2|52=20230101-10:00:02.000|11=XYZ123|17=EXEC101|37=ORDER500|39=1|150=1|55=AAPL|6=150.00|14=50|31=150.00|32=50|10=012|\n8=FIX.4.2|9=120|35=D|49=SENDER|56=TARGET|34=2|52=20230101-10:00:03.000|11=ABC789|21=1|38=200|40=1|54=2|55=GOOG|60=20230101-10:00:03.000|10=013|\n8=FIX.4.2|9=160|35=8|49=TARGET|56=SENDER|34=3|52=20230101-10:00:04.000|11=XYZ123|17=EXEC103|37=ORDER500|39=2|150=2|55=AAPL|6=150.00|14=50|31=150.00|32=50|10=014|\n8=FIX.4.2|9=150|35=8|49=TARGET|56=SENDER|34=4|52=20230101-10:00:05.000|11=DEF456|17=EXEC200|37=ORDER600|39=2|150=2|55=MSFT|6=100.00|14=100|10=015|\n8=FIX.4.2|9=160|35=8|49=TARGET|56=SENDER|34=5|52=20230101-10:00:06.000|11=XYZ123|17=EXEC102|37=ORDER500|39=1|150=1|55=AAPL|6=150.00|14=30|31=150.00|32=30|10=016|"
+        }
+    ],
+    "input_details": {
+        "prompt_for_command": "Enter command to analyze 'fix_messages.log':",
+        "working_directory": "data",
+        "required_files_for_task": [ "fix_messages.log" ]
+    },
+    "evaluation": {
+        "method": "exact_match",
+        "expected_stdout": "OrderID=ORDER500, ExecID=EXEC101\nOrderID=ORDER500, ExecID=EXEC102\nOrderID=ORDER500, ExecID=EXEC103",
+        "expected_stderr": "",
+        "check_command_contains": [
+            { "substring": "awk", "optional": false },
+            { "substring": "sort", "optional": false },
+            { "substring": "XYZ123", "optional": false, "is_regex": false },
+            { "substring": "35=8", "optional": true, "is_regex": false },
+            { "substring": "39=", "optional": true, "is_regex": false }
+        ]
+    },
+    "example_solution": "cat fix_messages.log | grep '35=8' | grep '11=XYZ123' | grep -E '39=1|39=2' | awk -F'|' '{OFS=\", \"; orderID=\"\"; execID=\"\"; for(i=1;i<=NF;i++){split($i,a,\"=\"); if(a[1]==\"37\") orderID=a[2]; if(a[1]==\"17\") execID=a[2];} if(orderID!=\"\" && execID!=\"\") print \"OrderID=\"orderID, \"ExecID=\"execID;}' | sort -t',' -k2",
+    "hints": [
+        "The log file 'fix_messages.log' uses '|' as a field delimiter.",
+        "Execution Reports (MsgType, tag 35) are identified by '35=8'.",
+        "You need to filter for a specific client order ID (ClOrdID, tag 11): 'XYZ123'.",
+        "Order status (OrdStatus, tag 39) should be '1' (Partial Fill) or '2' (Full Fill).",
+        "Extract OrderID (tag 37) and ExecID (tag 17).",
+        "The final output format for each match should be 'OrderID=<value>, ExecID=<value>'.",
+        "Results must be sorted alphabetically by ExecID.",
+        "Consider using a pipeline of commands: `grep` and/or `awk` for filtering and data extraction, then `sort` for ordering."
+    ]
+}

@@ -1,17 +1,17 @@
 {
     "id": "awk_extract_column_01",
     "title": "Extract Names with awk",
-    "description": "From the file 'data/students.csv', extract and print only the second column (Name), excluding the header.",
+    "description": "From the file 'students.csv', extract and print only the second column (Name), excluding the header.",
     "command_to_practice": "awk",
-    "example_solution": "awk -F, 'NR > 1 {print $2}' data/students.csv",
+    "example_solution": "awk -F, 'NR > 1 {print $2}' students.csv",
     "difficulty": "medium",
     "setup_files": [
-        { "action": "create_file", "path": "data/students.csv", "content": "ID,Name,Score\n1,Alice,85\n2,Bob,92\n3,Charlie,78" }
+        { "action": "create_file", "path": "students.csv", "content": "ID,Name,Score\n1,Alice,85\n2,Bob,92\n3,Charlie,78" }
     ],
     "input_details": {
-        "prompt_for_command": "Enter the awk command to extract names:",
-        "working_directory": ".",
-        "required_files_for_task": [ "data/students.csv" ]
+        "prompt_for_command": "Enter the awk command to extract names from students.csv:",
+        "working_directory": "data",
+        "required_files_for_task": [ "students.csv" ]
     },
     "evaluation": {
         "method": "exact_match",
@@ -19,12 +19,12 @@
         "expected_stderr": "",
         "check_command_contains": [
             { "substring": "awk" },
-            { "substring": "data/students.csv" },
+            { "substring": "students.csv" },
             { "substring": "Name", "optional": true }
         ]
     },
     "hints": [
-        "Use '-F,' to set the field separator to a comma.",
+        "Use '-F,' to set the field separator to a comma for 'students.csv'.",
         "'NR > 1' can be used to skip the header row.",
         "'{print $2}' will print the second field."
     ]

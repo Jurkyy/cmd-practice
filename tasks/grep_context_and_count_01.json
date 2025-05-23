@@ -1,37 +1,38 @@
 {
     "id": "grep_context_and_count_01",
     "title": "Grep: Find with Context and Count",
-    "description": "In the file `data/system.log`, find all occurrences of the phrase \"CRITICAL_ERROR\" (case-sensitive). First, display these lines along with 2 lines of context before and after each match. Then, as a separate command or part of a piped command, output only the total count of lines containing \"CRITICAL_ERROR\". The final output should just be the count.",
+    "description": "In the file `system.log`, find all occurrences of the phrase \"CRITICAL_ERROR\" (case-sensitive). First, display these lines along with 2 lines of context before and after each match (this part is for your exploration, not for the evaluated command). Then, as a separate command or part of a piped command, output only the total count of lines containing \"CRITICAL_ERROR\". The final output should just be the count.",
     "command_to_practice": "grep, wc",
-    "example_solution": "grep -c 'CRITICAL_ERROR' data/system.log",
+    "example_solution": "grep -c 'CRITICAL_ERROR' system.log",
     "difficulty": "medium",
     "setup_files": [
         {
             "action": "create_file",
-            "path": "data/system.log",
+            "path": "system.log",
             "content": "INFO: System startup sequence initiated.\nDEBUG: Module A loading.\nINFO: Module A loaded successfully.\nWARNING: Low disk space detected on /var.\nCRITICAL_ERROR: Failed to connect to database server 10.0.0.5.\nINFO: Retrying connection to database...\nDEBUG: Connection attempt 2.\nERROR: User authentication failed.\nINFO: System running normally.\nCRITICAL_ERROR: Core service unresponsive. Service name: AuthSvc.\nWARNING: High memory usage by process PID 1234.\nINFO: Shutting down subsystem B.\nDEBUG: Subsystem B shutdown complete.\nCRITICAL_ERROR: Unhandled exception in PaymentGateway. Attempting to restart.\nINFO: PaymentGateway restart successful."
         }
     ],
     "input_details": {
-        "prompt_for_command": "Enter command(s) (for the count as final output): ",
-        "working_directory": ".",
-        "required_files_for_task": [ "data/system.log" ]
+        "prompt_for_command": "Enter command for system.log (final output should be count): ",
+        "working_directory": "data",
+        "required_files_for_task": [ "system.log" ]
     },
     "evaluation": {
         "method": "exact_match",
         "expected_stdout": "3",
         "expected_stderr": "",
         "check_command_contains": [
+            { "substring": "grep" },
             { "substring": "CRITICAL_ERROR" },
-            { "substring": "data/system.log" },
+            { "substring": "system.log" },
             { "substring": "-c", "is_regex": false, "optional": true },
             { "substring": "wc -l", "is_regex": false, "optional": true }
         ]
     },
     "hints": [
-        "Use `grep -C <num>` to show context lines. For this task, you are asked to first display it, but the evaluated command should just output the count.",
-        "To get the count of matching lines with `grep`, you can use the `-c` option.",
-        "Alternatively, you can pipe the output of a `grep` (that finds the lines) to `wc -l` to count the lines.",
+        "Use `grep -C <num>` to show context lines (e.g., `grep -C 2 'CRITICAL_ERROR' system.log`). For this task, you are asked to *conceptually* do this first, but the evaluated command should just output the count.",
+        "To get the count of matching lines with `grep` from 'system.log', you can use the `-c` option.",
+        "Alternatively, you can pipe the output of a `grep` (that finds the lines in 'system.log') to `wc -l` to count the lines.",
         "The problem asks for the final output to be just the count. Your submitted command should produce only the count."
     ]
 }

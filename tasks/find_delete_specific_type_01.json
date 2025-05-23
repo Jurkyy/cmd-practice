@@ -1,62 +1,68 @@
 {
     "id": "find_delete_specific_type_01",
     "title": "Find and Delete Specific File Types",
-    "description": "In the 'temp_files' directory and its subdirectories, find all files with the '.tmp' extension and delete them. After deletion, list the contents of 'temp_files' to confirm they are gone. The final output should be the listing of 'temp_files' after deletion.",
+    "description": "In the 'temp_files' directory (which is inside 'data') and its subdirectories, find all files with the '.tmp' extension and delete them. After deletion, list the contents of 'temp_files' to confirm they are gone. The final output should be the listing of 'temp_files' after deletion.",
     "command_to_practice": "find, rm, ls",
     "example_solution": "find temp_files -name '*.tmp' -delete && ls temp_files",
     "difficulty": "medium",
     "setup_files": [
         {
             "action": "create_directory",
-            "path": "data/temp_files"
+            "path": "temp_files"
         },
         {
             "action": "create_directory",
-            "path": "data/temp_files/subdir"
+            "path": "temp_files/subdir"
         },
         {
             "action": "create_file",
-            "path": "data/temp_files/file1.txt",
+            "path": "temp_files/file1.txt",
             "content": "Important data"
         },
         {
             "action": "create_file",
-            "path": "data/temp_files/cache.tmp",
+            "path": "temp_files/cache.tmp",
             "content": "Temporary cache data"
         },
         {
             "action": "create_file",
-            "path": "data/temp_files/subdir/another.tmp",
+            "path": "temp_files/subdir/another.tmp",
             "content": "More temp stuff"
         },
         {
             "action": "create_file",
-            "path": "data/temp_files/subdir/config.ini",
+            "path": "temp_files/subdir/config.ini",
             "content": "Config settings"
         }
     ],
     "input_details": {
-        "prompt_for_command": "Enter command(s): ",
-        "working_directory": ".",
-        "required_files_for_task": [ "data/temp_files" ]
+        "prompt_for_command": "Enter command(s) for temp_files directory: ",
+        "working_directory": "data",
+        "required_files_for_task": [ "temp_files" ]
     },
     "evaluation": {
-        "method": "exact_match",
-        "expected_stdout": "file1.txt\nsubdir",
+        "method": "complex_script_evaluation",
+        "check_destination_dir_contents": {
+            "target_check_directory": "temp_files",
+            "expected_files": [ "file1.txt", "subdir/config.ini" ],
+            "unexpected_files": [ "cache.tmp", "subdir/another.tmp" ]
+        },
+        "expected_stdout_pattern": "(file1.txt\\nsubdir|subdir\\nfile1.txt)",
         "expected_stderr": "",
         "check_command_contains": [
             { "substring": "find" },
-            { "substring": "data/temp_files" },
+            { "substring": "temp_files" },
             { "substring": "*.tmp" },
             { "substring": "-delete", "optional": true, "is_regex": false },
             { "substring": "rm", "optional": true, "is_regex": false }
         ]
     },
     "hints": [
-        "Use `find <directory> -name '*.tmp'` to locate the temporary files.",
+        "Use `find temp_files -name '*.tmp'` to locate the temporary files within the 'temp_files' directory.",
         "`find` has a `-delete` action to remove found files directly. This is often safer than using `-exec rm {} \\;`.",
-        "If you use `-exec rm`, remember that `rm` in this tool is a safe dry-run. For actual deletion as per the problem, `find -delete` is preferred if the tool doesn't override `rm` for find.",
+        "If you use `-exec rm`, remember that `rm` in this tool is a safe dry-run. For actual deletion as per the problem, `find -delete` is preferred.",
         "After the deletion command, use `ls temp_files` to list the remaining contents.",
-        "Chain the find/delete command and the ls command using `&&`."
+        "Chain the find/delete command and the ls command using `&&`.",
+        "The evaluation will check the contents of 'temp_files' after your command."
     ]
 }

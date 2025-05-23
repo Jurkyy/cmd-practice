@@ -1,48 +1,53 @@
 {
     "id": "ls_sorted_reverse_01",
     "title": "List Files Sorted in Reverse",
-    "description": "In the directory 'data/my_docs', list all visible files and directories, sorted alphabetically in reverse order. Display only the names.",
+    "description": "In the directory 'my_docs', list all visible files and directories, sorted alphabetically in reverse order. Display only the names.",
     "command_to_practice": "ls",
-    "example_solution": "ls -r data/my_docs",
+    "example_solution": "ls -r my_docs",
     "difficulty": "easy",
     "setup_files": [
         {
             "action": "create_directory",
-            "path": "data/my_docs"
+            "path": "my_docs"
         },
         {
             "action": "create_file",
-            "path": "data/my_docs/report.txt",
+            "path": "my_docs/report.txt",
             "content": "This is a report."
         },
         {
             "action": "create_file",
-            "path": "data/my_docs/alpha.doc",
+            "path": "my_docs/alpha.doc",
             "content": "Document A."
         },
         {
             "action": "create_file",
-            "path": "data/my_docs/zeta_config.conf",
+            "path": "my_docs/zeta_config.conf",
             "content": "Configuration Z."
         },
         {
             "action": "create_file",
-            "path": "data/my_docs/beta_notes.md",
+            "path": "my_docs/beta_notes.md",
             "content": "Notes B."
         }
     ],
     "input_details": {
-        "prompt_for_command": "Enter ls command: ",
-        "working_directory": ".",
-        "required_files_for_task": [ "data/my_docs" ]
+        "prompt_for_command": "Enter ls command for my_docs directory: ",
+        "working_directory": "data",
+        "required_files_for_task": [ "my_docs" ]
     },
     "evaluation": {
         "method": "exact_match",
         "expected_stdout": "zeta_config.conf\nreport.txt\nbeta_notes.md\nalpha.doc",
-        "expected_stderr": ""
+        "expected_stderr": "",
+        "check_command_contains": [
+            { "substring": "ls" },
+            { "substring": "-r" },
+            { "substring": "my_docs" }
+        ]
     },
     "hints": [
-        "The `ls` command is used to list directory contents.",
+        "The `ls` command is used to list directory contents of 'my_docs'.",
         "Check the man page for `ls` (`man ls`) to find an option for reverse sorting.",
         "By default, `ls` sorts alphabetically. You just need to reverse that order."
     ]

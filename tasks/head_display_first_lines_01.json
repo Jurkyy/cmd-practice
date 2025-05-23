@@ -1,28 +1,35 @@
 {
     "id": "head_display_first_lines_01",
     "title": "Display First Few Lines",
-    "description": "Display the first 3 lines of the file 'data/sample1.txt'.",
+    "description": "Display the first 3 lines of the file 'sample1.txt'.",
     "command_to_practice": "head",
-    "example_solution": "head -n 3 data/sample1.txt",
+    "example_solution": "head -n 3 sample1.txt",
     "difficulty": "easy",
-    "hints": [
-        "The 'head' command is used to output the first part of files.",
-        "Use the '-n' option to specify the number of lines.",
-        "The command is 'head -n 3 data/sample1.txt'"
-    ],
     "input_details": {
-        "working_directory": ".",
-        "required_files_for_task": [ "data/sample1.txt" ]
+        "prompt_for_command": "Enter command to display first 3 lines of sample1.txt:",
+        "working_directory": "data",
+        "required_files_for_task": [ "sample1.txt" ]
     },
     "evaluation": {
         "method": "exact_match",
-        "expected_stdout": "apple\nbanana\norange\n"
+        "expected_stdout": "apple\nbanana\norange",
+        "expected_stderr": "",
+        "check_command_contains": [
+            { "substring": "head" },
+            { "substring": "-n 3" },
+            { "substring": "sample1.txt" }
+        ]
     },
     "setup_files": [
         {
             "action": "create_file",
-            "path": "data/sample1.txt",
-            "content": "apple\nbanana\norange\ngrape\npineapple\nstrawberry\nblueberry\nraspberry\nblackberry\nkiwi\n"
+            "path": "sample1.txt",
+            "content": "apple\nbanana\norange\ngrape\npineapple\nstrawberry\nblueberry\nraspberry\nblackberry\nkiwi"
         }
+    ],
+    "hints": [
+        "The 'head' command is used to output the first part of files (e.g. 'sample1.txt').",
+        "Use the '-n' option to specify the number of lines.",
+        "The command is 'head -n 3 sample1.txt'"
     ]
 }

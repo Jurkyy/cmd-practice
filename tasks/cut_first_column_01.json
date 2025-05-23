@@ -1,27 +1,33 @@
 {
     "id": "cut_first_column_01",
     "title": "Extract first column (words)",
-    "description": "From the file 'data/words_and_numbers.csv', extract only the first column (the words). The delimiter is a comma.",
+    "description": "From the file 'words_and_numbers.csv', extract only the first column (the words). The delimiter is a comma.",
     "command_to_practice": "cut",
-    "example_solution": "cut -d',' -f1 data/words_and_numbers.csv",
+    "example_solution": "cut -d',' -f1 words_and_numbers.csv",
     "difficulty": "easy",
-    "setup_files": [ ],
+    "setup_files": [
+        {
+            "action": "create_file",
+            "path": "words_and_numbers.csv",
+            "content": "apple,10\nbanana,20\norange,30\ngrape,40\nkiwi,50"
+        }
+    ],
     "input_details": {
-        "prompt_for_command": "Enter the cut command to extract the first column:",
-        "working_directory": ".",
-        "required_files_for_task": [ "data/words_and_numbers.csv" ]
+        "prompt_for_command": "Enter the cut command to extract the first column from words_and_numbers.csv:",
+        "working_directory": "data",
+        "required_files_for_task": [ "words_and_numbers.csv" ]
     },
     "evaluation": {
         "method": "exact_match",
         "expected_stdout": "apple\nbanana\norange\ngrape\nkiwi",
         "expected_stderr": "",
         "check_command_contains": [
-            { "substring": "data/words_and_numbers.csv" }
+            { "substring": "words_and_numbers.csv" }
         ]
     },
     "hints": [
         "The 'cut' command is used to remove sections from each line of files.",
-        "You'll need to specify the delimiter (character separating columns) and the field number to extract.",
+        "You'll need to specify the delimiter (character separating columns) and the field number to extract from 'words_and_numbers.csv'.",
         "Use '-d' for delimiter and '-f' for field."
     ]
 }

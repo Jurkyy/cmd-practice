@@ -1,49 +1,64 @@
 {
     "id": "find_specific_files_sorted_02",
     "title": "Find and Sort Specific Log Files by Size",
-    "description": "Find all files in the 'data/filesystem_medium' directory and its subdirectories that are larger than 10 bytes and have the '.log' extension. Output the results sorted alphabetically.",
-    "command_to_practice": "find",
-    "example_solution": "find data/filesystem_medium -type f -size +10c -name \"*.log\" | sort",
+    "description": "Find all files in the 'filesystem_medium' directory and its subdirectories that are larger than 10 bytes and have the '.log' extension. Output the results sorted alphabetically.",
+    "command_to_practice": "find, sort",
+    "example_solution": "find filesystem_medium -type f -size +10c -name \"*.log\" | sort",
     "difficulty": "medium",
     "setup_files": [
         {
+            "action": "create_directory",
+            "path": "filesystem_medium"
+        },
+        {
+            "action": "create_directory",
+            "path": "filesystem_medium/sub_dir"
+        },
+        {
             "action": "create_file",
-            "path": "data/filesystem_medium/file1.txt",
+            "path": "filesystem_medium/file1.txt",
             "content": "Small text file."
         },
         {
             "action": "create_file",
-            "path": "data/filesystem_medium/small.log",
+            "path": "filesystem_medium/small.log",
             "content": "tiny log"
         },
         {
             "action": "create_file",
-            "path": "data/filesystem_medium/big_alpha.log",
+            "path": "filesystem_medium/big_alpha.log",
             "content": "This is a larger log file for testing alpha."
         },
         {
             "action": "create_file",
-            "path": "data/filesystem_medium/sub_dir/another_large.log",
+            "path": "filesystem_medium/sub_dir/another_large.log",
             "content": "This is another large log file in a subdirectory."
         },
         {
             "action": "create_file",
-            "path": "data/filesystem_medium/sub_dir/image.jpg",
+            "path": "filesystem_medium/sub_dir/image.jpg",
             "content": "This is an image file and is fairly large but not a log."
         }
     ],
     "input_details": {
-        "prompt_for_command": "Enter your command to find and sort log files:",
-        "working_directory": ".",
-        "required_files_for_task": [ "data/filesystem_medium" ]
+        "prompt_for_command": "Enter your command to find and sort log files in filesystem_medium:",
+        "working_directory": "data",
+        "required_files_for_task": [ "filesystem_medium" ]
     },
     "evaluation": {
         "method": "exact_match",
-        "expected_stdout": "data/filesystem_medium/big_alpha.log\ndata/filesystem_medium/sub_dir/another_large.log\n",
-        "expected_stderr": ""
+        "expected_stdout": "filesystem_medium/big_alpha.log\nfilesystem_medium/sub_dir/another_large.log",
+        "expected_stderr": "",
+        "check_command_contains": [
+            { "substring": "find" },
+            { "substring": "filesystem_medium" },
+            { "substring": "-size +10c" },
+            { "substring": "*.log" },
+            { "substring": "sort" }
+        ]
     },
     "hints": [
-        "Use 'find <path> -type f -size +<size_in_bytes>c -name \"*.log\"' to find files.",
+        "Use 'find filesystem_medium -type f -size +<size_in_bytes>c -name \"*.log\"' to find files.",
         "The '+10c' in '-size +10c' means greater than 10 bytes.",
         "Pipe the output of 'find' to 'sort' for alphabetical sorting: 'find_command | sort'."
     ]

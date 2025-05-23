@@ -1,28 +1,42 @@
 {
     "id": "ls_long_format_01",
     "title": "List files in long format",
-    "description": "List all files and directories in the 'data/' directory using the long format, showing details like permissions, owner, size, and modification date.",
+    "description": "List all files and directories in the current directory (which is the 'data' directory for this task) using the long format, showing details like permissions, owner, size, and modification date.",
     "command_to_practice": "ls",
-    "example_solution": "ls -l data/",
+    "example_solution": "ls -l",
     "difficulty": "easy",
-    "setup_files": [ ],
+    "setup_files": [
+        {
+            "action": "create_file",
+            "path": "test_file_for_ls.txt",
+            "content": "Example for ls long format."
+        },
+        {
+            "action": "create_directory",
+            "path": "test_subdir_for_ls"
+        }
+    ],
     "input_details": {
-        "prompt_for_command": "Enter the command to list directory contents in long format:",
-        "working_directory": ".",
-        "required_files_for_task": [ ]
+        "prompt_for_command": "Enter the command to list current directory contents in long format:",
+        "working_directory": "data",
+        "required_files_for_task": [ "test_file_for_ls.txt", "test_subdir_for_ls" ]
     },
     "evaluation": {
         "method": "contains_substring",
         "expected_stdout_substrings": [
-            "words_and_numbers",
-            "sample",
-            "students",
-            "to_be_deleted"
+            "test_file_for_ls.txt",
+            "test_subdir_for_ls",
+            "drwx"
         ],
-        "expected_stderr": ""
+        "expected_stderr": "",
+        "check_command_contains": [
+            { "substring": "ls" },
+            { "substring": "-l" }
+        ]
     },
     "hints": [
         "The 'ls' command is used to list directory contents.",
-        "Look for an option that shows more details or a 'long' format."
+        "Look for an option that shows more details or a 'long' format (e.g., -l).",
+        "The command will operate on the current directory, which is 'data'."
     ]
 }

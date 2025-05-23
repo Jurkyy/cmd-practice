@@ -1,21 +1,21 @@
 {
     "id": "awk_conditional_sum_01",
     "title": "Awk: Sum Values Based on Condition",
-    "description": "Given a CSV file named 'data/sales_data.csv' with columns 'Product,Category,Quantity,Price', calculate the total revenue (Quantity * Price) for all products in the 'Electronics' category. Output only the final sum.",
+    "description": "Given a CSV file named 'sales_data.csv' with columns 'Product,Category,Quantity,Price', calculate the total revenue (Quantity * Price) for all products in the 'Electronics' category. Output only the final sum.",
     "command_to_practice": "awk",
-    "example_solution": "awk -F',' '$2 == \"Electronics\" { sum += $3 * $4 } END { print sum }' data/sales_data.csv",
+    "example_solution": "awk -F',' '$2 == \"Electronics\" { sum += $3 * $4 } END { print sum }' sales_data.csv",
     "difficulty": "hard",
     "setup_files": [
         {
             "action": "create_file",
-            "path": "data/sales_data.csv",
+            "path": "sales_data.csv",
             "content": "Product,Category,Quantity,Price\nLaptop,Electronics,5,1200\nMouse,Electronics,20,25\nKeyboard,Electronics,10,75\nBook,Books,50,15\nPen,Stationery,100,2\nDesk,Furniture,2,150\nMonitor,Electronics,8,300"
         }
     ],
     "input_details": {
-        "prompt_for_command": "Enter awk command: ",
-        "working_directory": ".",
-        "required_files_for_task": [ "data/sales_data.csv" ]
+        "prompt_for_command": "Enter awk command for sales_data.csv: ",
+        "working_directory": "data",
+        "required_files_for_task": [ "sales_data.csv" ]
     },
     "evaluation": {
         "method": "exact_match",
@@ -23,13 +23,13 @@
         "expected_stderr": "",
         "check_command_contains": [
             { "substring": "awk" },
-            { "substring": "data/sales_data.csv" },
+            { "substring": "sales_data.csv" },
             { "substring": "Electronics" }
         ]
     },
     "hints": [
-        "Use `awk` with the `-F','` option to set the field separator to a comma.",
-        "You need a condition to check if the second field (`$2`) is \"Electronics\".",
+        "Use `awk` with the `-F','` option to set the field separator to a comma for 'sales_data.csv'.",
+        "You need a condition to check if the second field (`$2`) is \"Electronics\". Remember to escape quotes in the awk script: `\"Electronics\"`.",
         "Inside the condition block, calculate `Quantity * Price` (e.g., `$3 * $4`) and add it to a running sum variable.",
         "Use the `END` block in `awk` to print the final sum after processing all lines."
     ]

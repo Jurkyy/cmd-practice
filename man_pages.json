@@ -1,6 +1,6 @@
 {
     "find": "find: search for files in a directory hierarchy. Use 'man find' for more details. Key options: -name (find by name, e.g., '*.txt'), -mtime (find by modification time, e.g., -mtime -1 for <1 day), -exec (execute command, e.g., -exec rm {} \\;), -delete (delete found files). Use -print0 with xargs -0 for safety. Remember to escape wildcards like '*' or use quotes: -name \"*.log\"",
-    "sort": "sort: sort lines of text files. Use 'man sort' for more details.",
+    "sort": "sort: sort lines of text files. Key options: -t (field separator, e.g., -t','), -k (key definition, e.g., -k1,2 for sorting on first to second field, -k2 for second field). Use 'man sort' for more details.",
     "awk": "awk - pattern scanning and processing language.\nExample: awk [OPTIONS] 'program' [FILE...]\nKey concepts: -F (field separator), $N (Nth field), NF (number of fields), NR (record number). Conditions (e.g., $1 == \"value\", $0 ~ /regex/), actions { print $0 }, BEGIN/END blocks. Loop through fields: for(i=1; i<=NF; i++) print $i. Use 'man awk' for more details.",
     "sed": "sed - stream editor for filtering and transforming text.\nExample: sed [OPTION]... 'script' [INPUTFILE...]\nKey commands: s (substitute, e.g., s/old/new/g). Use -E or -r for extended regex. Capture groups (...) and backreferences (\\1, \\2) in replacement string. Use 'man sed' for details.",
     "head": "head: output the first part of files. Use 'man head' for details. Key option: -n (number of lines).",

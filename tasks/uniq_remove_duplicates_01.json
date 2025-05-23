@@ -1,27 +1,33 @@
 {
     "id": "uniq_remove_duplicates_01",
     "title": "Remove Duplicate Adjacent Lines",
-    "description": "From the file 'data/duplicates.txt', remove adjacent duplicate lines. Note: 'uniq' only works on sorted data for global uniqueness, but for this task, assume adjacent duplicates are the target.",
+    "description": "From the file 'duplicates.txt', remove adjacent duplicate lines. Note: 'uniq' only works on sorted data for global uniqueness, but for this task, assume adjacent duplicates are the target.",
     "command_to_practice": "uniq",
-    "example_solution": "uniq data/duplicates.txt",
+    "example_solution": "uniq duplicates.txt",
     "difficulty": "medium",
-    "hints": [
-        "The 'uniq' command filters out repeated lines if they are adjacent.",
-        "The command is 'uniq data/duplicates.txt'"
-    ],
     "input_details": {
-        "working_directory": ".",
-        "required_files_for_task": [ "data/duplicates.txt" ]
+        "prompt_for_command": "Enter command to process duplicates.txt:",
+        "working_directory": "data",
+        "required_files_for_task": [ "duplicates.txt" ]
     },
     "evaluation": {
         "method": "exact_match",
-        "expected_stdout": "apple\nbanana\napple\norange\nbanana\n"
+        "expected_stdout": "apple\nbanana\napple\norange\nbanana",
+        "expected_stderr": "",
+        "check_command_contains": [
+            { "substring": "uniq" },
+            { "substring": "duplicates.txt" }
+        ]
     },
     "setup_files": [
         {
             "action": "create_file",
-            "path": "data/duplicates.txt",
-            "content": "apple\napple\nbanana\napple\norange\norange\norange\nbanana\n"
+            "path": "duplicates.txt",
+            "content": "apple\napple\nbanana\napple\norange\norange\norange\nbanana"
         }
+    ],
+    "hints": [
+        "The 'uniq' command filters out repeated lines if they are adjacent. Target file is 'duplicates.txt'.",
+        "The command is 'uniq duplicates.txt'"
     ]
 }

@@ -1,27 +1,34 @@
 {
     "id": "wc_count_lines_01",
     "title": "Count Lines in a File",
-    "description": "Use the 'wc' command to count the number of lines in the file 'data/sample1.txt'.",
+    "description": "Use the 'wc' command to count the number of lines in the file 'sample1.txt'. The output should be the line count followed by the filename.",
     "command_to_practice": "wc",
-    "example_solution": "wc -l data/sample1.txt",
+    "example_solution": "wc -l sample1.txt",
     "difficulty": "easy",
-    "hints": [
-        "Remember the option for 'wc' that specifically counts lines.",
-        "The command should be 'wc -l data/sample1.txt'"
-    ],
     "input_details": {
-        "working_directory": ".",
-        "required_files_for_task": [ "data/sample1.txt" ]
+        "prompt_for_command": "Enter command to count lines in sample1.txt:",
+        "working_directory": "data",
+        "required_files_for_task": [ "sample1.txt" ]
     },
     "evaluation": {
         "method": "exact_match",
-        "expected_stdout": "10 data/sample1.txt\n"
+        "expected_stdout": "10 sample1.txt",
+        "expected_stderr": "",
+        "check_command_contains": [
+            { "substring": "wc" },
+            { "substring": "-l" },
+            { "substring": "sample1.txt" }
+        ]
     },
     "setup_files": [
         {
             "action": "create_file",
-            "path": "data/sample1.txt",
-            "content": "apple\nbanana\norange\ngrape\npineapple\nstrawberry\nblueberry\nraspberry\nblackberry\nkiwi\n"
+            "path": "sample1.txt",
+            "content": "apple\nbanana\norange\ngrape\npineapple\nstrawberry\nblueberry\nraspberry\nblackberry\nkiwi"
         }
+    ],
+    "hints": [
+        "Remember the option for 'wc' that specifically counts lines. Target file is 'sample1.txt'.",
+        "The command should be 'wc -l sample1.txt'. The output format is typically 'count filename'."
     ]
 }

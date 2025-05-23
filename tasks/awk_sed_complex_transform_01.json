@@ -1,21 +1,21 @@
 {
     "id": "awk_sed_complex_transform_01",
     "title": "Awk & Sed: Filter and Reformat Logs",
-    "description": "You are given a log file 'data/server.log'. First, use 'awk' to extract lines that contain the word \"ERROR\" and also have a date stamp starting with \"2023-10-22\". From these filtered lines, awk should output only the timestamp (1st field) and the message part (everything from the 4th field onwards). Then, pipe this output to 'sed' to reformat each line from '<timestamp> ERROR: <message>' to '<timestamp> :: <message>'.",
+    "description": "You are given a log file 'server.log'. First, use 'awk' to extract lines that contain the word \"ERROR:\" (field 3) and also have a date stamp (field 1) of \"2023-10-22\". From these filtered lines, awk should output the date (field 1), the time (field 2), and the message part (everything from the 4th field onwards), separated by spaces. Then, pipe this output to 'sed' to reformat each line from '<date> <time> <message>' to '<date>T<time> :: <message>'.",
     "command_to_practice": "awk, sed",
-    "example_solution": "awk '$0 ~ /ERROR/ && $1 ~ /^2023-10-22/ { msg=\"\"; for(i=4; i<=NF; i++) msg=(msg == \"\" ? \"\" : msg \" \") $i; print $1, msg }' data/server.log | sed -E 's/([^ ]+) ERROR: (.*)/\\1 :: \\2/'",
+    "example_solution": "awk '$1 == \"2023-10-22\" && $3 == \"ERROR:\" { msg=$4; for(i=5; i<=NF; i++) msg=msg \" \" $i; print $1, $2, msg }' server.log | sed -E 's/([^ ]+) ([^ ]+) (.*)/\\1T\\2 :: \\3/'",
     "difficulty": "hard",
     "setup_files": [
         {
             "action": "create_file",
-            "path": "data/server.log",
+            "path": "server.log",
             "content": "2023-10-21 08:00:00 INFO: System startup\n2023-10-22 09:05:10 WARNING: Low disk space\n2023-10-22 09:15:30 ERROR: Database connection failed - timeout\n2023-10-22 10:00:00 INFO: User 'admin' logged in\n2023-10-23 11:00:00 ERROR: Service 'payments' unresponsive\n2023-10-22 14:22:05 ERROR: Null pointer exception in module UserAuth\n2023-10-22 15:00:00 INFO: Backup completed"
         }
     ],
     "input_details": {
-        "prompt_for_command": "Enter awk and sed command: ",
-        "working_directory": ".",
-        "required_files_for_task": [ "data/server.log" ]
+        "prompt_for_command": "Enter awk and sed command for server.log: ",
+        "working_directory": "data",
+        "required_files_for_task": [ "server.log" ]
     },
     "evaluation": {
         "method": "exact_match",
@@ -24,15 +24,14 @@
         "check_command_contains": [
             { "substring": "awk" },
             { "substring": "sed" },
-            { "substring": "data/server.log" }
+            { "substring": "server.log" }
         ]
     },
     "hints": [
-        "In `awk`, you can combine conditions using `&&`. Use `$0 ~ /pattern/` to check if the whole line contains a pattern, and `$1 ~ /^2023-10-22/` to check if the first field starts with the date.",
-        "To get fields from the 4th to the end in `awk`, you might need a loop: `for(i=4; i<=NF; i++) msg=(msg == \"\" ? \"\" : msg \" \") $i; print $1, msg`.",
+        "In `awk`, filter lines where field 1 is \"2023-10-22\" and field 3 is \"ERROR:\".",
+        "In `awk`, construct the message starting with field 4. For subsequent fields (5 to NF), prepend a space. Print field 1, field 2, and the constructed message, space-separated.",
         "Pipe the output of `awk` to `sed`.",
         "In `sed`, use a substitution command `s/old/new/`. Use `-E` for extended regex.",
-        "Capture the timestamp and the message after \"ERROR: \" using parentheses in `sed`. Then use backreferences like `\\1` and `\\2` in the replacement part.",
-        "The log timestamps have a space (e.g., '2023-10-22 09:15:30'), but the expected output has a 'T' ('2023-10-22T09:15:30'). Your `awk` and `sed` combination should handle this, or the example solution/evaluation needs adjustment if the 'T' is a strict requirement not achievable by only reformatting the awk output."
+        "Capture the date, time, and the rest of the message using parentheses in `sed`. Format to '<date>T<time> :: <message>' using backreferences like `\\\\1`, `\\\\2`, `\\\\3` (escaped for JSON)."
     ]
 }

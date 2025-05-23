@@ -1,29 +1,34 @@
 {
     "id": "rm_safe_delete_01",
     "title": "Remove a file",
-    "description": "Use the rm command to remove the file 'data/to_be_deleted.txt'. The file will be deleted.",
+    "description": "Use the rm command to remove the file 'to_be_deleted.txt'. The file will be deleted.",
     "command_to_practice": "rm",
-    "example_solution": "rm data/to_be_deleted.txt",
+    "example_solution": "rm to_be_deleted.txt",
     "difficulty": "easy",
     "setup_files": [
-        { "action": "create_file", "path": "data/to_be_deleted.txt", "content": "This is a temporary file for the rm task." }
+        { "action": "create_file", "path": "to_be_deleted.txt", "content": "This is a temporary file for the rm task." }
     ],
     "input_details": {
-        "prompt_for_command": "Enter the rm command to remove 'data/to_be_deleted.txt':",
-        "working_directory": ".",
-        "required_files_for_task": [ "data/to_be_deleted.txt" ]
+        "prompt_for_command": "Enter the rm command to remove 'to_be_deleted.txt':",
+        "working_directory": "data",
+        "required_files_for_task": [ "to_be_deleted.txt" ]
     },
     "evaluation": {
-        "method": "exact_match",
+        "method": "complex_script_evaluation",
+        "check_destination_dir_contents": {
+            "target_check_directory": ".",
+            "unexpected_files": [ "to_be_deleted.txt" ]
+        },
         "expected_stdout": "",
         "expected_stderr": "",
         "check_command_contains": [
             { "substring": "rm" },
-            { "substring": "data/to_be_deleted.txt" }
+            { "substring": "to_be_deleted.txt" }
         ]
     },
     "hints": [
-        "Use the 'rm' command followed by the path to the file.",
-        "Successful execution of 'rm' usually produces no output."
+        "Use the 'rm' command followed by the path to the file ('to_be_deleted.txt').",
+        "Successful execution of 'rm' usually produces no output.",
+        "The evaluation will check if the file no longer exists in the 'data' directory (current working directory for the task)."
     ]
 }

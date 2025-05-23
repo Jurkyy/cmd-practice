@@ -1,27 +1,33 @@
 {
     "id": "sort_alphabetical_01",
     "title": "Sort Lines Alphabetically",
-    "description": "Sort the lines in 'data/unsorted_list.txt' alphabetically.",
+    "description": "Sort the lines in 'unsorted_list.txt' alphabetically.",
     "command_to_practice": "sort",
-    "example_solution": "sort data/unsorted_list.txt",
+    "example_solution": "sort unsorted_list.txt",
     "difficulty": "easy",
-    "hints": [
-        "The 'sort' command by default sorts alphabetically.",
-        "The command is 'sort data/unsorted_list.txt'"
-    ],
     "input_details": {
-        "working_directory": ".",
-        "required_files_for_task": [ "data/unsorted_list.txt" ]
+        "prompt_for_command": "Enter command to sort unsorted_list.txt:",
+        "working_directory": "data",
+        "required_files_for_task": [ "unsorted_list.txt" ]
     },
     "evaluation": {
         "method": "exact_match",
-        "expected_stdout": "apple\nbanana\nblueberry\ngrape\nkiwi\norange\npineapple\nraspberry\nstrawberry\nzebra\n"
+        "expected_stdout": "apple\nbanana\nblueberry\ngrape\nkiwi\norange\npineapple\nraspberry\nstrawberry\nzebra",
+        "expected_stderr": "",
+        "check_command_contains": [
+            { "substring": "sort" },
+            { "substring": "unsorted_list.txt" }
+        ]
     },
     "setup_files": [
         {
             "action": "create_file",
-            "path": "data/unsorted_list.txt",
-            "content": "zebra\napple\nkiwi\nbanana\norange\ngrape\npineapple\nstrawberry\nblueberry\nraspberry\n"
+            "path": "unsorted_list.txt",
+            "content": "zebra\napple\nkiwi\nbanana\norange\ngrape\npineapple\nstrawberry\nblueberry\nraspberry"
         }
+    ],
+    "hints": [
+        "The 'sort' command by default sorts alphabetically. Target file is 'unsorted_list.txt'.",
+        "The command is 'sort unsorted_list.txt'"
     ]
 }
