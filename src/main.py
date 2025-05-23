@@ -778,8 +778,68 @@ def run_practice_session():
         print(f"{Colors.BLUE}  Total: {stats['total']}")
     print(f"{Colors.HEADER}{Colors.BOLD}{'='*40}{Colors.ENDC}")
 
+    display_summary_and_exit(
+        session_stats["tasks_attempted"], 
+        session_stats["tasks_correct"], 
+        session_stats["tasks_correct_first_try"], 
+        session_stats["commands_practiced"],
+        session_stats["session_start_time"],
+        user_name
+    )
+
+def display_summary_and_exit(
+    tasks_attempted: int, 
+    tasks_solved: int, 
+    tasks_solved_on_first_try: int, 
+    practiced_commands_in_session: set, # Added set for unique commands
+    start_time: float,
+    current_user: str
+    ):
+    """Displays the session summary, saves highscore, and exits."""
+    end_time = time.time()
+    duration_seconds = end_time - start_time
+    duration_minutes = duration_seconds / 60
+
+    # Calculate points (e.g., 1 point per solved task, +1 bonus for first try)
+    # This is a simple scoring example.
+    points_earned = tasks_solved + tasks_solved_on_first_try 
+    
+    # Save highscore
+    if current_user != "guest": # Only save for logged-in users
+        save_highscore(current_user, points_earned)
+
+    print(f"\n{Colors.HEADER}{Colors.BOLD}--- Session Summary ---{Colors.ENDC}")
+    print(f"{Colors.GREEN}Tasks Attempted: {Colors.BOLD}{tasks_attempted}{Colors.ENDC}")
+    print(f"{Colors.GREEN}Tasks Solved: {Colors.BOLD}{tasks_solved}{Colors.ENDC}")
+    print(f"{Colors.GREEN}Solved on First Try: {Colors.BOLD}{tasks_solved_on_first_try}{Colors.ENDC}")
+    print(f"{Colors.GREEN}Points Earned this Session: {Colors.BOLD}{points_earned}{Colors.ENDC}")
+    print(f"{Colors.BLUE}Session Duration: {Colors.BOLD}{duration_minutes:.2f} minutes{Colors.ENDC}")
+    
+    if practiced_commands_in_session:
+        print(f"\nCommands Practiced This Session:{Colors.ENDC}")
+        for cmd in sorted(list(practiced_commands_in_session)): # Sort for consistent display
+            print(f"{Colors.CYAN}- {cmd}{Colors.ENDC}")
+    else:
+        print(f"\nNo specific commands recorded as practiced this session.{Colors.ENDC}")
+
+    # Display overall highscores
+    display_highscores() # Assuming this function exists and works
+
+    print(f"\n{Colors.HEADER}{Colors.BOLD}Thank you for playing, {current_user}!{Colors.ENDC}")
+    exit_app() # Changed from sys.exit to a potentially cleaner exit function if defined
+
+def exit_app(status_code=0):
+    """Cleanly exits the application."""
+    print(f"{Colors.YELLOW}Exiting application...{Colors.ENDC}") # Optional exit message
+    sys.exit(status_code)
+
 if __name__ == "__main__":
     try:
         run_practice_session()
+    except KeyboardInterrupt:
+        print(f"\n{Colors.YELLOW}Session interrupted by user. Exiting...{Colors.ENDC}")
     finally:
-        print(Colors.ENDC)
+        # Perform any cleanup here if needed before exiting
+        # For example, ensuring readline history is saved if you implement that
+        pass # No specific cleanup in this version
+    # display_summary_and_exit is now called from within run_practice_session before quit_event is set

@@ -127,7 +127,7 @@ def evaluate_command(user_command: str, task: Task) -> Tuple[bool, str, str]:
         if contains_substring_output_conditions_met and command_structure_ok: # Combine with command structure check
             is_correct = True
     
-    elif eval_method == "complex_script_evaluation": # NEW EVALUATION METHOD
+    elif eval_method == "complex_script_evaluation": 
         filesystem_conditions_met = False # Assume false until proven true
         stdout_condition_met = False
         stderr_condition_met = False
