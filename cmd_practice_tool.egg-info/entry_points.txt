@@ -1,2 +1,0 @@
-[console_scripts]
-cmd-practice = src.main:run_practice_session
