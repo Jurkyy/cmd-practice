@@ -22,6 +22,9 @@ class Task:
         self.difficulty = difficulty
         self.man_page_info = man_page_info
 
+        # Removed the automatic processing of setup_files from __init__.
+        # This will now be handled by the setup_task_environment function in main.py.
+
     def __repr__(self) -> str:
         return f"<Task id='{self.id}' title='{self.title}' difficulty='{self.difficulty}'>"
 
@@ -70,8 +73,6 @@ if __name__ == '__main__':
             # print(f"    Input details: {task_item.input_details}")
             # print(f"    Evaluation: {task_item.evaluation}")
             # print(f"    Hints: {task_item.hints}")
-            if task_item.setup_files:
-                print("    Requires setup files.")
             if task_item.evaluation.get('method') == 'contains_substring':
                  print(f"    Evaluation method: contains_substring - expects: {task_item.evaluation.get('expected_stdout_substrings')}")
             elif task_item.evaluation.get('method') == 'exact_match':

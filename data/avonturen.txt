@@ -1,0 +1,7 @@
+This is a test document for command-line practice.
+Let's see if you can find specific words.
+This line contains the word avonturen.
+Another line here, just for fun.
+More avonturen can be found if you look closely.
+Not all lines have the target word.
+The end of the avonturen in this document.

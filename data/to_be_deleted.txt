@@ -1,1 +1,1 @@
-This is a temporary file for the rm dry-run task.
+This is a temporary file for the rm task.

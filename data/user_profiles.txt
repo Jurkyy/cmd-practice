@@ -1,0 +1,3 @@
+UserID: 001, Name: Alice Wonderland, Email: alice@example.com
+UserID: 002, Name: Bob The Builder, Email: bob@example.org
+UserID: 003, Name: Charles Xavier, Email: charles@school.edu

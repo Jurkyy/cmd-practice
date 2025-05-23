@@ -1,12 +1,12 @@
 {
     "id": "rm_safe_delete_01",
-    "title": "Safely remove a file (Dry Run)",
-    "description": "Use the rm command to remove the file 'data/to_be_deleted.txt'. The system is in dry-run mode for 'rm', so no files will actually be deleted.",
+    "title": "Remove a file",
+    "description": "Use the rm command to remove the file 'data/to_be_deleted.txt'. The file will be deleted.",
     "command_to_practice": "rm",
     "example_solution": "rm data/to_be_deleted.txt",
     "difficulty": "easy",
     "setup_files": [
-        { "action": "create_file", "path": "data/to_be_deleted.txt", "content": "This is a temporary file for the rm dry-run task." }
+        { "action": "create_file", "path": "data/to_be_deleted.txt", "content": "This is a temporary file for the rm task." }
     ],
     "input_details": {
         "prompt_for_command": "Enter the rm command to remove 'data/to_be_deleted.txt':",
@@ -15,11 +15,11 @@
     },
     "evaluation": {
         "method": "exact_match",
-        "expected_stdout": "Dry run: This command would have removed: data/to_be_deleted.txt",
+        "expected_stdout": "",
         "expected_stderr": ""
     },
     "hints": [
         "Use the 'rm' command followed by the path to the file.",
-        "The system will tell you what it *would* do, without actually deleting anything."
+        "Successful execution of 'rm' usually produces no output."
     ]
 }

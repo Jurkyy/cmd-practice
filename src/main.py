@@ -34,7 +34,7 @@ class Colors:
     CYAN = '\033[96m'   # For stdout/stderr distinctions
 
 # --- Autocompletion Setup ---
-COMMAND_KEYWORDS = ['hint', 'skip', 'quit', 'show', 'help']
+COMMAND_KEYWORDS = ['hint', 'skip', 'quit', 'show', 'help', 'answer']
 PATH_EXECUTABLES: List[str] = [] # Type hint for clarity
 PATH_CACHE_FILE = ".path_executables_cache.json"
 CACHE_MAX_AGE_SECONDS = 24 * 60 * 60  # 1 day
@@ -264,34 +264,57 @@ else:
 readline.set_completer(path_completer)
 
 def setup_task_environment(task: Task):
-    """Sets up the environment for a given task, e.g., creating files."""
+    """Sets up the environment for a given task, e.g., creating files and directories."""
     if not task.setup_files:
         return
 
     print(f"{Colors.YELLOW}Setting up task environment...{Colors.ENDC}")
+    
+    base_working_dir = task.input_details.get("working_directory", ".")
+    try:
+        if base_working_dir != ".": # Avoid creating the current directory if it's "."
+            os.makedirs(base_working_dir, exist_ok=True)
+            print(f"{Colors.BLUE}  Ensured base working directory exists: {base_working_dir}{Colors.ENDC}")
+    except OSError as e:
+        print(f"{Colors.RED}  Error creating base working directory {base_working_dir}: {e}. Setup might fail.{Colors.ENDC}")
+        # Decide if we should return or try to continue
+        # For now, let's try to continue, individual file/dir ops will show further errors.
+
     for setup_action in task.setup_files:
         action = setup_action.get("action")
-        path = setup_action.get("path")
-        content = setup_action.get("content", "") # Default to empty content
+        relative_path = setup_action.get("path") # Path relative to working_directory
+        content = setup_action.get("content", "")
+
+        if not relative_path:
+            print(f"{Colors.RED}Error in task setup: Action '{action}' missing 'path'. Skipping.{Colors.ENDC}")
+            continue
+            
+        # Construct the full path using the task's working directory
+        full_path = os.path.join(base_working_dir, relative_path)
 
         if action == "create_file":
-            if not path:
-                print(f"{Colors.RED}Error in task setup: 'create_file' action missing 'path'.{Colors.ENDC}")
-                continue
             try:
-                # Ensure parent directory exists
-                dir_name = os.path.dirname(path)
-                if dir_name: # If path includes a directory
+                # Ensure parent directory of the file exists
+                dir_name = os.path.dirname(full_path)
+                if dir_name:
                     os.makedirs(dir_name, exist_ok=True)
                 
-                with open(path, 'w') as f:
+                with open(full_path, 'w') as f:
                     f.write(content)
-                print(f"{Colors.GREEN}  Created file: {path}{Colors.ENDC}")
+                print(f"{Colors.GREEN}  Created/Overwritten file: {full_path}{Colors.ENDC}")
             except IOError as e:
-                print(f"{Colors.RED}  Error creating file {path}: {e}{Colors.ENDC}")
-        # Add more setup actions here if needed in the future (e.g., delete_file, create_dir)
+                print(f"{Colors.RED}  Error creating/writing file {full_path}: {e}{Colors.ENDC}")
+            except OSError as e: # Catch potential errors from makedirs for file's parent
+                print(f"{Colors.RED}  Error ensuring directory for file {full_path}: {e}{Colors.ENDC}")
+
+        elif action == "create_directory":
+            try:
+                os.makedirs(full_path, exist_ok=True)
+                print(f"{Colors.GREEN}  Ensured directory: {full_path}{Colors.ENDC}")
+            except OSError as e:
+                print(f"{Colors.RED}  Error creating directory {full_path}: {e}{Colors.ENDC}")
         else:
-            print(f"{Colors.YELLOW}  Unknown setup action '{action}' for path '{path}'. Skipping.{Colors.ENDC}")
+            print(f"{Colors.YELLOW}  Unknown setup action '{action}' for path '{relative_path}'. Skipping.{Colors.ENDC}")
     print(f"{Colors.YELLOW}Task environment setup complete.{Colors.ENDC}")
 
 def display_task(task: Task):
@@ -567,7 +590,27 @@ def run_practice_session():
                 print(f"{Colors.YELLOW}Skipping task.{Colors.ENDC}")
                 current_task_index += 1
                 hint_level = 0
-                break 
+                # Ensure task is marked as attempted but not correct if skipped
+                # (Already handled by tasks_attempted incrementing on first command submit)
+                # If difficulty tracking is per task, ensure it's also marked for this difficulty
+                session_stats["difficulties_attempted"].setdefault(difficulty_choice, {"correct": 0, "total": 0})["total"] = \
+                    session_stats["difficulties_attempted"].get(difficulty_choice, {}).get("total", 0) + 1
+                break
+            elif user_command_lower == 'answer':
+                print(f"{Colors.HEADER}{Colors.BOLD}--- Task Answer ---{Colors.ENDC}")
+                print(f"{Colors.GREEN}The example solution is: {task.example_solution}{Colors.ENDC}")
+                print(f"{Colors.YELLOW}No points awarded for this task.{Colors.ENDC}")
+                
+                # Update session stats: task attempted, but not correct
+                # tasks_attempted is already incremented on first command submission
+                # Ensure difficulty tracking reflects an attempt for this difficulty
+                session_stats["difficulties_attempted"].setdefault(difficulty_choice, {"correct": 0, "total": 0})["total"] = \
+                    session_stats["difficulties_attempted"].get(difficulty_choice, {}).get("total", 0) + 1
+                
+                current_task_index += 1
+                hint_level = 0
+                input(f"{Colors.GREEN}Press Enter to continue to the next task...{Colors.ENDC}")
+                break # Go to the next task
             elif user_command_lower == 'hint':
                 if task.hints:
                     if hint_level < len(task.hints):
@@ -653,6 +696,7 @@ def run_practice_session():
                 print(f"{Colors.CYAN}help{Colors.ENDC}                - Show this help message.")
                 print(f"{Colors.CYAN}hint{Colors.ENDC}                - Get a hint for the current task.")
                 print(f"{Colors.CYAN}show{Colors.ENDC}                - Show relevant files for the current task.")
+                print(f"{Colors.CYAN}answer{Colors.ENDC}              - Show the answer for the current task (no points).")
                 print(f"{Colors.CYAN}man <command_name>{Colors.ENDC}  - Show manual page info for a specific command.")
                 print(f"{Colors.CYAN}skip{Colors.ENDC}                - Skip the current task.")
                 print(f"{Colors.CYAN}quit{Colors.ENDC}                - Exit the practice tool.")
@@ -674,6 +718,9 @@ def run_practice_session():
                      session_stats["tasks_attempted"] -=1
                 session_stats["total_attempts_overall"] += 1
                 continue
+
+            # If we reach here, the command is an attempt to solve the task
+            session_stats["total_attempts_overall"] += 1
 
             is_correct, actual_stdout, actual_stderr = evaluate_command(user_command, task)
 

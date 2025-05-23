@@ -26,9 +26,6 @@ def execute_command(command_str: str, working_directory: str = ".") -> Tuple[str
     if not command_str: # Handle empty command string
         return "", "Error: No command entered.", 1
 
-    original_command_parts = shlex.split(command_str)
-    command_name = original_command_parts[0] if original_command_parts else ""
-
     try:
         # Ensure working directory exists, or default to current if not specified or invalid
         if not os.path.isdir(working_directory):
@@ -37,109 +34,6 @@ def execute_command(command_str: str, working_directory: str = ".") -> Tuple[str
         else:
             cwd = working_directory
 
-        if command_name == "rm":
-            # Implement dry-run for rm
-            # Construct the message for the user
-            # This is a simplified dry run. A more robust solution might involve:
-            # - Parsing 'rm' options more thoroughly (e.g., -r, -f, specific file paths, globs)
-            # - Actually checking which files/directories would be removed without deleting them.
-            
-            # For now, we'll just echo the command and pretend it's a dry run.
-            # A more advanced dry run would involve listing files that *would* be deleted.
-
-            files_to_remove_args = [arg for arg in original_command_parts[1:] if not arg.startswith('-')]
-            
-            if not files_to_remove_args:
-                return "", "Error: rm command used without specifying files to remove.", 1
-
-            # Check for -r or --recursive for directories
-            # is_recursive = "-r" in original_command_parts or "--recursive" in original_command_parts
-            
-            dry_run_output_lines = []
-            actual_files_to_report = []
-
-            # Determine if -f or --force is used and if -r or --recursive is used
-            # is_force = "-f" in original_command_parts or "--force" in original_command_parts
-            is_recursive = False
-            is_force = False
-            options = [part for part in original_command_parts[1:] if part.startswith('-')]
-            for opt_group in options:
-                if opt_group == '--recursive':
-                    is_recursive = True
-                elif opt_group == '--force':
-                    is_force = True
-                elif opt_group.startswith('-') and not opt_group.startswith('--'): # Short options like -r, -f, -rf
-                    if 'r' in opt_group:
-                        is_recursive = True
-                    if 'f' in opt_group:
-                        is_force = True
-
-            for item_arg in files_to_remove_args:
-                expanded_items = []
-                # Check if item_arg is a glob pattern
-                if "*" in item_arg or "?" in item_arg or "[" in item_arg:
-                    # Expand glob pattern in the context of the working directory
-                    glob_path = os.path.join(cwd, item_arg)
-                    expanded_items.extend(glob.glob(glob_path))
-                    if not expanded_items and not is_force:
-                        # If glob expands to nothing and -f is not used, rm usually errors for the pattern itself.
-                        # However, behavior can vary. For simplicity, if it expands to nothing, 
-                        # and -f is not present, we might state no files match or let it be handled if it was a literal.
-                        # Standard rm behavior: `rm *.nonexistent` -> `rm: cannot remove '*.nonexistent': No such file or directory` if shell doesn't expand it to empty
-                        # If shell expands to empty, command might not run or rm gets no args.
-                        # Our shlex.split means rm gets the literal '*.nonexistent'.
-                        # So, we should simulate the error for the pattern if it doesn't match anything and -f is not used.
-                        dry_run_output_lines.append(f"Pattern '{item_arg}' did not match any files.")
-                        # Continue to allow other arguments to be processed, or error out here?
-                        # Let's mimic rm: if a pattern doesn't match and -f isn't there, it's an error.
-                        return "", f"Error: cannot remove '{item_arg}': No such file or directory", 1
-                    elif not expanded_items and is_force:
-                        # If glob expands to nothing and -f is used, rm doesn't complain.
-                        dry_run_output_lines.append(f"Pattern '{item_arg}' did not match any files (ignored due to -f).")
-                        continue # Move to the next item_arg
-                else:
-                    expanded_items.append(os.path.join(cwd, item_arg)) # Treat as a literal path
-
-                for full_item_path in expanded_items:
-                    # Get the relative path for reporting, consistent with how item_arg was provided
-                    # If full_item_path was from glob, it's absolute. We need to make it relative to cwd for reporting.
-                    item_to_report = os.path.relpath(full_item_path, cwd)
-
-                    if os.path.isdir(full_item_path):
-                        if is_recursive:
-                            dry_run_output_lines.append(f"Would recursively remove directory: {item_to_report}")
-                            actual_files_to_report.append(item_to_report + "/")
-                        else:
-                            return "", f"Error: cannot remove '{item_to_report}': Is a directory (specify -r or --recursive to remove directories).", 1
-                    elif os.path.exists(full_item_path):
-                        dry_run_output_lines.append(f"Would remove file: {item_to_report}")
-                        actual_files_to_report.append(item_to_report)
-                    else:
-                        # This part should ideally not be reached if glob didn't find it and wasn't forced.
-                        # If it was a literal path that doesn't exist:
-                        if not is_force:
-                            return "", f"Error: cannot remove '{item_to_report}': No such file or directory.", 1
-                        else:
-                            dry_run_output_lines.append(f"Would attempt to remove non-existent file (due to -f): {item_to_report}")
-            
-            if not actual_files_to_report and files_to_remove_args:
-                # This means arguments were provided, but no actual files/dirs were identified for removal
-                # (e.g., all were non-existent and -f was used, or patterns matched nothing with -f)
-                return "Dry run: No existing files or directories specified would be removed.", "", 0
-            elif not files_to_remove_args: # Should have been caught earlier
-                return "", "Error: rm command used without specifying files to remove.", 1
-
-
-            # Construct a more informative dry-run message
-            # Example: Dry run: rm -rf some_file some_dir/
-            # This command would have removed: some_file, some_dir/
-            # stdout = f"Dry run: {command_str}\nThis command would have removed: {', '.join(actual_files_to_report)}"
-            
-            # Simplified: "Dry run: would remove file1, dir1/"
-            final_dry_run_message = f"Dry run: This command would have removed: {', '.join(sorted(list(set(actual_files_to_report))))}"
-            return final_dry_run_message, "", 0 # Simulate success for dry run
-
-        # Original execution path for non-rm commands
         process = subprocess.run(
             command_str, 
             shell=True, # Using shell=True to allow pipes, redirection, etc.
