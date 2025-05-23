@@ -19,7 +19,7 @@
     },
     "evaluation": {
         "method": "exact_match",
-        "expected_stdout": "3",
+        "expected_stdout": "4",
         "expected_stderr": ""
     },
     "hints": [

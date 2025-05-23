@@ -1,0 +1,6 @@
+This is a line.
+Another line with important information.
+This line is not so important.
+Yet another line.
+An important notice is here.
+Final line, also important.

@@ -1,9 +1,9 @@
 {
     "id": "find_xargs_wc_01",
     "title": "Find, Xargs, and Wc: Count Lines in Recently Modified Files",
-    "description": "In the 'project_files' directory and its subdirectories, find all Python files ('*.py') that have been modified in the last 1 day. Then, use 'xargs' to pass these files to 'wc -l' to count the total number of lines across all found files. The final output should be just the total line count.",
+    "description": "In the 'data/project_files' directory and its subdirectories, find all Python files ('*.py') that have been modified in the last 1 day. Then, use 'xargs' to pass these files to 'wc -l' to count the total number of lines across all found files. The final output should be just the total line count.",
     "command_to_practice": "find, xargs, wc",
-    "example_solution": "find project_files -name '*.py' -mtime -1 -print0 | xargs -0 wc -l | tail -n1 | awk '{print $1}'",
+    "example_solution": "find data/project_files -name '*.py' -mtime -1 -print0 | xargs -0 wc -l | tail -n1 | awk '{print $1}'",
     "difficulty": "medium",
     "setup_files": [
         {
@@ -43,7 +43,7 @@
     },
     "evaluation": {
         "method": "exact_match",
-        "expected_stdout": "10",
+        "expected_stdout": "9",
         "expected_stderr": ""
     },
     "hints": [

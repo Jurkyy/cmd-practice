@@ -1,0 +1,15 @@
+INFO: System startup sequence initiated.
+DEBUG: Module A loading.
+INFO: Module A loaded successfully.
+WARNING: Low disk space detected on /var.
+CRITICAL_ERROR: Failed to connect to database server 10.0.0.5.
+INFO: Retrying connection to database...
+DEBUG: Connection attempt 2.
+ERROR: User authentication failed.
+INFO: System running normally.
+CRITICAL_ERROR: Core service unresponsive. Service name: AuthSvc.
+WARNING: High memory usage by process PID 1234.
+INFO: Shutting down subsystem B.
+DEBUG: Subsystem B shutdown complete.
+CRITICAL_ERROR: Unhandled exception in PaymentGateway. Attempting to restart.
+INFO: PaymentGateway restart successful.
