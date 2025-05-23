@@ -757,55 +757,34 @@ def run_practice_session():
     if current_task_index >= len(tasks) and (not user_command or user_command.lower().strip() != 'quit'):
         print(f"\n{Colors.GREEN}{Colors.BOLD}Congratulations! You've completed all available tasks for this session.{Colors.ENDC}")
 
-    # --- Session Summary ---
-    session_duration = time.time() - session_stats["session_start_time"]
-    print(f"\n{Colors.HEADER}{Colors.BOLD}{'='*15} SESSION SUMMARY {'='*15}{Colors.ENDC}")
-    print(f"{Colors.BLUE}Session duration: {time.strftime('%H:%M:%S', time.gmtime(session_duration))}{Colors.ENDC}")
-    print(f"{Colors.BLUE}Tasks attempted: {session_stats['tasks_attempted']}{Colors.ENDC}")
-    print(f"{Colors.GREEN}Tasks solved: {session_stats['tasks_correct']}{Colors.ENDC}")
-    print(f"{Colors.GREEN}Solved on first try: {session_stats['tasks_correct_first_try']}{Colors.ENDC}")
-    print(f"{Colors.YELLOW}Total hints used: {session_stats['total_hints_used']}{Colors.ENDC}")
-    print(f"{Colors.CYAN}Total commands run: {session_stats['total_attempts_overall']}{Colors.ENDC}")
-    
-    if session_stats["tasks_correct"] > 0:
-        save_highscore(user_name, session_stats["tasks_correct"]) # Save score based on tasks correct
-
-    print(f"{Colors.BLUE}Commands practiced: {Colors.YELLOW}{', '.join(sorted(list(session_stats['commands_practiced']))) if session_stats['commands_practiced'] else 'None'}{Colors.ENDC}")
-    print(f"{Colors.BLUE}Difficulty breakdown:{Colors.ENDC}")
-    for difficulty, stats in session_stats["difficulties_attempted"].items():
-        print(f"{Colors.BLUE}{difficulty.capitalize()}:")
-        print(f"{Colors.BLUE}  Correct: {stats['correct']}")
-        print(f"{Colors.BLUE}  Total: {stats['total']}")
-    print(f"{Colors.HEADER}{Colors.BOLD}{'='*40}{Colors.ENDC}")
-
     display_summary_and_exit(
         session_stats["tasks_attempted"], 
         session_stats["tasks_correct"], 
         session_stats["tasks_correct_first_try"], 
         session_stats["commands_practiced"],
         session_stats["session_start_time"],
-        user_name
+        user_name,
+        session_stats["total_hints_used"],
+        session_stats["total_attempts_overall"]
     )
 
 def display_summary_and_exit(
     tasks_attempted: int, 
     tasks_solved: int, 
     tasks_solved_on_first_try: int, 
-    practiced_commands_in_session: set, # Added set for unique commands
+    practiced_commands_in_session: set,
     start_time: float,
-    current_user: str
+    current_user: str,
+    total_hints_used: int,
+    total_commands_run: int
     ):
     """Displays the session summary, saves highscore, and exits."""
     end_time = time.time()
     duration_seconds = end_time - start_time
-    duration_minutes = duration_seconds / 60
 
-    # Calculate points (e.g., 1 point per solved task, +1 bonus for first try)
-    # This is a simple scoring example.
     points_earned = tasks_solved + tasks_solved_on_first_try 
     
-    # Save highscore
-    if current_user != "guest": # Only save for logged-in users
+    if current_user != "guest":
         save_highscore(current_user, points_earned)
 
     print(f"\n{Colors.HEADER}{Colors.BOLD}--- Session Summary ---{Colors.ENDC}")
@@ -813,11 +792,13 @@ def display_summary_and_exit(
     print(f"{Colors.GREEN}Tasks Solved: {Colors.BOLD}{tasks_solved}{Colors.ENDC}")
     print(f"{Colors.GREEN}Solved on First Try: {Colors.BOLD}{tasks_solved_on_first_try}{Colors.ENDC}")
     print(f"{Colors.GREEN}Points Earned this Session: {Colors.BOLD}{points_earned}{Colors.ENDC}")
-    print(f"{Colors.BLUE}Session Duration: {Colors.BOLD}{duration_minutes:.2f} minutes{Colors.ENDC}")
+    print(f"{Colors.BLUE}Session Duration: {Colors.BOLD}{time.strftime('%H:%M:%S', time.gmtime(duration_seconds))}{Colors.ENDC}")
+    print(f"{Colors.YELLOW}Total Hints Used: {Colors.BOLD}{total_hints_used}{Colors.ENDC}")
+    print(f"{Colors.CYAN}Total Commands Run (Attempts): {Colors.BOLD}{total_commands_run}{Colors.ENDC}")
     
     if practiced_commands_in_session:
-        print(f"\nCommands Practiced This Session:{Colors.ENDC}")
-        for cmd in sorted(list(practiced_commands_in_session)): # Sort for consistent display
+        print(f"\n{Colors.YELLOW}Commands Practiced This Session (Correct Solutions):{Colors.ENDC}")
+        for cmd in sorted(list(practiced_commands_in_session)):
             print(f"{Colors.CYAN}- {cmd}{Colors.ENDC}")
     else:
         print(f"\nNo specific commands recorded as practiced this session.{Colors.ENDC}")
