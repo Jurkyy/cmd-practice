@@ -35,6 +35,10 @@ export default function RootLayout() {
           name="learn/[category]"
           options={{ title: "Study Guide", presentation: "card" }}
         />
+        <Stack.Screen
+          name="learn/path/[id]"
+          options={{ title: "Learning Path", presentation: "card" }}
+        />
       </Stack>
     </>
   );

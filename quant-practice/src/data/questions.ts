@@ -64,6 +64,17 @@ export const questions: Question[] = [
     resources: [
       { title: "3Blue1Brown: Bayes theorem", url: "https://www.youtube.com/watch?v=HZGCoVF3YvM", type: "video", free: true },
     ],
+    detailedExplanation:
+      "Step 1: Define events. D = has disease, + = positive test. We know P(D) = 0.01, P(+|D) = 0.95 (sensitivity), P(+|no D) = 0.05 (1 - specificity). " +
+      "Step 2: Compute total P(+) via law of total probability: P(+) = P(+|D)P(D) + P(+|no D)P(no D) = 0.95 × 0.01 + 0.05 × 0.99 = 0.0095 + 0.0495 = 0.059. " +
+      "Step 3: Apply Bayes: P(D|+) = P(+|D)P(D) / P(+) = 0.0095 / 0.059 ≈ 0.161. " +
+      "The key insight: even with a 95% accurate test, the low base rate (1%) means most positives are false positives. The 99% of healthy people generating 5% false positives swamp the 1% of sick people generating 95% true positives.",
+    commonMistakes: [
+      "Confusing sensitivity P(+|D) with positive predictive value P(D|+) — these are very different when the base rate is low",
+      "Ignoring the base rate (prior probability) and jumping to '95% accurate means 95% chance of disease'",
+      "Forgetting to compute the total P(+) denominator using the law of total probability",
+    ],
+    guideSection: "prob-bayes",
   },
   {
     id: "prob-5",
@@ -81,6 +92,18 @@ export const questions: Question[] = [
     resources: [
       { title: "Gambler's Ruin", url: "https://en.wikipedia.org/wiki/Gambler%27s_ruin", type: "article", free: true },
     ],
+    detailedExplanation:
+      "Step 1: Let P(k) = probability of ruin starting with $k, target $N. Set up the recurrence: P(k) = ½P(k+1) + ½P(k-1) for a fair game. " +
+      "Step 2: Boundary conditions are P(0) = 1 (already ruined) and P(N) = 0 (reached target). " +
+      "Step 3: The general solution to this recurrence for a fair game is P(k) = A + Bk. Applying boundaries: P(0) = 1 gives A = 1; P(N) = 0 gives B = -1/N. " +
+      "Step 4: Therefore P(k) = 1 - k/N. With k=3, N=5: P(ruin) = 1 - 3/5 = 2/5. " +
+      "Intuition: in a fair game, the martingale property means E[wealth] is constant. The ruin probability is determined purely by the ratio of starting wealth to the total at stake.",
+    commonMistakes: [
+      "Assuming P(ruin) = 0.5 because the game is fair — fairness of the game does not mean equal ruin/success probability unless you start in the middle",
+      "Confusing P(ruin) = 1 - k/N with P(reaching target) = k/N — make sure you know which one the question asks for",
+      "Trying to use the biased-game formula (with p ≠ 1/2) when the game is fair — the fair-game formula is a separate limiting case",
+    ],
+    guideSection: "prob-ev",
   },
   {
     id: "prob-6",
@@ -95,6 +118,18 @@ export const questions: Question[] = [
     explanation:
       "E = 6\u00d7H\u2086 = 6(1 + 1/2 + 1/3 + 1/4 + 1/5 + 1/6) = 6 \u00d7 2.45 = 14.7.",
     hint: "Break into phases: after collecting k types, probability of a new one on next draw is (n\u2212k)/n.",
+    detailedExplanation:
+      "Step 1: Divide the process into phases. Phase k begins when you have k distinct coupons and ends when you get the (k+1)-th. " +
+      "Step 2: In phase k, each draw has probability (n-k)/n of being new. So the number of draws in phase k is Geometric with p = (n-k)/n, giving E[draws in phase k] = n/(n-k). " +
+      "Step 3: Total expected draws = \u03a3 from k=0 to n-1 of n/(n-k) = n \u00d7 (1/n + 1/(n-1) + ... + 1/1) = n \u00d7 H\u2099. " +
+      "Step 4: For n=6: E = 6 \u00d7 (1 + 1/2 + 1/3 + 1/4 + 1/5 + 1/6) = 6 \u00d7 2.45 = 14.7. " +
+      "Key insight: the last coupon alone takes on average n = 6 draws. The difficulty accelerates dramatically near the end.",
+    commonMistakes: [
+      "Assuming each new coupon takes the same expected number of draws \u2014 the last few coupons take disproportionately long (the 6th type alone takes E[6] draws)",
+      "Confusing the coupon collector problem with the birthday problem \u2014 similar setup but different questions (first duplicate vs. complete collection)",
+      "Forgetting the harmonic number structure and trying to compute E = n \u00d7 n instead of n \u00d7 H\u2099",
+    ],
+    guideSection: "prob-ev",
   },
   {
     id: "prob-7",
@@ -138,6 +173,18 @@ export const questions: Question[] = [
     resources: [
       { title: "Optional Stopping Theorem", url: "https://en.wikipedia.org/wiki/Optional_stopping_theorem", type: "article", free: true },
     ],
+    detailedExplanation:
+      "Step 1: We need E[T], not E[X_T]. The trick is to find a martingale involving T. X\u209c (the walk position) is a martingale, but E[X_T] only gives us information about where the walk stops, not when. " +
+      "Step 2: M\u209c = X\u209c\u00b2 \u2212 t is also a martingale (verify: E[X\u209c\u00b2|F_s] = X_s\u00b2 + (t\u2212s), so E[X\u209c\u00b2 \u2212 t|F_s] = X_s\u00b2 \u2212 s). " +
+      "Step 3: By optional stopping theorem on M\u209c: E[M_T] = M\u2080 = 0, so E[X_T\u00b2] = E[T]. " +
+      "Step 4: From the first martingale, E[X_T] = 0 = P(hit +1)(1) + P(hit \u221210)(\u221210). This gives P(hit +1) = 10/11, P(hit \u221210) = 1/11. " +
+      "Step 5: E[T] = E[X_T\u00b2] = (10/11)(1) + (1/11)(100) = 10/11 + 100/11 = 110/11 = 10.",
+    commonMistakes: [
+      "Using the wrong martingale \u2014 X\u209c alone gives E[X_T] = 0 which finds hitting probabilities, but you need X\u209c\u00b2 \u2212 t to extract E[T]",
+      "Forgetting to verify the conditions for the optional stopping theorem (T must have finite expectation, or the martingale must be bounded)",
+      "Computing E[X_T] when the question asks for E[T] \u2014 these are fundamentally different quantities requiring different martingales",
+    ],
+    guideSection: "prob-ev",
   },
   {
     id: "prob-10",
@@ -221,6 +268,19 @@ export const questions: Question[] = [
     explanation:
       "Log-likelihood: l(\u03bb) = n\u00b7ln(\u03bb) \u2212 \u03bb\u2211x\u1d62. Setting dl/d\u03bb = 0 gives \u03bb\u0302 = n/\u2211x\u1d62.",
     hint: "Write the likelihood, take the log, differentiate, and set to 0.",
+    detailedExplanation:
+      "Step 1: Write the likelihood. For n i.i.d. observations from Exp(\u03bb), L(\u03bb) = \u220f \u03bb e^(\u2212\u03bbx\u1d62) = \u03bb\u207f e^(\u2212\u03bb\u2211x\u1d62). " +
+      "Step 2: Take the log-likelihood: l(\u03bb) = n\u00b7ln(\u03bb) \u2212 \u03bb\u2211x\u1d62. " +
+      "Step 3: Differentiate with respect to \u03bb: dl/d\u03bb = n/\u03bb \u2212 \u2211x\u1d62. " +
+      "Step 4: Set to zero: n/\u03bb = \u2211x\u1d62, so \u03bb\u0302 = n/\u2211x\u1d62 = 1/x\u0304 (reciprocal of sample mean). " +
+      "Step 5: Verify it is a maximum: d\u00b2l/d\u03bb\u00b2 = \u2212n/\u03bb\u00b2 < 0. Confirmed maximum. " +
+      "Key insight: the MLE of the rate \u03bb is the reciprocal of the sample mean, NOT the sample mean itself.",
+    commonMistakes: [
+      "Confusing the MLE of \u03bb (rate) with the MLE of 1/\u03bb (mean) \u2014 the MLE of \u03bb is n/\u2211x\u1d62, while \u2211x\u1d62/n estimates the mean",
+      "Forgetting to verify the second derivative is negative to confirm a maximum (not a minimum or saddle point)",
+      "Using the wrong parameterization \u2014 some textbooks write Exp(\u03bb) with f(x) = \u03bbe^(\u2212\u03bbx) and others use f(x) = (1/\u03b8)e^(\u2212x/\u03b8)",
+    ],
+    guideSection: "stat-mle",
   },
   {
     id: "stat-5",
@@ -238,6 +298,18 @@ export const questions: Question[] = [
     resources: [
       { title: "Law of Total Variance", url: "https://en.wikipedia.org/wiki/Law_of_total_variance", type: "article", free: true },
     ],
+    detailedExplanation:
+      "Step 1: Recall the law of total variance: Var(Y) = E[Var(Y|X)] + Var(E[Y|X]). The first term captures 'average within-group variance' and the second captures 'between-group variance'. " +
+      "Step 2: Compute E[Var(Y|X)]. We are told Var(Y|X) = 3 (constant, does not depend on X). So E[Var(Y|X)] = E[3] = 3. " +
+      "Step 3: Compute Var(E[Y|X]). We are told E[Y|X] = 2X. So Var(E[Y|X]) = Var(2X) = 4\u00b7Var(X) = 4 \u00d7 2 = 8. " +
+      "Step 4: Combine: Var(Y) = 3 + 8 = 11. " +
+      "Key insight: even though the conditional variance of Y given X is small (3), the variation in the conditional mean (E[Y|X] = 2X) adds substantial variance (8) because X itself varies.",
+    commonMistakes: [
+      "Swapping the two terms \u2014 confusing E[Var(Y|X)] (average within-group spread) with Var(E[Y|X]) (spread of group means)",
+      "Forgetting to apply the scaling property Var(aX) = a\u00b2Var(X) when computing Var(2X) = 4\u00b7Var(X), not 2\u00b7Var(X)",
+      "Only computing one of the two terms and thinking it equals the full Var(Y)",
+    ],
+    guideSection: "stat-regression",
   },
   {
     id: "stat-6",
@@ -306,6 +378,18 @@ export const questions: Question[] = [
     resources: [
       { title: "GARCH Models (QuantStart)", url: "https://www.quantstart.com/articles/Generalised-Autoregressive-Conditional-Heteroskedasticity-GARCH-p-q-Models-for-Time-Series-Analysis/", type: "article", free: true },
     ],
+    detailedExplanation:
+      "Step 1: Start with GARCH(1,1): \u03c3\u00b2\u209c = \u03c9 + \u03b1\u03b5\u00b2\u209c\u208b\u2081 + \u03b2\u03c3\u00b2\u209c\u208b\u2081. For stationarity, we need the unconditional variance \u03c3\u00b2 = E[\u03c3\u00b2\u209c] to be constant and finite. " +
+      "Step 2: Take unconditional expectations on both sides: \u03c3\u00b2 = \u03c9 + \u03b1\u03c3\u00b2 + \u03b2\u03c3\u00b2 (since E[\u03b5\u00b2\u209c\u208b\u2081] = \u03c3\u00b2 and E[\u03c3\u00b2\u209c\u208b\u2081] = \u03c3\u00b2 under stationarity). " +
+      "Step 3: Rearrange: \u03c3\u00b2(1 \u2212 \u03b1 \u2212 \u03b2) = \u03c9, so \u03c3\u00b2 = \u03c9/(1 \u2212 \u03b1 \u2212 \u03b2). " +
+      "Step 4: For this to be positive and finite, we need 1 \u2212 \u03b1 \u2212 \u03b2 > 0, i.e., \u03b1 + \u03b2 < 1. " +
+      "The quantity \u03b1 + \u03b2 measures volatility persistence. When \u03b1 + \u03b2 = 1 (IGARCH), shocks persist forever and no finite unconditional variance exists.",
+    commonMistakes: [
+      "Confusing GARCH stationarity condition (\u03b1+\u03b2 < 1) with AR(1) stationarity (|\u03c6| < 1) \u2014 they have different structures",
+      "Forgetting that \u03b1+\u03b2 = 1 is the IGARCH (integrated) case where the unconditional variance is infinite, not just the boundary",
+      "Mixing up the roles of \u03b1 (ARCH: impact of recent shocks) and \u03b2 (GARCH: persistence of past variance) when interpreting the model",
+    ],
+    guideSection: "stat-timeseries",
   },
 
   // ═══════════════════════════════════════════════════════════════
@@ -350,6 +434,18 @@ export const questions: Question[] = [
     resources: [
       { title: "It\u00f4's Lemma (QuantStart)", url: "https://www.quantstart.com/articles/Itos-Lemma/", type: "article", free: true },
     ],
+    detailedExplanation:
+      "Step 1: It\u00f4\u2019s lemma states that for f(S): df = f\u2032(S)dS + \u00bdf\u2033(S)(dS)\u00b2. The key difference from ordinary calculus is the (dS)\u00b2 term. " +
+      "Step 2: For f(S) = ln(S): f\u2032(S) = 1/S and f\u2033(S) = \u22121/S\u00b2. " +
+      "Step 3: Compute (dS)\u00b2. Since dS = \u03bcS dt + \u03c3S dW, we get (dS)\u00b2 = \u03c3\u00b2S\u00b2 dt (using the rules: (dW)\u00b2 = dt, dt\u00b7dW = 0, (dt)\u00b2 = 0). " +
+      "Step 4: Substitute: d(ln S) = (1/S)(\u03bcS dt + \u03c3S dW) + \u00bd(\u22121/S\u00b2)(\u03c3\u00b2S\u00b2 dt) = \u03bc dt + \u03c3 dW \u2212 \u03c3\u00b2/2 dt = (\u03bc \u2212 \u03c3\u00b2/2) dt + \u03c3 dW. " +
+      "This is why GBM gives log-returns that are normally distributed with drift \u03bc \u2212 \u03c3\u00b2/2, NOT \u03bc. The \u2212\u03c3\u00b2/2 is the It\u00f4 correction, arising purely from the quadratic variation of Brownian motion.",
+    commonMistakes: [
+      "Forgetting the \u2212\u03c3\u00b2/2 correction term \u2014 applying ordinary calculus (d(ln S) = dS/S) instead of It\u00f4 calculus gives (\u03bc)dt + \u03c3dW, which is wrong",
+      "Getting the sign wrong on the \u03c3\u00b2/2 term \u2014 it is MINUS \u03c3\u00b2/2 because f\u2033(S) = \u22121/S\u00b2 is negative",
+      "Not recognizing that (dW)\u00b2 = dt is the fundamental rule of It\u00f4 calculus that makes stochastic calculus different from ordinary calculus",
+    ],
+    guideSection: "stoch-ito",
   },
   {
     id: "stoch-3",
@@ -385,6 +481,18 @@ export const questions: Question[] = [
     resources: [
       { title: "Girsanov's Theorem", url: "https://en.wikipedia.org/wiki/Girsanov_theorem", type: "article", free: true },
     ],
+    detailedExplanation:
+      "Step 1: Under the physical measure P, a stock follows dS = \u03bcS dt + \u03c3S dW_P. Different investors may disagree on \u03bc, so pricing options using \u03bc would give different prices. " +
+      "Step 2: Girsanov\u2019s theorem says we can change to a new measure Q by defining dW_Q = dW_P + \u03b8 dt, where \u03b8 = (\u03bc \u2212 r)/\u03c3 is the market price of risk. " +
+      "Step 3: Under Q, the stock dynamics become dS = rS dt + \u03c3S dW_Q. The drift changes from \u03bc to r, but crucially the volatility \u03c3 stays the same. " +
+      "Step 4: Under Q, discounted asset prices e^(\u2212rt)S\u209c are martingales. This means we can price any derivative as V = e^(\u2212rT) E^Q[payoff]. " +
+      "The deep insight: Girsanov eliminates the need to estimate \u03bc (which is extremely hard statistically). Option prices depend only on \u03c3, r, and the payoff structure.",
+    commonMistakes: [
+      "Thinking Girsanov changes the volatility \u2014 it only changes the drift from \u03bc to r; the diffusion coefficient \u03c3 remains identical",
+      "Confusing the physical measure P (real-world probabilities) with the risk-neutral measure Q (pricing probabilities) \u2014 Q is not the 'true' probability",
+      "Forgetting the Novikov condition (E[exp(\u00bd\u222b\u03b8\u00b2 dt)] < \u221e) needed for Girsanov\u2019s theorem to be valid",
+    ],
+    guideSection: "stoch-girsanov",
   },
   {
     id: "stoch-5",
@@ -402,6 +510,18 @@ export const questions: Question[] = [
     resources: [
       { title: "Ornstein-Uhlenbeck Process", url: "https://en.wikipedia.org/wiki/Ornstein%E2%80%93Uhlenbeck_process", type: "article", free: true },
     ],
+    detailedExplanation:
+      "Step 1: The OU process dX = \u03b8(\u03bc \u2212 X)dt + \u03c3dW has solution X(t) = \u03bc + (X\u2080 \u2212 \u03bc)e^(\u2212\u03b8t) + \u03c3\u222b\u2080\u1d57 e^(\u2212\u03b8(t\u2212s)) dW(s). " +
+      "Step 2: The variance of X(t) comes from the stochastic integral: Var(X(t)) = \u03c3\u00b2 \u222b\u2080\u1d57 e^(\u22122\u03b8(t\u2212s)) ds = \u03c3\u00b2/(2\u03b8) \u00d7 (1 \u2212 e^(\u22122\u03b8t)). " +
+      "Step 3: As t \u2192 \u221e, e^(\u22122\u03b8t) \u2192 0 (since \u03b8 > 0), so Var(X(\u221e)) = \u03c3\u00b2/(2\u03b8). " +
+      "Step 4: Intuition check: higher \u03b8 means faster mean reversion, pulling X back toward \u03bc more quickly, so variance should be smaller. Indeed \u03c3\u00b2/(2\u03b8) decreases with \u03b8. Similarly, higher \u03c3 means more random kicks, so variance grows with \u03c3\u00b2. " +
+      "This is a key result for pairs trading: the stationary variance determines the natural bandwidth around the mean.",
+    commonMistakes: [
+      "Forgetting the factor of 2 in the denominator \u2014 writing \u03c3\u00b2/\u03b8 instead of \u03c3\u00b2/(2\u03b8) is the most common error",
+      "Confusing the OU process with a random walk plus drift \u2014 the OU process is mean-reverting (stationary) while a random walk has variance growing linearly in time",
+      "Not recognizing that \u03b8 must be positive for the process to be stationary \u2014 if \u03b8 \u2264 0 the process is explosive or non-stationary",
+    ],
+    guideSection: "stoch-sde",
   },
   {
     id: "stoch-6",
@@ -455,6 +575,18 @@ export const questions: Question[] = [
     resources: [
       { title: "Feynman-Kac Formula", url: "https://en.wikipedia.org/wiki/Feynman%E2%80%93Kac_formula", type: "article", free: true },
     ],
+    detailedExplanation:
+      "Step 1: Consider a PDE of the form \u2202u/\u2202t + b(x)\u2202u/\u2202x + \u00bd\u03c3\u00b2(x)\u2202\u00b2u/\u2202x\u00b2 \u2212 r(x)u = 0 with terminal condition u(T,x) = g(x). " +
+      "Step 2: Feynman-Kac says the solution is u(t,x) = E[e^(\u2212\u222b r(X_s) ds) g(X_T) | X_t = x], where dX = b(X)dt + \u03c3(X)dW. " +
+      "Step 3: This is exactly the Black-Scholes framework: the BS PDE has r(x) = r (constant), b(x) = rx, \u03c3(x) = \u03c3x. The terminal condition g(S_T) = max(S_T \u2212 K, 0) for a call. " +
+      "Step 4: So the BS price is V(t,S) = e^(\u2212r(T\u2212t)) E^Q[payoff | S_t = S]. Feynman-Kac tells us that solving the PDE and computing the expectation are equivalent. " +
+      "This duality is the backbone of derivatives pricing: you can either solve the PDE numerically (finite differences) or compute the expectation (Monte Carlo/analytical). Both give the same answer.",
+    commonMistakes: [
+      "Not recognizing that the Black-Scholes PDE is a specific instance of Feynman-Kac \u2014 the theorem is far more general than just option pricing",
+      "Confusing the forward Kolmogorov equation (evolves the distribution) with the backward equation (evolves the expected value, which is what Feynman-Kac uses)",
+      "Forgetting the discounting term e^(\u2212\u222b r ds) in the Feynman-Kac representation \u2014 the PDE term \u2212r\u00b7u corresponds to this discounting",
+    ],
+    guideSection: "stoch-ito",
   },
   {
     id: "stoch-9",
@@ -514,6 +646,18 @@ export const questions: Question[] = [
     choices: ["0", "0.25", "0.5", "1.0"],
     correctIndex: 2,
     explanation: "ATM call delta \u2248 0.5 \u2014 roughly 50/50 chance of finishing ITM.",
+    detailedExplanation:
+      "Step 1: In Black-Scholes, call delta = N(d\u2081) where d\u2081 = [ln(S/K) + (r + \u03c3\u00b2/2)T] / (\u03c3\u221aT). " +
+      "Step 2: At-the-money means S = K, so ln(S/K) = 0. Then d\u2081 = (r + \u03c3\u00b2/2)T / (\u03c3\u221aT) = (r + \u03c3\u00b2/2)\u221aT/\u03c3. " +
+      "Step 3: For short maturities or low rates, d\u2081 \u2248 0, so N(d\u2081) \u2248 N(0) = 0.5. In practice d\u2081 is slightly positive, so ATM delta is slightly above 0.5. " +
+      "Step 4: Intuition \u2014 ATM means there is roughly a 50/50 chance the option finishes in-the-money. A $1 move in the underlying changes the option value by approximately $0.50. " +
+      "This is also why delta-hedging an ATM option requires holding about half a share per option. As the option moves deep ITM, delta approaches 1; deep OTM, delta approaches 0.",
+    commonMistakes: [
+      "Thinking ATM delta is exactly 0.5 \u2014 it is slightly above 0.5 for calls (and slightly above \u22120.5 for puts) due to the lognormal drift term in d\u2081",
+      "Confusing delta N(d\u2081) with the risk-neutral probability of finishing ITM N(d\u2082) \u2014 these differ by the factor e^(\u2212qT) and use different d values",
+      "Forgetting that put delta = call delta \u2212 1, so an ATM put has delta \u2248 \u22120.5",
+    ],
+    guideSection: "opt-greeks",
   },
   {
     id: "opt-4",
@@ -548,6 +692,18 @@ export const questions: Question[] = [
     resources: [
       { title: "Black-Scholes assumptions", url: "https://en.wikipedia.org/wiki/Black%E2%80%93Scholes_model#Assumptions", type: "article", free: true },
     ],
+    detailedExplanation:
+      "Step 1: The BS model assumes the underlying follows GBM: dS = \u03bcS dt + \u03c3S dW. GBM has continuous paths \u2014 the price cannot jump instantaneously. " +
+      "Step 2: List all BS assumptions: (a) log-normal asset prices (continuous paths), (b) constant volatility \u03c3, (c) constant risk-free rate r, (d) no dividends (or known continuous dividend yield), (e) no transaction costs, (f) continuous trading possible, (g) no arbitrage. " +
+      "Step 3: 'Underlying can jump' violates the continuous-path assumption. Real markets exhibit jumps (e.g., earnings announcements, crashes). This is why OTM options often trade at higher implied vol than BS predicts. " +
+      "Step 4: Extensions that relax this assumption include Merton\u2019s jump-diffusion model (adds Poisson jumps to GBM), stochastic volatility models (Heston), and local volatility models (Dupire). " +
+      "Knowing which assumptions are violated helps you understand when BS prices are unreliable and what corrections to apply.",
+    commonMistakes: [
+      "Thinking BS requires normally distributed prices \u2014 it requires log-normally distributed prices (i.e., log-returns are normal, not the prices themselves)",
+      "Forgetting that BS assumes no transaction costs and continuous hedging \u2014 in practice, discrete hedging and transaction costs create hedging error",
+      "Confusing constant volatility (a BS assumption) with constant drift (the drift \u03bc does not even appear in the BS formula, so its constancy is irrelevant)",
+    ],
+    guideSection: "opt-bs",
   },
   {
     id: "opt-6",
@@ -632,6 +788,18 @@ export const questions: Question[] = [
     resources: [
       { title: "Black-Scholes PDE", url: "https://en.wikipedia.org/wiki/Black%E2%80%93Scholes_equation", type: "article", free: true },
     ],
+    detailedExplanation:
+      "Step 1: Start with GBM: dS = \u03bcS dt + \u03c3S dW. The stock has drift \u03bc. Form a riskless portfolio \u03a0 = V \u2212 \u0394S (long option, short \u0394 shares). " +
+      "Step 2: By It\u00f4\u2019s lemma on V(S,t): dV = (\u2202V/\u2202t + \u03bcS\u2202V/\u2202S + \u00bd\u03c3\u00b2S\u00b2\u2202\u00b2V/\u2202S\u00b2)dt + \u03c3S\u2202V/\u2202S dW. " +
+      "Step 3: Choose \u0394 = \u2202V/\u2202S to eliminate the dW term: d\u03a0 = (\u2202V/\u2202t + \u00bd\u03c3\u00b2S\u00b2\u2202\u00b2V/\u2202S\u00b2)dt. This portfolio is riskless! " +
+      "Step 4: No-arbitrage: a riskless portfolio must earn r, so d\u03a0 = r\u03a0 dt. Substituting and rearranging gives the BS PDE with NO \u03bc anywhere. " +
+      "Step 5: The drift \u03bc cancels because delta hedging eliminates directional exposure. Since you can hedge away the drift, the market does not reward you for bearing it in option pricing. This is the fundamental insight behind risk-neutral pricing.",
+    commonMistakes: [
+      "Thinking the drift \u03bc should matter for option pricing \u2014 the hedging argument eliminates it completely, which is why two investors with different views on \u03bc agree on the option price",
+      "Not understanding the connection between hedging and risk-neutral pricing \u2014 the drift disappears precisely because the option can be perfectly replicated",
+      "Confusing the risk-neutral drift r (which appears in the PDE) with the physical drift \u03bc (which does not) \u2014 under Q, all assets drift at r",
+    ],
+    guideSection: "opt-bs",
   },
 
   // ═══════════════════════════════════════════════════════════════
@@ -666,6 +834,18 @@ export const questions: Question[] = [
     correctIndex: 1,
     explanation:
       "Switching wins 2/3 of the time. Initial pick = 1/3. Host concentrates 2/3 on the other door.",
+    detailedExplanation:
+      "Step 1: When you first pick a door, P(car behind your door) = 1/3 and P(car behind one of the other two doors) = 2/3. " +
+      "Step 2: The host, who KNOWS where the car is, opens a door with a goat. This is not random \u2014 the host always reveals a goat. This is the crucial asymmetry. " +
+      "Step 3: Your door still has P = 1/3 (the host\u2019s action gives you no new information about your door). The entire 2/3 probability now concentrates on the single remaining unopened door. " +
+      "Step 4: Therefore, switching gives P(win) = 2/3, while staying gives P(win) = 1/3. " +
+      "Alternative reasoning: consider 100 doors. You pick one, the host opens 98 goat doors. Would you switch? Your door has 1% chance; the remaining door has 99%. The 3-door case is the same logic at a smaller scale.",
+    commonMistakes: [
+      "Assuming the host opening a door makes it 50/50 \u2014 this ignores that the host KNOWS where the car is and ALWAYS reveals a goat, which is an informative action",
+      "Not recognizing that the host\u2019s action concentrates the 2/3 probability onto one door \u2014 the host cannot open your door or the car door, which constrains the problem",
+      "Confusing conditional probability P(car|host opens door 3) with unconditional probability P(car) \u2014 the host\u2019s constrained choice updates the probabilities",
+    ],
+    guideSection: "brain-logic",
   },
   {
     id: "brain-3",
@@ -863,6 +1043,18 @@ export const questions: Question[] = [
     explanation:
       "Cholesky needs symmetric PD. Used in finance for simulating correlated normals.",
     hint: "LL' only works for a specific class of matrices. Think about what makes a covariance matrix special.",
+    detailedExplanation:
+      "Step 1: Cholesky factorizes A = LL\u1d40 where L is lower triangular with positive diagonal entries. This is unique for symmetric positive definite (SPD) matrices. " +
+      "Step 2: Why SPD? Symmetric ensures A = A\u1d40 so the decomposition is self-consistent. Positive definite ensures all eigenvalues > 0, which guarantees the square roots in L are real and positive. " +
+      "Step 3: Finance application: to simulate n correlated normal random variables with covariance matrix \u03a3, compute L where \u03a3 = LL\u1d40. Then if Z ~ N(0, I), the vector X = LZ has Cov(X) = LE[ZZ\u1d40]L\u1d40 = LL\u1d40 = \u03a3. " +
+      "Step 4: Cholesky is preferred over eigendecomposition for this purpose because it is about 2x faster (O(n\u00b3/3) vs O(n\u00b3)) and numerically stable. " +
+      "Step 5: If \u03a3 is not positive definite (e.g., due to missing data or stale correlations), Cholesky will fail. In practice, you must first fix the matrix using nearest-PD projection or eigenvalue clipping.",
+    commonMistakes: [
+      "Trying to apply Cholesky to a non-positive-definite matrix \u2014 it will fail because square roots of negative eigenvalues are not real",
+      "Confusing Cholesky (A = LL\u1d40, requires SPD) with LU decomposition (A = LU, works for any invertible matrix) \u2014 different requirements and use cases",
+      "Not verifying that a covariance matrix is PD before applying Cholesky in Monte Carlo simulation \u2014 sample covariance matrices can be singular if n < p",
+    ],
+    guideSection: "la-decomposition",
   },
   {
     id: "la-6",
@@ -914,6 +1106,18 @@ export const questions: Question[] = [
     resources: [
       { title: "SVD and its applications (MIT)", url: "https://www.youtube.com/watch?v=rYz83XPxiZo", type: "video", free: true },
     ],
+    detailedExplanation:
+      "Step 1: SVD factorizes ANY m\u00d7n matrix A = U\u03a3V\u1d40, where U is m\u00d7m orthogonal, \u03a3 is m\u00d7n diagonal (singular values), V is n\u00d7n orthogonal. " +
+      "Step 2: Dimensionality reduction (PCA): keep only the top k singular values/vectors. The truncated SVD gives the best rank-k approximation (Eckart-Young theorem). " +
+      "Step 3: Pseudo-inverse: A\u207a = V\u03a3\u207aU\u1d40, where \u03a3\u207a inverts each non-zero singular value. This generalizes matrix inversion to non-square and singular matrices. " +
+      "Step 4: Correlation matrix denoising (Marchenko-Pastur): keep only singular values above the random matrix theory threshold, setting the rest to zero. " +
+      "Step 5: Sparse matrix storage is NOT an SVD application. SVD produces dense U, \u03a3, V matrices regardless of input sparsity. Sparse storage uses formats like CSR/COO that exploit zero patterns directly.",
+    commonMistakes: [
+      "Confusing SVD with eigendecomposition \u2014 SVD works for ANY matrix (rectangular, singular, etc.) while eigendecomposition requires a square matrix",
+      "Thinking SVD produces a sparse representation \u2014 even if A is sparse, U, \u03a3, V are generally dense, making SVD useless for sparse storage",
+      "Not knowing the Eckart-Young theorem \u2014 truncated SVD gives the BEST rank-k approximation in both Frobenius and spectral norms",
+    ],
+    guideSection: "la-decomposition",
   },
   {
     id: "la-9",
@@ -947,6 +1151,18 @@ export const questions: Question[] = [
     resources: [
       { title: "Monte Carlo methods in finance", url: "https://en.wikipedia.org/wiki/Monte_Carlo_methods_in_finance", type: "article", free: true },
     ],
+    detailedExplanation:
+      "Step 1: The Monte Carlo estimator for E[X] is X\u0304 = (1/N)\u03a3X\u1d62. By CLT, X\u0304 is approximately normal with standard error SE = \u03c3/\u221aN. " +
+      "Step 2: We want to halve the error: SE_new = SE/2, so \u03c3/\u221a(N_new) = \u03c3/(2\u221aN). " +
+      "Step 3: Solving: \u221a(N_new) = 2\u221aN, so N_new = 4N. You need 4 times as many samples to halve the error. " +
+      "Step 4: This O(1/\u221aN) convergence is slow. Going from 2 decimal places to 3 requires 100x more samples. This is why variance reduction techniques (antithetic variates, control variates, importance sampling) are essential in practice. " +
+      "Key insight: the convergence rate is dimension-independent, which is why MC beats grid methods in high dimensions (where grid methods scale as O(1/N^(1/d))).",
+    commonMistakes: [
+      "Thinking doubling the samples halves the error \u2014 doubling only reduces error by factor \u221a2 \u2248 1.41, not by half",
+      "Confusing the convergence rate O(1/\u221aN) with bias \u2014 MC is unbiased; the 1/\u221aN rate describes the standard error (precision), not accuracy",
+      "Not considering variance reduction techniques that can dramatically improve the effective convergence rate beyond the basic 1/\u221aN",
+    ],
+    guideSection: "la-numerical",
   },
   {
     id: "adv-2",
@@ -960,6 +1176,18 @@ export const questions: Question[] = [
     correctIndex: 1,
     explanation:
       "Reroll if \u22643 (EV=3.5 > current). Keep 4,5,6. EV = (3/6)(3.5) + (1/6)(4+5+6) = 4.25.",
+    detailedExplanation:
+      "Step 1: This is an optimal stopping problem. After the first roll, you see a value v and must decide: keep v, or reroll (getting E[die] = 3.5 on the reroll). " +
+      "Step 2: Optimal strategy: keep v if v > 3.5, reroll if v \u2264 3.5. Since die outcomes are integers, keep {4, 5, 6} and reroll {1, 2, 3}. " +
+      "Step 3: Compute EV. P(keep) = 3/6 with E[value | keep] = (4+5+6)/3 = 5. P(reroll) = 3/6 with E[value | reroll] = 3.5. " +
+      "Step 4: EV = (3/6)(5) + (3/6)(3.5) = 2.5 + 1.75 = 4.25. " +
+      "Key insight: the threshold is the expected value of the next roll. You should reroll whenever your current value is below the expected value of a fresh roll. This generalizes to multi-round stopping problems.",
+    commonMistakes: [
+      "Rerolling on a 4 \u2014 since E[reroll] = 3.5 < 4, keeping a 4 is strictly better than rerolling",
+      "Not recognizing the threshold structure \u2014 the optimal strategy is always 'keep if above threshold, reroll if below'",
+      "Computing E[always reroll] = 3.5 instead of the conditional EV that accounts for the keep/reroll decision",
+    ],
+    guideSection: "brain-ev-games",
   },
   {
     id: "adv-3",
@@ -1010,6 +1238,18 @@ export const questions: Question[] = [
     explanation:
       "P = 1/4. Triangle inequality requires all pieces < 1/2. The favorable simplex region has area 1/4.",
     hint: "Triangle inequality: each piece must be < sum of the other two. For a unit stick, this means each piece < 1/2.",
+    detailedExplanation:
+      "Step 1: Break the unit stick at two random uniform points U\u2081, U\u2082 on [0,1]. Let the three pieces have lengths X, Y, Z where X + Y + Z = 1. " +
+      "Step 2: Triangle inequality requires: X < Y + Z, Y < X + Z, Z < X + Y. Since X + Y + Z = 1, these simplify to X < 1/2, Y < 1/2, Z < 1/2. " +
+      "Step 3: Geometrically, the sample space of (X, Y) with X \u2265 0, Y \u2265 0, X + Y \u2264 1 is a simplex (triangle) with area 1/2. " +
+      "Step 4: The favorable region where X < 1/2, Y < 1/2, and Z = 1 \u2212 X \u2212 Y > 1/2 (equivalently X + Y < 1/2) is a smaller triangle with area 1/8. Wait \u2014 actually the favorable region is where ALL three constraints hold: X < 1/2, Y < 1/2, X + Y > 1/2. This is the central triangle with area 1/8. " +
+      "Step 5: P = (favorable area)/(total area) = (1/8)/(1/2) = 1/4. The probability is exactly 1/4.",
+    commonMistakes: [
+      "Forgetting one of the three triangle inequality constraints \u2014 all three pieces must be less than 1/2, not just one or two",
+      "Not recognizing the geometric probability approach \u2014 the problem maps to areas in a 2D simplex, making visualization essential",
+      "Confusing this with breaking at one point instead of two \u2014 breaking at one point gives two pieces which always fail the triangle inequality (you need three pieces)",
+    ],
+    guideSection: "prob-counting",
   },
   {
     id: "adv-6",

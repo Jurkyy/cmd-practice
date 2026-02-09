@@ -4,8 +4,8 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { questions as allQuestions } from "../../src/data/questions";
 import { categories } from "../../src/data/categories";
 import { QuestionCard } from "../../src/components/QuestionCard";
-import { useProgress } from "../../src/hooks/useProgress";
-import { Category, Difficulty, QuizResult } from "../../src/types";
+import { useProgress, getReviewQueue } from "../../src/hooks/useProgress";
+import { Category, Difficulty, QuizResult, PerQuestionResult } from "../../src/types";
 import { colors, spacing, fontSize, borderRadius } from "../../src/utils/theme";
 
 const QUIZ_SIZE = 5;
@@ -27,12 +27,21 @@ export default function QuizScreen() {
   }>();
   const category = params.category;
   const router = useRouter();
-  const { saveResult } = useProgress();
+  const { progress, saveResult } = useProgress();
 
-  const isAll = category === "all";
+  const isReview = category === "review";
+  const isAll = category === "all" || isReview;
   const cat = categories.find((c) => c.id === category);
 
   const quizQuestions = useMemo(() => {
+    if (isReview) {
+      const dueIds = getReviewQueue(progress.srData);
+      const dueQuestions = dueIds
+        .map((id) => allQuestions.find((q) => q.id === id))
+        .filter(Boolean) as typeof allQuestions;
+      return shuffle(dueQuestions).slice(0, QUIZ_SIZE);
+    }
+
     let pool = isAll
       ? allQuestions
       : allQuestions.filter((q) => q.category === category);
@@ -45,7 +54,7 @@ export default function QuizScreen() {
     }
 
     return shuffle(pool).slice(0, QUIZ_SIZE);
-  }, [category, params.difficulty, params.duration, isAll]);
+  }, [category, params.difficulty, params.duration, isAll, isReview, progress.srData]);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
@@ -54,6 +63,8 @@ export default function QuizScreen() {
     Array(quizQuestions.length).fill(null)
   );
   const [startTime] = useState(Date.now());
+  const [questionStartTime, setQuestionStartTime] = useState(Date.now());
+  const [questionResults, setQuestionResults] = useState<PerQuestionResult[]>([]);
 
   const currentQuestion = quizQuestions[currentIndex];
   const isLast = currentIndex === quizQuestions.length - 1;
@@ -74,7 +85,16 @@ export default function QuizScreen() {
     newAnswers[currentIndex] = selectedIndex;
     setAnswers(newAnswers);
     setRevealed(true);
-  }, [selectedIndex, answers, currentIndex]);
+
+    // Record per-question result
+    const qr: PerQuestionResult = {
+      questionId: quizQuestions[currentIndex].id,
+      correct: selectedIndex === quizQuestions[currentIndex].correctIndex,
+      selectedIndex,
+      timeMs: Date.now() - questionStartTime,
+    };
+    setQuestionResults((prev) => [...prev, qr]);
+  }, [selectedIndex, answers, currentIndex, quizQuestions, questionStartTime]);
 
   const handleNext = useCallback(async () => {
     if (isLast) {
@@ -83,12 +103,13 @@ export default function QuizScreen() {
       }, 0);
 
       const result: QuizResult = {
-        category: isAll ? "all" : (category as Category),
+        category: isReview ? "all" : isAll ? "all" : (category as Category),
         difficulty: (params.difficulty as Difficulty) ?? "mixed",
         totalQuestions: quizQuestions.length,
         correctAnswers: correctCount,
         timeTakenMs: Date.now() - startTime,
         date: new Date().toLocaleDateString(),
+        questionResults,
       };
       await saveResult(result);
 
@@ -105,8 +126,9 @@ export default function QuizScreen() {
       setCurrentIndex((i) => i + 1);
       setSelectedIndex(null);
       setRevealed(false);
+      setQuestionStartTime(Date.now());
     }
-  }, [isLast, answers, quizQuestions, category, startTime, saveResult, router, isAll, params.difficulty]);
+  }, [isLast, answers, quizQuestions, category, startTime, saveResult, router, isAll, params.difficulty, questionResults]);
 
   if (!currentQuestion) {
     return (
@@ -125,7 +147,11 @@ export default function QuizScreen() {
     );
   }
 
-  const catLabel = isAll ? "\u26A1 Quick Mix" : `${cat?.icon} ${cat?.name}`;
+  const catLabel = isReview
+    ? "\uD83D\uDD01 Review Queue"
+    : isAll
+      ? "\u26A1 Quick Mix"
+      : `${cat?.icon} ${cat?.name}`;
 
   return (
     <View style={styles.container}>

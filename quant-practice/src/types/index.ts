@@ -49,7 +49,10 @@ export interface Resource {
   free?: boolean;
 }
 
+// ─── Guide types ────────────────────────────────────────────────
+
 export interface GuideSection {
+  id: string; // e.g. "prob-counting" — used for concept linking
   title: string;
   content: string;
   keyFormulas?: string[];
@@ -65,6 +68,8 @@ export interface TopicGuide {
   resources: Resource[];
 }
 
+// ─── Question types ─────────────────────────────────────────────
+
 export interface Question {
   id: string;
   category: Category;
@@ -76,8 +81,11 @@ export interface Question {
   choices: string[];
   correctIndex: number;
   explanation: string;
+  detailedExplanation?: string;
+  commonMistakes?: string[];
   resources?: Resource[];
   hint?: string;
+  guideSection?: string; // links to GuideSection.id
 }
 
 export interface CategoryInfo {
@@ -88,11 +96,20 @@ export interface CategoryInfo {
   color: string;
 }
 
+// ─── Quiz types ─────────────────────────────────────────────────
+
 export interface QuizState {
   questions: Question[];
   currentIndex: number;
   answers: (number | null)[];
   startedAt: number;
+}
+
+export interface PerQuestionResult {
+  questionId: string;
+  correct: boolean;
+  selectedIndex: number;
+  timeMs: number;
 }
 
 export interface QuizResult {
@@ -103,20 +120,97 @@ export interface QuizResult {
   timeTakenMs: number;
   date: string;
   tags?: Tag[];
+  questionResults?: PerQuestionResult[];
+}
+
+// ─── Spaced Repetition ──────────────────────────────────────────
+
+export interface QuestionSRData {
+  questionId: string;
+  /** SM-2 fields */
+  easeFactor: number; // starts at 2.5
+  interval: number; // days until next review
+  repetitions: number; // consecutive correct
+  nextReviewDate: string; // ISO date string
+  /** History */
+  lastAttemptDate: string;
+  totalAttempts: number;
+  totalCorrect: number;
+}
+
+// ─── Progress types ─────────────────────────────────────────────
+
+export interface TagStats {
+  attempted: number;
+  correct: number;
+}
+
+export interface DifficultyStats {
+  attempted: number;
+  correct: number;
 }
 
 export interface UserProgress {
   totalAttempted: number;
   totalCorrect: number;
   categoryStats: Record<Category, { attempted: number; correct: number }>;
+  tagStats: Record<string, TagStats>;
+  difficultyStats: Record<Difficulty, DifficultyStats>;
   history: QuizResult[];
+  /** Spaced repetition data per question */
+  srData: Record<string, QuestionSRData>;
+  /** Gamification */
+  streak: StreakData;
+  achievements: string[]; // earned achievement IDs
 }
+
+// ─── Gamification ───────────────────────────────────────────────
+
+export interface StreakData {
+  current: number;
+  longest: number;
+  lastPracticeDate: string; // ISO date
+}
+
+export interface Achievement {
+  id: string;
+  title: string;
+  description: string;
+  icon: string;
+  condition: (progress: UserProgress) => boolean;
+}
+
+// ─── Learning paths ─────────────────────────────────────────────
+
+export interface LearningPathStep {
+  type: "guide" | "quiz";
+  /** For guide: category + sectionId. For quiz: category + filters */
+  category: Category;
+  sectionId?: string; // for guide steps
+  difficulty?: Difficulty; // for quiz steps
+  title: string;
+  description: string;
+}
+
+export interface LearningPath {
+  id: string;
+  title: string;
+  description: string;
+  icon: string;
+  difficulty: Difficulty;
+  estimatedHours: number;
+  steps: LearningPathStep[];
+}
+
+// ─── Filter types ───────────────────────────────────────────────
 
 export interface FilterState {
   difficulty: Difficulty | null;
   duration: Duration | null;
   tags: Tag[];
 }
+
+// ─── Config constants ───────────────────────────────────────────
 
 export const TAG_LABELS: Record<Tag, string> = {
   "interview-classic": "Interview Classic",
@@ -133,7 +227,7 @@ export const TAG_LABELS: Record<Tag, string> = {
   regression: "Regression",
   "time-series": "Time Series",
   martingale: "Martingale",
-  "ito-calculus": "Itô Calculus",
+  "ito-calculus": "It\u00f4 Calculus",
   "mean-reversion": "Mean Reversion",
   "black-scholes": "Black-Scholes",
   volatility: "Volatility",
@@ -162,18 +256,97 @@ export const DURATION_CONFIG: Record<
   Duration,
   { label: string; icon: string; minutes: string }
 > = {
-  quick: { label: "Quick", icon: "⚡", minutes: "<1 min" },
-  medium: { label: "Medium", icon: "⏱", minutes: "1-2 min" },
-  long: { label: "Long", icon: "🧮", minutes: "3-5 min" },
+  quick: { label: "Quick", icon: "\u26A1", minutes: "<1 min" },
+  medium: { label: "Medium", icon: "\u23F1", minutes: "1-2 min" },
+  long: { label: "Long", icon: "\uD83E\uDDEE", minutes: "3-5 min" },
 };
 
 export const RESOURCE_TYPE_CONFIG: Record<
   ResourceType,
   { label: string; icon: string; color: string }
 > = {
-  article: { label: "Article", icon: "📄", color: "#3b82f6" },
-  video: { label: "Video", icon: "▶️", color: "#ef4444" },
-  book: { label: "Book", icon: "📚", color: "#8b5cf6" },
-  paper: { label: "Paper", icon: "📝", color: "#06b6d4" },
-  tool: { label: "Tool", icon: "🔧", color: "#f59e0b" },
+  article: { label: "Article", icon: "\uD83D\uDCC4", color: "#3b82f6" },
+  video: { label: "Video", icon: "\u25B6\uFE0F", color: "#ef4444" },
+  book: { label: "Book", icon: "\uD83D\uDCDA", color: "#8b5cf6" },
+  paper: { label: "Paper", icon: "\uD83D\uDCDD", color: "#06b6d4" },
+  tool: { label: "Tool", icon: "\uD83D\uDD27", color: "#f59e0b" },
 };
+
+// ─── Achievements definitions ───────────────────────────────────
+
+export const ACHIEVEMENTS: Achievement[] = [
+  {
+    id: "first-quiz",
+    title: "First Steps",
+    description: "Complete your first quiz",
+    icon: "\uD83C\uDF1F",
+    condition: (p) => p.history.length >= 1,
+  },
+  {
+    id: "ten-quizzes",
+    title: "Getting Serious",
+    description: "Complete 10 quizzes",
+    icon: "\uD83D\uDD25",
+    condition: (p) => p.history.length >= 10,
+  },
+  {
+    id: "fifty-questions",
+    title: "Half Century",
+    description: "Answer 50 questions",
+    icon: "\uD83C\uDFAF",
+    condition: (p) => p.totalAttempted >= 50,
+  },
+  {
+    id: "perfect-quiz",
+    title: "Flawless",
+    description: "Score 100% on a quiz",
+    icon: "\uD83D\uDC8E",
+    condition: (p) =>
+      p.history.some((r) => r.correctAnswers === r.totalQuestions && r.totalQuestions > 0),
+  },
+  {
+    id: "streak-3",
+    title: "On Fire",
+    description: "Practice 3 days in a row",
+    icon: "\uD83D\uDD25",
+    condition: (p) => p.streak.current >= 3,
+  },
+  {
+    id: "streak-7",
+    title: "Week Warrior",
+    description: "Practice 7 days in a row",
+    icon: "\u2B50",
+    condition: (p) => p.streak.current >= 7,
+  },
+  {
+    id: "all-categories",
+    title: "Well Rounded",
+    description: "Attempt questions from all 6 categories",
+    icon: "\uD83C\uDF0D",
+    condition: (p) =>
+      Object.values(p.categoryStats).every((s) => s.attempted > 0),
+  },
+  {
+    id: "hard-master",
+    title: "Hard Mode",
+    description: "Score 80%+ on 10 hard questions",
+    icon: "\uD83E\uDDE0",
+    condition: (p) =>
+      p.difficultyStats.hard.attempted >= 10 &&
+      p.difficultyStats.hard.correct / p.difficultyStats.hard.attempted >= 0.8,
+  },
+  {
+    id: "hundred-correct",
+    title: "Century Club",
+    description: "Get 100 questions correct",
+    icon: "\uD83C\uDFC6",
+    condition: (p) => p.totalCorrect >= 100,
+  },
+  {
+    id: "streak-30",
+    title: "Monthly Master",
+    description: "Practice 30 days in a row",
+    icon: "\uD83D\uDC51",
+    condition: (p) => p.streak.longest >= 30,
+  },
+];
