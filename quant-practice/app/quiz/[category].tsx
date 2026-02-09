@@ -5,7 +5,7 @@ import { questions as allQuestions } from "../../src/data/questions";
 import { categories } from "../../src/data/categories";
 import { QuestionCard } from "../../src/components/QuestionCard";
 import { useProgress } from "../../src/hooks/useProgress";
-import { Category, QuizResult } from "../../src/types";
+import { Category, Difficulty, QuizResult } from "../../src/types";
 import { colors, spacing, fontSize, borderRadius } from "../../src/utils/theme";
 
 const QUIZ_SIZE = 5;
@@ -20,16 +20,32 @@ function shuffle<T>(arr: T[]): T[] {
 }
 
 export default function QuizScreen() {
-  const { category } = useLocalSearchParams<{ category: string }>();
+  const params = useLocalSearchParams<{
+    category: string;
+    difficulty?: string;
+    duration?: string;
+  }>();
+  const category = params.category;
   const router = useRouter();
   const { saveResult } = useProgress();
 
+  const isAll = category === "all";
   const cat = categories.find((c) => c.id === category);
 
   const quizQuestions = useMemo(() => {
-    const pool = allQuestions.filter((q) => q.category === category);
+    let pool = isAll
+      ? allQuestions
+      : allQuestions.filter((q) => q.category === category);
+
+    if (params.difficulty) {
+      pool = pool.filter((q) => q.difficulty === params.difficulty);
+    }
+    if (params.duration) {
+      pool = pool.filter((q) => q.duration === params.duration);
+    }
+
     return shuffle(pool).slice(0, QUIZ_SIZE);
-  }, [category]);
+  }, [category, params.difficulty, params.duration, isAll]);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
@@ -41,6 +57,12 @@ export default function QuizScreen() {
 
   const currentQuestion = quizQuestions[currentIndex];
   const isLast = currentIndex === quizQuestions.length - 1;
+
+  const correctSoFar = answers.reduce<number>(
+    (acc, ans, i) =>
+      acc + (ans !== null && ans === quizQuestions[i]?.correctIndex ? 1 : 0),
+    0
+  );
 
   const handleSelect = useCallback((index: number) => {
     setSelectedIndex(index);
@@ -61,8 +83,8 @@ export default function QuizScreen() {
       }, 0);
 
       const result: QuizResult = {
-        category: category as Category,
-        difficulty: "mixed",
+        category: isAll ? "all" : (category as Category),
+        difficulty: (params.difficulty as Difficulty) ?? "mixed",
         totalQuestions: quizQuestions.length,
         correctAnswers: correctCount,
         timeTakenMs: Date.now() - startTime,
@@ -84,13 +106,17 @@ export default function QuizScreen() {
       setSelectedIndex(null);
       setRevealed(false);
     }
-  }, [isLast, answers, quizQuestions, category, startTime, saveResult, router]);
+  }, [isLast, answers, quizQuestions, category, startTime, saveResult, router, isAll, params.difficulty]);
 
   if (!currentQuestion) {
     return (
       <View style={styles.center}>
+        <Text style={styles.emptyIcon}>{"\u{1F50D}"}</Text>
         <Text style={styles.emptyText}>
-          No questions available for this category yet.
+          No questions match these filters.
+        </Text>
+        <Text style={styles.emptyHint}>
+          Try removing a difficulty or duration filter.
         </Text>
         <Pressable style={styles.backButton} onPress={() => router.back()}>
           <Text style={styles.backButtonText}>Go Back</Text>
@@ -99,24 +125,44 @@ export default function QuizScreen() {
     );
   }
 
+  const catLabel = isAll ? "\u26A1 Quick Mix" : `${cat?.icon} ${cat?.name}`;
+
   return (
     <View style={styles.container}>
+      {/* Top bar */}
       <View style={styles.topBar}>
-        <Text style={styles.categoryLabel}>{cat?.icon} {cat?.name}</Text>
-        <Text style={styles.counter}>
-          {currentIndex + 1} / {quizQuestions.length}
-        </Text>
+        <Text style={styles.categoryLabel}>{catLabel}</Text>
+        <View style={styles.scoreChip}>
+          <Text style={styles.scoreText}>
+            {correctSoFar}/{currentIndex + (revealed ? 1 : 0)}
+          </Text>
+        </View>
       </View>
 
-      <View style={styles.progressBarContainer}>
-        <View
-          style={[
-            styles.progressBar,
-            {
-              width: `${((currentIndex + (revealed ? 1 : 0)) / quizQuestions.length) * 100}%`,
-            },
-          ]}
-        />
+      {/* Progress dots */}
+      <View style={styles.dotsRow}>
+        {quizQuestions.map((_, i) => {
+          let dotColor: string = colors.border;
+          if (i < currentIndex || (i === currentIndex && revealed)) {
+            const ans = answers[i];
+            dotColor =
+              ans === quizQuestions[i].correctIndex
+                ? colors.success
+                : colors.error;
+          } else if (i === currentIndex) {
+            dotColor = colors.primary;
+          }
+          return (
+            <View
+              key={i}
+              style={[
+                styles.dot,
+                { backgroundColor: dotColor },
+                i === currentIndex && styles.dotActive,
+              ]}
+            />
+          );
+        })}
       </View>
 
       <QuestionCard
@@ -124,24 +170,40 @@ export default function QuizScreen() {
         selectedIndex={selectedIndex}
         revealed={revealed}
         onSelect={handleSelect}
+        onSubmit={handleSubmit}
       />
 
+      {/* Bottom bar */}
       <View style={styles.bottomBar}>
         {!revealed ? (
           <Pressable
-            style={[
+            style={({ pressed }) => [
               styles.button,
               selectedIndex === null && styles.buttonDisabled,
+              pressed && selectedIndex !== null && styles.buttonPressed,
             ]}
             onPress={handleSubmit}
             disabled={selectedIndex === null}
           >
-            <Text style={styles.buttonText}>Check Answer</Text>
+            <Text
+              style={[
+                styles.buttonText,
+                selectedIndex === null && styles.buttonTextDisabled,
+              ]}
+            >
+              Check Answer
+            </Text>
           </Pressable>
         ) : (
-          <Pressable style={styles.button} onPress={handleNext}>
+          <Pressable
+            style={({ pressed }) => [
+              styles.button,
+              pressed && styles.buttonPressed,
+            ]}
+            onPress={handleNext}
+          >
             <Text style={styles.buttonText}>
-              {isLast ? "See Results" : "Next Question"}
+              {isLast ? "See Results" : "Next"}
             </Text>
           </Pressable>
         )}
@@ -160,22 +222,35 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: colors.background,
-    padding: spacing.lg,
+    padding: spacing.xl,
+  },
+  emptyIcon: {
+    fontSize: 48,
+    marginBottom: spacing.md,
   },
   emptyText: {
-    color: colors.textSecondary,
-    fontSize: fontSize.md,
+    color: colors.text,
+    fontSize: fontSize.lg,
+    fontWeight: "700",
     textAlign: "center",
-    marginBottom: spacing.lg,
+    marginBottom: spacing.sm,
+  },
+  emptyHint: {
+    color: colors.textMuted,
+    fontSize: fontSize.sm,
+    textAlign: "center",
+    marginBottom: spacing.xl,
   },
   backButton: {
     backgroundColor: colors.surface,
-    paddingHorizontal: spacing.lg,
+    paddingHorizontal: spacing.xl,
     paddingVertical: spacing.md,
-    borderRadius: borderRadius.md,
+    borderRadius: borderRadius.full,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   backButtonText: {
-    color: colors.primary,
+    color: colors.primaryLight,
     fontSize: fontSize.md,
     fontWeight: "600",
   },
@@ -188,43 +263,66 @@ const styles = StyleSheet.create({
   },
   categoryLabel: {
     color: colors.textSecondary,
-    fontSize: fontSize.md,
-    fontWeight: "600",
+    fontSize: fontSize.sm,
+    fontWeight: "700",
+    letterSpacing: 0.3,
   },
-  counter: {
-    color: colors.textMuted,
-    fontSize: fontSize.md,
-    fontWeight: "600",
+  scoreChip: {
+    backgroundColor: colors.glass,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: borderRadius.full,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
-  progressBarContainer: {
-    height: 3,
-    backgroundColor: colors.border,
-    marginHorizontal: spacing.md,
-    marginTop: spacing.sm,
+  scoreText: {
+    color: colors.textSecondary,
+    fontSize: fontSize.xs,
+    fontWeight: "700",
+    letterSpacing: 0.5,
+  },
+  dotsRow: {
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: 6,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+  },
+  dot: {
+    flex: 1,
+    height: 4,
     borderRadius: 2,
-    overflow: "hidden",
+    maxWidth: 60,
   },
-  progressBar: {
-    height: 3,
-    backgroundColor: colors.primary,
-    borderRadius: 2,
+  dotActive: {
+    height: 5,
+    borderRadius: 3,
   },
   bottomBar: {
     padding: spacing.md,
     paddingBottom: spacing.lg,
+    backgroundColor: colors.background,
   },
   button: {
     backgroundColor: colors.primary,
-    borderRadius: borderRadius.md,
-    paddingVertical: spacing.md,
+    borderRadius: borderRadius.lg,
+    paddingVertical: 16,
     alignItems: "center",
   },
   buttonDisabled: {
     backgroundColor: colors.surfaceLight,
   },
+  buttonPressed: {
+    opacity: 0.9,
+    transform: [{ scale: 0.98 }],
+  },
   buttonText: {
     color: colors.text,
     fontSize: fontSize.md,
-    fontWeight: "700",
+    fontWeight: "800",
+    letterSpacing: 0.3,
+  },
+  buttonTextDisabled: {
+    color: colors.textDim,
   },
 });

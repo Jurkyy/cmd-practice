@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { categories } from "../../src/data/categories";
 import { useProgress } from "../../src/hooks/useProgress";
-import { colors, spacing, fontSize, borderRadius } from "../../src/utils/theme";
+import { colors, spacing, fontSize, borderRadius, shadow } from "../../src/utils/theme";
 
 export default function ProgressScreen() {
   const { progress, loaded, resetProgress } = useProgress();
@@ -45,9 +45,20 @@ export default function ProgressScreen() {
     <ScrollView
       style={styles.container}
       contentContainerStyle={styles.content}
+      showsVerticalScrollIndicator={false}
     >
+      {/* Overview */}
       <View style={styles.overviewCard}>
-        <Text style={styles.overviewTitle}>Overall</Text>
+        <View style={styles.overviewHeader}>
+          <Text style={styles.overviewTitle}>Overview</Text>
+          {progress.totalAttempted > 0 && (
+            <View style={styles.accBadge}>
+              <Text style={[styles.accBadgeText, { color: overallAccuracy >= 70 ? colors.success : overallAccuracy >= 40 ? colors.warning : colors.error }]}>
+                {overallAccuracy}%
+              </Text>
+            </View>
+          )}
+        </View>
         <View style={styles.overviewStats}>
           <View style={styles.statBlock}>
             <Text style={styles.statNumber}>{progress.totalAttempted}</Text>
@@ -58,10 +69,10 @@ export default function ProgressScreen() {
             <Text style={styles.statLabel}>Correct</Text>
           </View>
           <View style={styles.statBlock}>
-            <Text style={[styles.statNumber, { color: colors.primary }]}>
-              {overallAccuracy}%
+            <Text style={styles.statNumber}>
+              {progress.history.length}
             </Text>
-            <Text style={styles.statLabel}>Accuracy</Text>
+            <Text style={styles.statLabel}>Sessions</Text>
           </View>
         </View>
         {progress.totalAttempted > 0 && (
@@ -73,7 +84,8 @@ export default function ProgressScreen() {
         )}
       </View>
 
-      <Text style={styles.sectionTitle}>By Category</Text>
+      {/* Categories */}
+      <Text style={styles.sectionTitle}>BY CATEGORY</Text>
 
       {categories.map((cat) => {
         const stats = progress.categoryStats[cat.id];
@@ -84,7 +96,9 @@ export default function ProgressScreen() {
 
         return (
           <View key={cat.id} style={styles.categoryRow}>
-            <Text style={styles.categoryIcon}>{cat.icon}</Text>
+            <View style={[styles.catIconWrap, { backgroundColor: cat.color + "18" }]}>
+              <Text style={styles.categoryIcon}>{cat.icon}</Text>
+            </View>
             <View style={styles.categoryInfo}>
               <Text style={styles.categoryName}>{cat.name}</Text>
               {stats && stats.attempted > 0 ? (
@@ -110,7 +124,7 @@ export default function ProgressScreen() {
                   </View>
                 </>
               ) : (
-                <Text style={styles.categoryStats}>Not started</Text>
+                <Text style={styles.notStarted}>Not started</Text>
               )}
             </View>
             {acc !== null && (
@@ -134,33 +148,80 @@ export default function ProgressScreen() {
         );
       })}
 
+      {/* Recent */}
       {progress.history.length > 0 && (
         <>
-          <Text style={[styles.sectionTitle, { marginTop: spacing.lg }]}>
-            Recent Sessions
+          <Text style={[styles.sectionTitle, { marginTop: spacing.xl }]}>
+            RECENT
           </Text>
           {progress.history.slice(0, 10).map((result, i) => {
-            const cat = categories.find((c) => c.id === result.category);
+            const rCat = categories.find((c) => c.id === result.category);
+            const pct =
+              result.totalQuestions > 0
+                ? Math.round(
+                    (result.correctAnswers / result.totalQuestions) * 100
+                  )
+                : 0;
             return (
               <View key={i} style={styles.historyRow}>
-                <Text style={styles.historyIcon}>{cat?.icon ?? "?"}</Text>
-                <View style={styles.historyInfo}>
-                  <Text style={styles.historyName}>
-                    {cat?.name ?? result.category}
-                  </Text>
-                  <Text style={styles.historyDate}>{result.date}</Text>
+                <View style={styles.historyLeft}>
+                  <Text style={styles.historyIcon}>{rCat?.icon ?? "\u26A1"}</Text>
+                  <View>
+                    <Text style={styles.historyName}>
+                      {rCat?.name ?? "Quick Mix"}
+                    </Text>
+                    <Text style={styles.historyDate}>{result.date}</Text>
+                  </View>
                 </View>
-                <Text style={styles.historyScore}>
-                  {result.correctAnswers}/{result.totalQuestions}
-                </Text>
+                <View style={styles.historyRight}>
+                  <Text style={styles.historyScore}>
+                    {result.correctAnswers}/{result.totalQuestions}
+                  </Text>
+                  <View
+                    style={[
+                      styles.historyPctBadge,
+                      {
+                        backgroundColor:
+                          pct >= 70
+                            ? colors.successBg
+                            : pct >= 40
+                              ? colors.warningBg
+                              : colors.errorBg,
+                      },
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.historyPct,
+                        {
+                          color:
+                            pct >= 70
+                              ? colors.success
+                              : pct >= 40
+                                ? colors.warning
+                                : colors.error,
+                        },
+                      ]}
+                    >
+                      {pct}%
+                    </Text>
+                  </View>
+                </View>
               </View>
             );
           })}
         </>
       )}
 
+      {/* Reset */}
       {progress.totalAttempted > 0 && (
-        <Pressable style={styles.resetButton} onPress={handleReset}>
+        <Pressable
+          style={({ pressed }) => [
+            styles.resetButton,
+            pressed && { opacity: 0.7 },
+          ]}
+          onPress={handleReset}
+        >
           <Text style={styles.resetText}>Reset All Progress</Text>
         </Pressable>
       )}
@@ -175,7 +236,7 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: spacing.md,
-    paddingBottom: spacing.xxl,
+    paddingBottom: spacing.xxl + 20,
   },
   center: {
     flex: 1,
@@ -184,20 +245,41 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
   },
   loadingText: {
-    color: colors.textSecondary,
+    color: colors.textMuted,
     fontSize: fontSize.md,
   },
   overviewCard: {
     backgroundColor: colors.surface,
-    borderRadius: borderRadius.lg,
+    borderRadius: borderRadius.xl,
     padding: spacing.lg,
     marginBottom: spacing.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    ...shadow,
+  },
+  overviewHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: spacing.md,
   },
   overviewTitle: {
     color: colors.text,
     fontSize: fontSize.lg,
-    fontWeight: "700",
-    marginBottom: spacing.md,
+    fontWeight: "800",
+    letterSpacing: -0.3,
+  },
+  accBadge: {
+    backgroundColor: colors.glass,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: borderRadius.full,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  accBadgeText: {
+    fontSize: fontSize.sm,
+    fontWeight: "800",
   },
   overviewStats: {
     flexDirection: "row",
@@ -209,18 +291,20 @@ const styles = StyleSheet.create({
   statNumber: {
     color: colors.text,
     fontSize: fontSize.xxl,
-    fontWeight: "700",
+    fontWeight: "800",
+    letterSpacing: -0.5,
   },
   statLabel: {
-    color: colors.textMuted,
-    fontSize: fontSize.sm,
+    color: colors.textDim,
+    fontSize: fontSize.xs,
     marginTop: 2,
+    letterSpacing: 0.3,
   },
   progressBarContainer: {
     height: 6,
     backgroundColor: colors.border,
     borderRadius: 3,
-    marginTop: spacing.md,
+    marginTop: spacing.lg,
     overflow: "hidden",
   },
   progressBar: {
@@ -229,22 +313,32 @@ const styles = StyleSheet.create({
     borderRadius: 3,
   },
   sectionTitle: {
-    color: colors.text,
-    fontSize: fontSize.lg,
+    color: colors.textMuted,
+    fontSize: fontSize.xs,
     fontWeight: "700",
+    letterSpacing: 2,
     marginBottom: spacing.md,
   },
   categoryRow: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: colors.surface,
-    borderRadius: borderRadius.md,
+    borderRadius: borderRadius.lg,
     padding: spacing.md,
     marginBottom: spacing.sm,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  catIconWrap: {
+    width: 40,
+    height: 40,
+    borderRadius: borderRadius.md,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: spacing.md,
   },
   categoryIcon: {
-    fontSize: 24,
-    marginRight: spacing.md,
+    fontSize: 20,
   },
   categoryInfo: {
     flex: 1,
@@ -252,69 +346,96 @@ const styles = StyleSheet.create({
   categoryName: {
     color: colors.text,
     fontSize: fontSize.md,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   categoryStats: {
-    color: colors.textMuted,
-    fontSize: fontSize.sm,
+    color: colors.textDim,
+    fontSize: fontSize.xs,
     marginTop: 2,
   },
+  notStarted: {
+    color: colors.textDim,
+    fontSize: fontSize.xs,
+    marginTop: 2,
+    fontStyle: "italic",
+  },
   miniBarContainer: {
-    height: 4,
+    height: 3,
     backgroundColor: colors.border,
     borderRadius: 2,
-    marginTop: 4,
+    marginTop: 6,
     overflow: "hidden",
   },
   miniBar: {
-    height: 4,
+    height: 3,
     borderRadius: 2,
   },
   accPercent: {
     fontSize: fontSize.lg,
-    fontWeight: "700",
+    fontWeight: "800",
     marginLeft: spacing.sm,
+    letterSpacing: -0.3,
   },
   historyRow: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
     backgroundColor: colors.surface,
-    borderRadius: borderRadius.md,
+    borderRadius: borderRadius.lg,
     padding: spacing.md,
     marginBottom: spacing.sm,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  historyLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.md,
   },
   historyIcon: {
     fontSize: 20,
-    marginRight: spacing.md,
-  },
-  historyInfo: {
-    flex: 1,
   },
   historyName: {
     color: colors.text,
-    fontSize: fontSize.md,
+    fontSize: fontSize.sm,
     fontWeight: "600",
   },
   historyDate: {
-    color: colors.textMuted,
-    fontSize: fontSize.sm,
+    color: colors.textDim,
+    fontSize: fontSize.xs,
+    marginTop: 1,
+  },
+  historyRight: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.sm,
   },
   historyScore: {
-    color: colors.text,
-    fontSize: fontSize.lg,
+    color: colors.textMuted,
+    fontSize: fontSize.sm,
+    fontWeight: "600",
+  },
+  historyPctBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: borderRadius.full,
+  },
+  historyPct: {
+    fontSize: fontSize.xs,
     fontWeight: "700",
   },
   resetButton: {
     marginTop: spacing.xl,
     alignItems: "center",
     padding: spacing.md,
-    borderRadius: borderRadius.md,
+    borderRadius: borderRadius.lg,
     borderWidth: 1,
-    borderColor: colors.error,
+    borderColor: colors.errorBg,
+    backgroundColor: colors.errorBg,
   },
   resetText: {
     color: colors.error,
-    fontSize: fontSize.md,
+    fontSize: fontSize.sm,
     fontWeight: "600",
   },
 });

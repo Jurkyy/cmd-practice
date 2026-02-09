@@ -57,14 +57,16 @@ export function useProgress() {
         totalCorrect: progress.totalCorrect + result.correctAnswers,
         categoryStats: {
           ...progress.categoryStats,
-          [result.category]: {
-            attempted:
-              (progress.categoryStats[result.category]?.attempted ?? 0) +
-              result.totalQuestions,
-            correct:
-              (progress.categoryStats[result.category]?.correct ?? 0) +
-              result.correctAnswers,
-          },
+          ...(result.category !== "all" && {
+            [result.category]: {
+              attempted:
+                (progress.categoryStats[result.category]?.attempted ?? 0) +
+                result.totalQuestions,
+              correct:
+                (progress.categoryStats[result.category]?.correct ?? 0) +
+                result.correctAnswers,
+            },
+          }),
         },
         history: [result, ...progress.history].slice(0, 50),
       };
