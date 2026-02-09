@@ -40,6 +40,31 @@ export type Tag =
   | "pde"
   | "monte-carlo";
 
+export type ResourceType = "article" | "video" | "book" | "paper" | "tool";
+
+export interface Resource {
+  title: string;
+  url: string;
+  type: ResourceType;
+  free?: boolean;
+}
+
+export interface GuideSection {
+  title: string;
+  content: string;
+  keyFormulas?: string[];
+  tips?: string[];
+}
+
+export interface TopicGuide {
+  category: Category;
+  title: string;
+  icon: string;
+  overview: string;
+  sections: GuideSection[];
+  resources: Resource[];
+}
+
 export interface Question {
   id: string;
   category: Category;
@@ -51,6 +76,8 @@ export interface Question {
   choices: string[];
   correctIndex: number;
   explanation: string;
+  resources?: Resource[];
+  hint?: string;
 }
 
 export interface CategoryInfo {
@@ -138,4 +165,15 @@ export const DURATION_CONFIG: Record<
   quick: { label: "Quick", icon: "⚡", minutes: "<1 min" },
   medium: { label: "Medium", icon: "⏱", minutes: "1-2 min" },
   long: { label: "Long", icon: "🧮", minutes: "3-5 min" },
+};
+
+export const RESOURCE_TYPE_CONFIG: Record<
+  ResourceType,
+  { label: string; icon: string; color: string }
+> = {
+  article: { label: "Article", icon: "📄", color: "#3b82f6" },
+  video: { label: "Video", icon: "▶️", color: "#ef4444" },
+  book: { label: "Book", icon: "📚", color: "#8b5cf6" },
+  paper: { label: "Paper", icon: "📝", color: "#06b6d4" },
+  tool: { label: "Tool", icon: "🔧", color: "#f59e0b" },
 };

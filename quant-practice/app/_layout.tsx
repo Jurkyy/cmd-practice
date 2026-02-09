@@ -31,6 +31,10 @@ export default function RootLayout() {
             headerBackVisible: false,
           }}
         />
+        <Stack.Screen
+          name="learn/[category]"
+          options={{ title: "Study Guide", presentation: "card" }}
+        />
       </Stack>
     </>
   );

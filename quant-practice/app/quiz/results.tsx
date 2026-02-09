@@ -156,6 +156,25 @@ export default function ResultsScreen() {
           <Text style={styles.retryText}>Try Again</Text>
         </Pressable>
 
+        {!isAll && percentage < 80 && (
+          <Pressable
+            style={({ pressed }) => [
+              styles.studyButton,
+              pressed && styles.buttonPressed,
+            ]}
+            onPress={() =>
+              router.push({
+                pathname: "/learn/[category]",
+                params: { category: params.category ?? "" },
+              })
+            }
+          >
+            <Text style={styles.studyText}>
+              {"\u{1F4D6}"} Study {cat?.name ?? "Topic"} Guide
+            </Text>
+          </Pressable>
+        )}
+
         <Pressable
           style={({ pressed }) => [
             styles.homeButton,
@@ -266,6 +285,20 @@ const styles = StyleSheet.create({
     fontSize: fontSize.md,
     fontWeight: "800",
     letterSpacing: 0.3,
+  },
+  studyButton: {
+    backgroundColor: colors.accentGlow,
+    borderWidth: 1,
+    borderColor: colors.accent,
+    borderRadius: borderRadius.lg,
+    paddingVertical: 16,
+    alignItems: "center",
+    marginTop: spacing.md,
+  },
+  studyText: {
+    color: colors.accent,
+    fontSize: fontSize.md,
+    fontWeight: "700",
   },
   homeButton: {
     borderWidth: 1,

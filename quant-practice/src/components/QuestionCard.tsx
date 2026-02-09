@@ -1,6 +1,6 @@
-import React from "react";
-import { View, Text, Pressable, StyleSheet, ScrollView } from "react-native";
-import { Question, DIFFICULTY_CONFIG, DURATION_CONFIG, TAG_LABELS } from "../types";
+import React, { useState } from "react";
+import { View, Text, Pressable, StyleSheet, ScrollView, Linking } from "react-native";
+import { Question, DIFFICULTY_CONFIG, DURATION_CONFIG, TAG_LABELS, RESOURCE_TYPE_CONFIG } from "../types";
 import { colors, spacing, borderRadius, fontSize } from "../utils/theme";
 
 interface Props {
@@ -18,6 +18,7 @@ export function QuestionCard({
   onSelect,
   onSubmit,
 }: Props) {
+  const [hintVisible, setHintVisible] = useState(false);
   const diff = DIFFICULTY_CONFIG[question.difficulty];
   const dur = DURATION_CONFIG[question.duration];
 
@@ -82,6 +83,23 @@ export function QuestionCard({
 
       <Text style={styles.title}>{question.title}</Text>
       <Text style={styles.body}>{question.body}</Text>
+
+      {/* Hint toggle */}
+      {question.hint && !revealed && (
+        <Pressable
+          style={styles.hintToggle}
+          onPress={() => setHintVisible(!hintVisible)}
+        >
+          <Text style={styles.hintToggleText}>
+            {hintVisible ? "\u{1F4A1} Hide Hint" : "\u{1F4A1} Show Hint"}
+          </Text>
+        </Pressable>
+      )}
+      {question.hint && hintVisible && !revealed && (
+        <View style={styles.hintBox}>
+          <Text style={styles.hintText}>{question.hint}</Text>
+        </View>
+      )}
 
       {/* Choices — big, tappable, submit on second tap */}
       <View style={styles.choices}>
@@ -153,6 +171,37 @@ export function QuestionCard({
             </Text>
           </View>
           <Text style={styles.explanationText}>{question.explanation}</Text>
+
+          {/* Per-question resources */}
+          {question.resources && question.resources.length > 0 && (
+            <View style={styles.resourcesSection}>
+              <Text style={styles.resourcesLabel}>{"\u{1F4D6}"} Learn More</Text>
+              {question.resources.map((r) => {
+                const rConfig = RESOURCE_TYPE_CONFIG[r.type];
+                return (
+                  <Pressable
+                    key={r.url}
+                    style={({ pressed }) => [
+                      styles.resourceRow,
+                      pressed && styles.resourcePressed,
+                    ]}
+                    onPress={() => Linking.openURL(r.url)}
+                  >
+                    <Text style={styles.resourceIcon}>{rConfig.icon}</Text>
+                    <Text style={styles.resourceTitle} numberOfLines={1}>
+                      {r.title}
+                    </Text>
+                    {r.free && (
+                      <View style={styles.resourceFreeBadge}>
+                        <Text style={styles.resourceFreeText}>Free</Text>
+                      </View>
+                    )}
+                    <Text style={styles.resourceArrow}>{"\u203A"}</Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          )}
         </View>
       )}
     </ScrollView>
@@ -330,5 +379,85 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     fontSize: fontSize.sm,
     lineHeight: 22,
+  },
+  hintToggle: {
+    alignSelf: "flex-start",
+    backgroundColor: colors.warningBg,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: borderRadius.full,
+    marginBottom: spacing.md,
+  },
+  hintToggleText: {
+    color: colors.warning,
+    fontSize: fontSize.xs,
+    fontWeight: "700",
+  },
+  hintBox: {
+    backgroundColor: colors.warningBg,
+    borderRadius: borderRadius.md,
+    padding: spacing.md,
+    borderWidth: 1,
+    borderColor: "rgba(251,191,36,0.15)",
+    marginBottom: spacing.md,
+  },
+  hintText: {
+    color: colors.textSecondary,
+    fontSize: fontSize.sm,
+    lineHeight: 22,
+    fontStyle: "italic",
+  },
+  resourcesSection: {
+    marginTop: spacing.md,
+    paddingTop: spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    gap: spacing.sm,
+  },
+  resourcesLabel: {
+    color: colors.textMuted,
+    fontSize: fontSize.xs,
+    fontWeight: "800",
+    textTransform: "uppercase",
+    letterSpacing: 1,
+    marginBottom: 2,
+  },
+  resourceRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: colors.glass,
+    borderRadius: borderRadius.md,
+    padding: spacing.sm,
+    paddingHorizontal: spacing.md,
+    gap: spacing.sm,
+  },
+  resourcePressed: {
+    opacity: 0.7,
+  },
+  resourceIcon: {
+    fontSize: 16,
+  },
+  resourceTitle: {
+    flex: 1,
+    color: colors.primaryLight,
+    fontSize: fontSize.sm,
+    fontWeight: "600",
+  },
+  resourceFreeBadge: {
+    backgroundColor: colors.successBg,
+    paddingHorizontal: 6,
+    paddingVertical: 1,
+    borderRadius: borderRadius.full,
+  },
+  resourceFreeText: {
+    color: colors.success,
+    fontSize: 10,
+    fontWeight: "700",
+    textTransform: "uppercase",
+  },
+  resourceArrow: {
+    color: colors.textDim,
+    fontSize: 20,
+    fontWeight: "300",
   },
 });

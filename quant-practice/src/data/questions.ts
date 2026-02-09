@@ -16,6 +16,7 @@ export const questions: Question[] = [
     correctIndex: 1,
     explanation:
       "By linearity of expectation, E[heads] = n \u00d7 p = 10 \u00d7 0.5 = 5.",
+    hint: "Think about what happens on each individual flip.",
   },
   {
     id: "prob-2",
@@ -42,6 +43,10 @@ export const questions: Question[] = [
     correctIndex: 0,
     explanation:
       "With 23 people, P(match) \u2248 50.7%. Uses the complement: P = 1 \u2212 (365/365)(364/365)\u2026(343/365).",
+    hint: "Use the complement \u2014 what's the probability that NO two share a birthday?",
+    resources: [
+      { title: "Birthday Problem explained", url: "https://en.wikipedia.org/wiki/Birthday_problem", type: "article", free: true },
+    ],
   },
   {
     id: "prob-4",
@@ -55,6 +60,10 @@ export const questions: Question[] = [
     correctIndex: 2,
     explanation:
       "P(D|+) = (0.95\u00d70.01)/(0.95\u00d70.01 + 0.05\u00d70.99) = 0.0095/0.059 \u2248 16.1%. Low base rate crushes the PPV.",
+    hint: "Apply Bayes' theorem. Don't forget to compute total P(+) using the law of total probability.",
+    resources: [
+      { title: "3Blue1Brown: Bayes theorem", url: "https://www.youtube.com/watch?v=HZGCoVF3YvM", type: "video", free: true },
+    ],
   },
   {
     id: "prob-5",
@@ -68,6 +77,10 @@ export const questions: Question[] = [
     correctIndex: 1,
     explanation:
       "In fair gambler\u2019s ruin, P(ruin from k) = 1 \u2212 k/N. Here k=3, N=5, so P = 1 \u2212 3/5 = 2/5.",
+    hint: "For a fair game, the ruin probability has a simple formula involving the ratio of starting wealth to target.",
+    resources: [
+      { title: "Gambler's Ruin", url: "https://en.wikipedia.org/wiki/Gambler%27s_ruin", type: "article", free: true },
+    ],
   },
   {
     id: "prob-6",
@@ -81,6 +94,7 @@ export const questions: Question[] = [
     correctIndex: 2,
     explanation:
       "E = 6\u00d7H\u2086 = 6(1 + 1/2 + 1/3 + 1/4 + 1/5 + 1/6) = 6 \u00d7 2.45 = 14.7.",
+    hint: "Break into phases: after collecting k types, probability of a new one on next draw is (n\u2212k)/n.",
   },
   {
     id: "prob-7",
@@ -120,6 +134,10 @@ export const questions: Question[] = [
     correctIndex: 1,
     explanation:
       "By optional stopping on the martingale X\u00b2\u2212t: E[T] = E[X_T\u00b2] = (10/11)(1) + (1/11)(100) = 10.",
+    hint: "Use the martingale W(t)\u00b2 \u2212 t and the optional stopping theorem.",
+    resources: [
+      { title: "Optional Stopping Theorem", url: "https://en.wikipedia.org/wiki/Optional_stopping_theorem", type: "article", free: true },
+    ],
   },
   {
     id: "prob-10",
@@ -146,6 +164,7 @@ export const questions: Question[] = [
     correctIndex: 1,
     explanation:
       "D(n)/n! \u2192 1/e by inclusion-exclusion. D(n) = n!\u2211(\u22121)^k/k! for k=0..n.",
+    hint: "Apply inclusion-exclusion to count permutations with no fixed points. The series looks like e\u207b\u00b9.",
   },
 
   // ═══════════════════════════════════════════════════════════════
@@ -201,6 +220,7 @@ export const questions: Question[] = [
     correctIndex: 0,
     explanation:
       "Log-likelihood: l(\u03bb) = n\u00b7ln(\u03bb) \u2212 \u03bb\u2211x\u1d62. Setting dl/d\u03bb = 0 gives \u03bb\u0302 = n/\u2211x\u1d62.",
+    hint: "Write the likelihood, take the log, differentiate, and set to 0.",
   },
   {
     id: "stat-5",
@@ -214,6 +234,10 @@ export const questions: Question[] = [
     correctIndex: 2,
     explanation:
       "E[Var(Y|X)] = 3. Var(E[Y|X]) = Var(2X) = 4\u00b7Var(X) = 8. Var(Y) = 3 + 8 = 11.",
+    hint: "Apply the law of total variance: Var(Y) = E[Var(Y|X)] + Var(E[Y|X]).",
+    resources: [
+      { title: "Law of Total Variance", url: "https://en.wikipedia.org/wiki/Law_of_total_variance", type: "article", free: true },
+    ],
   },
   {
     id: "stat-6",
@@ -251,6 +275,7 @@ export const questions: Question[] = [
     correctIndex: 1,
     explanation:
       "Stationarity requires |\u03d5| < 1. At |\u03d5|=1 we get a random walk (unit root).",
+    hint: "Think about what happens to the variance of X\u209c as t grows. When does it diverge?",
   },
   {
     id: "stat-9",
@@ -277,6 +302,10 @@ export const questions: Question[] = [
     correctIndex: 0,
     explanation:
       "Unconditional variance = \u03c9/(1\u2212\u03b1\u2212\u03b2), exists only when \u03b1+\u03b2 < 1.",
+    hint: "Assume stationarity and take expectations on both sides of the GARCH equation.",
+    resources: [
+      { title: "GARCH Models (QuantStart)", url: "https://www.quantstart.com/articles/Generalised-Autoregressive-Conditional-Heteroskedasticity-GARCH-p-q-Models-for-Time-Series-Analysis/", type: "article", free: true },
+    ],
   },
 
   // ═══════════════════════════════════════════════════════════════
@@ -317,6 +346,10 @@ export const questions: Question[] = [
     correctIndex: 0,
     explanation:
       "It\u00f4\u2019s lemma on f(S)=ln(S): df = (1/S)dS \u2212 \u00bd(1/S\u00b2)(\u03c3S)\u00b2dt = (\u03bc \u2212 \u03c3\u00b2/2)dt + \u03c3dW.",
+    hint: "Apply It\u00f4's lemma to f(S) = ln(S). Remember the extra \u00bd f''(dS)\u00b2 term.",
+    resources: [
+      { title: "It\u00f4's Lemma (QuantStart)", url: "https://www.quantstart.com/articles/Itos-Lemma/", type: "article", free: true },
+    ],
   },
   {
     id: "stoch-3",
@@ -348,6 +381,10 @@ export const questions: Question[] = [
     correctIndex: 1,
     explanation:
       "Under Q, discounted assets are martingales \u2014 all earn the risk-free rate in expectation.",
+    hint: "Girsanov changes the drift. What must the drift become for risk-neutral pricing?",
+    resources: [
+      { title: "Girsanov's Theorem", url: "https://en.wikipedia.org/wiki/Girsanov_theorem", type: "article", free: true },
+    ],
   },
   {
     id: "stoch-5",
@@ -361,6 +398,10 @@ export const questions: Question[] = [
     correctIndex: 0,
     explanation:
       "OU stationary variance = \u03c3\u00b2/(2\u03b8). Higher \u03b8 = faster reversion = less variance.",
+    hint: "Solve for the steady-state variance by setting dVar/dt = 0.",
+    resources: [
+      { title: "Ornstein-Uhlenbeck Process", url: "https://en.wikipedia.org/wiki/Ornstein%E2%80%93Uhlenbeck_process", type: "article", free: true },
+    ],
   },
   {
     id: "stoch-6",
@@ -410,6 +451,10 @@ export const questions: Question[] = [
     correctIndex: 1,
     explanation:
       "Feynman-Kac connects PDEs to conditional expectations of stochastic processes \u2014 the backbone of derivatives pricing.",
+    hint: "Think about the BS PDE and how its solution relates to E^Q[payoff].",
+    resources: [
+      { title: "Feynman-Kac Formula", url: "https://en.wikipedia.org/wiki/Feynman%E2%80%93Kac_formula", type: "article", free: true },
+    ],
   },
   {
     id: "stoch-9",
@@ -499,6 +544,10 @@ export const questions: Question[] = [
     correctIndex: 3,
     explanation:
       "BS assumes continuous paths (GBM). Jumps need extensions like Merton\u2019s jump-diffusion.",
+    hint: "List the BS assumptions: continuous paths, constant vol, constant rates, log-normal returns. Which is NOT one?",
+    resources: [
+      { title: "Black-Scholes assumptions", url: "https://en.wikipedia.org/wiki/Black%E2%80%93Scholes_model#Assumptions", type: "article", free: true },
+    ],
   },
   {
     id: "opt-6",
@@ -579,6 +628,10 @@ export const questions: Question[] = [
     correctIndex: 1,
     explanation:
       "The drift \u03bc disappears via hedging / risk-neutral pricing. You don\u2019t need expected returns to price options.",
+    hint: "Compare the GBM parameters to what appears in the BS PDE. What's missing?",
+    resources: [
+      { title: "Black-Scholes PDE", url: "https://en.wikipedia.org/wiki/Black%E2%80%93Scholes_equation", type: "article", free: true },
+    ],
   },
 
   // ═══════════════════════════════════════════════════════════════
@@ -809,6 +862,7 @@ export const questions: Question[] = [
     correctIndex: 1,
     explanation:
       "Cholesky needs symmetric PD. Used in finance for simulating correlated normals.",
+    hint: "LL' only works for a specific class of matrices. Think about what makes a covariance matrix special.",
   },
   {
     id: "la-6",
@@ -856,6 +910,10 @@ export const questions: Question[] = [
     ],
     correctIndex: 2,
     explanation: "SVD handles dim reduction, pseudo-inverses, denoising. Sparse storage is unrelated (CSR/COO).",
+    hint: "SVD produces dense U, \u03a3, V matrices. Does that help store a sparse matrix efficiently?",
+    resources: [
+      { title: "SVD and its applications (MIT)", url: "https://www.youtube.com/watch?v=rYz83XPxiZo", type: "video", free: true },
+    ],
   },
   {
     id: "la-9",
@@ -885,6 +943,10 @@ export const questions: Question[] = [
     choices: ["2x samples", "4x samples", "10x samples", "\u221a2x samples"],
     correctIndex: 1,
     explanation: "1/\u221a(4N) = \u00bd/\u221aN. Need 4x samples to halve error.",
+    hint: "If error \u221d 1/\u221aN, what must happen to N to halve the error?",
+    resources: [
+      { title: "Monte Carlo methods in finance", url: "https://en.wikipedia.org/wiki/Monte_Carlo_methods_in_finance", type: "article", free: true },
+    ],
   },
   {
     id: "adv-2",
@@ -933,6 +995,7 @@ export const questions: Question[] = [
     ],
     correctIndex: 2,
     explanation: "Straddles bet on vol. Profit when realized moves > implied pricing.",
+    hint: "A straddle is long call + long put ATM. What drives its P&L?",
   },
   {
     id: "adv-5",
@@ -946,6 +1009,7 @@ export const questions: Question[] = [
     correctIndex: 2,
     explanation:
       "P = 1/4. Triangle inequality requires all pieces < 1/2. The favorable simplex region has area 1/4.",
+    hint: "Triangle inequality: each piece must be < sum of the other two. For a unit stick, this means each piece < 1/2.",
   },
   {
     id: "adv-6",
@@ -977,6 +1041,10 @@ export const questions: Question[] = [
     correctIndex: 1,
     explanation:
       "Explicit FD is conditionally stable: needs \u0394t \u2264 \u0394x\u00b2/(2D). Implicit is unconditionally stable.",
+    hint: "Think about the CFL condition for explicit schemes.",
+    resources: [
+      { title: "Finite Difference Methods for Option Pricing", url: "https://en.wikipedia.org/wiki/Finite_difference_methods_for_option_pricing", type: "article", free: true },
+    ],
   },
   {
     id: "adv-8",

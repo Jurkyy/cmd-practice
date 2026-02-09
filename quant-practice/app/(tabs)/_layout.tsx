@@ -53,6 +53,16 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="learn"
+        options={{
+          title: "Learn",
+          headerShown: false,
+          tabBarIcon: ({ focused }) => (
+            <TabIcon label={"\u{1F4D6}"} focused={focused} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="progress"
         options={{
           title: "Progress",
