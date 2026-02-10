@@ -10,11 +10,13 @@ import { useRouter } from "expo-router";
 import { topicGuides } from "../../src/data/guides";
 import { learningPaths } from "../../src/data/paths";
 import { categories } from "../../src/data/categories";
+import { useSubscription, FREE_LIMITS } from "../../src/hooks/useSubscription";
 import { DIFFICULTY_CONFIG } from "../../src/types";
 import { colors, spacing, borderRadius, fontSize, shadowSmall } from "../../src/utils/theme";
 
 export default function LearnScreen() {
   const router = useRouter();
+  const { isPro } = useSubscription();
 
   return (
     <ScrollView
@@ -37,26 +39,32 @@ export default function LearnScreen() {
         <Text style={styles.pathsSub}>
           Curated sequences to build skills step by step
         </Text>
-        {learningPaths.map((path) => {
+        {learningPaths.map((path, idx) => {
           const diffConfig = DIFFICULTY_CONFIG[path.difficulty];
           const guideSteps = path.steps.filter((s) => s.type === "guide").length;
           const quizSteps = path.steps.filter((s) => s.type === "quiz").length;
+          const locked = !isPro && idx >= FREE_LIMITS.learningPaths;
           return (
             <Pressable
               key={path.id}
               style={({ pressed }) => [
                 styles.pathCard,
                 pressed && styles.cardPressed,
+                locked && styles.pathLocked,
               ]}
-              onPress={() =>
-                router.push({
-                  pathname: "/learn/path/[id]",
-                  params: { id: path.id },
-                })
-              }
+              onPress={() => {
+                if (locked) {
+                  router.push("/paywall");
+                } else {
+                  router.push({
+                    pathname: "/learn/path/[id]",
+                    params: { id: path.id },
+                  });
+                }
+              }}
             >
               <View style={styles.pathHeader}>
-                <Text style={styles.pathIcon}>{path.icon}</Text>
+                <Text style={styles.pathIcon}>{locked ? "\uD83D\uDD12" : path.icon}</Text>
                 <View style={styles.pathMeta}>
                   <Text style={styles.pathTitle}>{path.title}</Text>
                   <View style={styles.pathBadges}>
@@ -68,6 +76,9 @@ export default function LearnScreen() {
                     <Text style={styles.pathEstimate}>
                       ~{path.estimatedHours}h
                     </Text>
+                    {locked && (
+                      <Text style={styles.pathProLabel}>PRO</Text>
+                    )}
                   </View>
                 </View>
               </View>
@@ -251,6 +262,15 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     marginBottom: spacing.sm,
     ...shadowSmall,
+  },
+  pathLocked: {
+    opacity: 0.6,
+  },
+  pathProLabel: {
+    color: colors.primary,
+    fontSize: 11,
+    fontWeight: "800",
+    letterSpacing: 1,
   },
   pathHeader: {
     flexDirection: "row",

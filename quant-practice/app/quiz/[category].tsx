@@ -5,6 +5,7 @@ import { questions as allQuestions } from "../../src/data/questions";
 import { categories } from "../../src/data/categories";
 import { QuestionCard } from "../../src/components/QuestionCard";
 import { useProgress, getReviewQueue } from "../../src/hooks/useProgress";
+import { useSubscription, FREE_LIMITS } from "../../src/hooks/useSubscription";
 import { Category, Difficulty, QuizResult, PerQuestionResult } from "../../src/types";
 import { colors, spacing, fontSize, borderRadius } from "../../src/utils/theme";
 
@@ -28,6 +29,7 @@ export default function QuizScreen() {
   const category = params.category;
   const router = useRouter();
   const { progress, saveResult } = useProgress();
+  const { isPro } = useSubscription();
 
   const isReview = category === "review";
   const isAll = category === "all" || isReview;
@@ -53,8 +55,26 @@ export default function QuizScreen() {
       pool = pool.filter((q) => q.duration === params.duration);
     }
 
+    // Free tier: limit to first N questions per category
+    if (!isPro) {
+      if (isAll) {
+        // For all-category mix, take first N from each category
+        const limited: typeof pool = [];
+        const catCounts: Record<string, number> = {};
+        for (const q of pool) {
+          catCounts[q.category] = (catCounts[q.category] ?? 0) + 1;
+          if (catCounts[q.category] <= FREE_LIMITS.questionsPerCategory) {
+            limited.push(q);
+          }
+        }
+        pool = limited;
+      } else {
+        pool = pool.slice(0, FREE_LIMITS.questionsPerCategory);
+      }
+    }
+
     return shuffle(pool).slice(0, QUIZ_SIZE);
-  }, [category, params.difficulty, params.duration, isAll, isReview, progress.srData]);
+  }, [category, params.difficulty, params.duration, isAll, isReview, progress.srData, isPro]);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);

@@ -1,9 +1,31 @@
-import React from "react";
-import { Stack } from "expo-router";
+import React, { useEffect, useState } from "react";
+import { Stack, useRouter, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { colors } from "../src/utils/theme";
+import { hasCompletedOnboarding } from "./onboarding";
 
 export default function RootLayout() {
+  const [onboardingChecked, setOnboardingChecked] = useState(false);
+  const [needsOnboarding, setNeedsOnboarding] = useState(false);
+  const router = useRouter();
+  const segments = useSegments();
+
+  useEffect(() => {
+    (async () => {
+      const completed = await hasCompletedOnboarding();
+      setNeedsOnboarding(!completed);
+      setOnboardingChecked(true);
+    })();
+  }, []);
+
+  useEffect(() => {
+    if (!onboardingChecked) return;
+    const inOnboarding = segments[0] === "onboarding";
+    if (needsOnboarding && !inOnboarding) {
+      router.replace("/onboarding");
+    }
+  }, [onboardingChecked, needsOnboarding, segments, router]);
+
   return (
     <>
       <StatusBar style="light" />

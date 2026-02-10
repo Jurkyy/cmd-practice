@@ -17,6 +17,7 @@ import {
   MATH_DIFFICULTY_CONFIG,
 } from "../src/types";
 import { useMentalMath } from "../src/hooks/useMentalMath";
+import { useSubscription, FREE_LIMITS } from "../src/hooks/useSubscription";
 import { colors, spacing, fontSize, borderRadius, shadow } from "../src/utils/theme";
 
 type Phase = "setup" | "playing" | "results";
@@ -77,6 +78,11 @@ const DURATION_OPTIONS = [60, 120, 180] as const;
 export default function DrillScreen() {
   const router = useRouter();
   const { stats, saveDrillResult } = useMentalMath();
+  const { isPro } = useSubscription();
+
+  // Free tier: limit sessions
+  const sessionsUsed = stats.totalSessions;
+  const sessionsLeft = isPro ? Infinity : Math.max(0, FREE_LIMITS.mentalMathSessions - sessionsUsed);
 
   // Setup state
   const [phase, setPhase] = useState<Phase>("setup");
@@ -275,13 +281,33 @@ export default function DrillScreen() {
             </View>
           )}
 
+          {/* Free tier limit */}
+          {!isPro && (
+            <View style={styles.freeLimit}>
+              <Text style={styles.freeLimitText}>
+                {sessionsLeft > 0
+                  ? `${sessionsLeft} free session${sessionsLeft !== 1 ? "s" : ""} remaining`
+                  : "Free sessions used up"}
+              </Text>
+            </View>
+          )}
+
           {/* Start button */}
-          <Pressable
-            style={({ pressed }) => [styles.startButton, pressed && styles.startPressed]}
-            onPress={startGame}
-          >
-            <Text style={styles.startText}>Start Drill</Text>
-          </Pressable>
+          {sessionsLeft > 0 ? (
+            <Pressable
+              style={({ pressed }) => [styles.startButton, pressed && styles.startPressed]}
+              onPress={startGame}
+            >
+              <Text style={styles.startText}>Start Drill</Text>
+            </Pressable>
+          ) : (
+            <Pressable
+              style={({ pressed }) => [styles.startButton, { backgroundColor: colors.primary }, pressed && styles.startPressed]}
+              onPress={() => router.push("/paywall")}
+            >
+              <Text style={styles.startText}>Upgrade to Pro</Text>
+            </Pressable>
+          )}
 
           {/* Back */}
           <Pressable style={styles.backLink} onPress={() => router.back()}>
@@ -602,6 +628,16 @@ const styles = StyleSheet.create({
     color: colors.warning,
     fontSize: fontSize.md,
     fontWeight: "800",
+  },
+  freeLimit: {
+    alignItems: "center",
+    marginTop: spacing.md,
+    paddingVertical: spacing.sm,
+  },
+  freeLimitText: {
+    color: colors.textMuted,
+    fontSize: fontSize.xs,
+    fontWeight: "600",
   },
   startButton: {
     backgroundColor: colors.primary,

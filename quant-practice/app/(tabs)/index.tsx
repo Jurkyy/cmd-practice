@@ -13,6 +13,7 @@ import { questions } from "../../src/data/questions";
 import { CategoryCard } from "../../src/components/CategoryCard";
 import { FilterBar } from "../../src/components/FilterBar";
 import { useProgress, getReviewQueue, getWeakTags } from "../../src/hooks/useProgress";
+import { useSubscription } from "../../src/hooks/useSubscription";
 import { Difficulty, Duration, TAG_LABELS, ACHIEVEMENTS, Tag } from "../../src/types";
 import { colors, spacing, fontSize, borderRadius, shadow } from "../../src/utils/theme";
 
@@ -20,6 +21,7 @@ export default function HomeScreen() {
   const router = useRouter();
   const { progress, loaded, newAchievements, dismissAchievements } =
     useProgress();
+  const { isPro } = useSubscription();
   const [difficulty, setDifficulty] = useState<Difficulty | null>(null);
   const [duration, setDuration] = useState<Duration | null>(null);
 
@@ -97,8 +99,28 @@ export default function HomeScreen() {
 
       {/* Hero */}
       <View style={styles.hero}>
-        <Text style={styles.heroLabel}>QUANT</Text>
-        <Text style={styles.heroTitle}>Practice</Text>
+        <View style={styles.heroRow}>
+          <View style={styles.heroTextWrap}>
+            <Text style={styles.heroLabel}>QUANT</Text>
+            <Text style={styles.heroTitle}>Practice</Text>
+          </View>
+          <View style={styles.heroActions}>
+            {!isPro && (
+              <Pressable
+                style={({ pressed }) => [styles.proBadge, pressed && { opacity: 0.8 }]}
+                onPress={() => router.push("/paywall")}
+              >
+                <Text style={styles.proBadgeText}>PRO</Text>
+              </Pressable>
+            )}
+            <Pressable
+              style={({ pressed }) => [styles.settingsBtn, pressed && { opacity: 0.7 }]}
+              onPress={() => router.push("/settings")}
+            >
+              <Text style={styles.settingsIcon}>{"\u2699\uFE0F"}</Text>
+            </Pressable>
+          </View>
+        </View>
         <Text style={styles.heroSub}>
           {questions.length} questions across {categories.length} topics
         </Text>
@@ -356,6 +378,41 @@ const styles = StyleSheet.create({
   },
   hero: {
     marginBottom: spacing.lg,
+  },
+  heroRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+  },
+  heroTextWrap: {
+    flex: 1,
+  },
+  heroActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.sm,
+    paddingTop: 4,
+  },
+  proBadge: {
+    backgroundColor: colors.primary,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: borderRadius.full,
+  },
+  proBadgeText: {
+    color: colors.text,
+    fontSize: 11,
+    fontWeight: "800",
+    letterSpacing: 1,
+  },
+  settingsBtn: {
+    width: 36,
+    height: 36,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  settingsIcon: {
+    fontSize: 22,
   },
   heroLabel: {
     color: colors.primary,
