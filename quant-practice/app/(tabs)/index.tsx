@@ -262,6 +262,26 @@ export default function HomeScreen() {
         </View>
       </Pressable>
 
+      {/* Mental Math Drill */}
+      <Pressable
+        style={({ pressed }) => [
+          styles.drillButton,
+          pressed && styles.mixPressed,
+        ]}
+        onPress={() => router.push("/drill")}
+      >
+        <Text style={styles.mixIcon}>{"\uD83E\uDDEE"}</Text>
+        <View style={styles.mixText}>
+          <Text style={styles.mixTitle}>Mental Math Drill</Text>
+          <Text style={styles.mixSub}>
+            Timed arithmetic {"\u2014"} sharpen your speed
+          </Text>
+        </View>
+        <View style={styles.drillGo}>
+          <Text style={styles.mixGoText}>Go</Text>
+        </View>
+      </Pressable>
+
       {/* Filters */}
       <FilterBar
         selectedDifficulty={difficulty}
@@ -543,6 +563,22 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     fontSize: fontSize.xs,
     marginTop: 2,
+  },
+  drillButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: colors.surfaceElevated,
+    borderRadius: borderRadius.lg,
+    padding: spacing.md,
+    marginBottom: spacing.lg,
+    borderWidth: 1,
+    borderColor: colors.accentGlow,
+  },
+  drillGo: {
+    backgroundColor: colors.accent,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+    borderRadius: borderRadius.full,
   },
   mixGo: {
     backgroundColor: colors.primary,

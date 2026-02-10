@@ -86,6 +86,7 @@ export interface Question {
   resources?: Resource[];
   hint?: string;
   guideSection?: string; // links to GuideSection.id
+  askedAt?: string[];    // company IDs where this question has been asked
 }
 
 export interface CategoryInfo {
@@ -201,6 +202,55 @@ export interface LearningPath {
   estimatedHours: number;
   steps: LearningPathStep[];
 }
+
+// ─── Mental Math ────────────────────────────────────────────────
+
+export type MathOperation = "add" | "subtract" | "multiply" | "divide";
+
+export type MathDifficulty = "easy" | "medium" | "hard";
+
+export interface MentalMathConfig {
+  operations: MathOperation[];
+  difficulty: MathDifficulty;
+  durationSeconds: number; // 60, 120, 180
+}
+
+export interface MentalMathResult {
+  correct: number;
+  attempted: number;
+  durationSeconds: number;
+  difficulty: MathDifficulty;
+  operations: MathOperation[];
+  date: string;
+  questionsPerMinute: number;
+}
+
+export interface MentalMathStats {
+  totalSessions: number;
+  totalCorrect: number;
+  totalAttempted: number;
+  bestScore: Record<MathDifficulty, number>; // best correct count per difficulty
+  history: MentalMathResult[]; // last 20 sessions
+}
+
+export const MATH_OPERATION_CONFIG: Record<
+  MathOperation,
+  { label: string; symbol: string }
+> = {
+  add: { label: "Addition", symbol: "+" },
+  subtract: { label: "Subtraction", symbol: "\u2212" },
+  multiply: { label: "Multiplication", symbol: "\u00D7" },
+  divide: { label: "Division", symbol: "\u00F7" },
+};
+
+export const MATH_DIFFICULTY_CONFIG: Record<
+  MathDifficulty,
+  { label: string; color: string; bg: string }
+> = {
+  easy: { label: "Easy", color: "#4ade80", bg: "#22c55e18" },
+  medium: { label: "Medium", color: "#fbbf24", bg: "#f59e0b18" },
+  hard: { label: "Hard", color: "#f87171", bg: "#ef444418" },
+};
 
 // ─── Filter types ───────────────────────────────────────────────
 

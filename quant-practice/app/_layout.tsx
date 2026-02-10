@@ -39,6 +39,29 @@ export default function RootLayout() {
           name="learn/path/[id]"
           options={{ title: "Learning Path", presentation: "card" }}
         />
+        <Stack.Screen
+          name="drill"
+          options={{ title: "Mental Math", presentation: "card", headerShown: false }}
+        />
+        <Stack.Screen
+          name="paywall"
+          options={{
+            title: "Upgrade",
+            presentation: "modal",
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="onboarding"
+          options={{
+            headerShown: false,
+            gestureEnabled: false,
+          }}
+        />
+        <Stack.Screen
+          name="settings"
+          options={{ title: "Settings", presentation: "card" }}
+        />
       </Stack>
     </>
   );
