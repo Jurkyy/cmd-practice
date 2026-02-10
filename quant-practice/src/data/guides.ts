@@ -12,6 +12,7 @@ export const topicGuides: TopicGuide[] = [
       "Master the fundamentals of probability theory — from counting techniques and conditional probability to key distributions and limit theorems. These concepts are the bedrock of every quant interview.",
     sections: [
       {
+        id: "prob-counting",
         title: "Counting & Combinatorics",
         content:
           "Most probability problems start with counting. The multiplication principle, permutations (n!), and combinations (n choose k) are your bread and butter. For harder problems, inclusion-exclusion and the stars-and-bars technique unlock complex counting arguments.",
@@ -27,6 +28,7 @@ export const topicGuides: TopicGuide[] = [
         ],
       },
       {
+        id: "prob-bayes",
         title: "Conditional Probability & Bayes",
         content:
           "Bayes' theorem is arguably the single most important formula in quant finance interviews. The base rate fallacy (ignoring the prior) is a classic trap. Always set up the full Bayesian calculation before simplifying.",
@@ -41,6 +43,7 @@ export const topicGuides: TopicGuide[] = [
         ],
       },
       {
+        id: "prob-ev",
         title: "Expected Value & Variance",
         content:
           "Linearity of expectation is the most powerful trick in probability — it works even without independence. For variance, remember Var(X+Y) = Var(X) + Var(Y) + 2Cov(X,Y), which simplifies when independent.",
@@ -57,6 +60,7 @@ export const topicGuides: TopicGuide[] = [
         ],
       },
       {
+        id: "prob-distributions",
         title: "Key Distributions",
         content:
           "Know the Bernoulli, Binomial, Geometric, Poisson, Uniform, Exponential, and Normal distributions cold. Understand their means, variances, and when each arises naturally.",
@@ -110,6 +114,7 @@ export const topicGuides: TopicGuide[] = [
       "Statistics bridges probability theory and real-world data. From estimation and hypothesis testing to regression and time series — these are the tools you use to make sense of noisy financial markets.",
     sections: [
       {
+        id: "stat-mle",
         title: "Estimation & MLE",
         content:
           "Maximum Likelihood Estimation (MLE) is the workhorse of parametric inference. Derive the log-likelihood, take the derivative, set to zero. For exponential families, the sufficient statistics simplify everything.",
@@ -125,6 +130,7 @@ export const topicGuides: TopicGuide[] = [
         ],
       },
       {
+        id: "stat-regression",
         title: "Regression & Correlation",
         content:
           "Linear regression is everywhere in quant finance — from factor models to risk decomposition. Know OLS assumptions, R² interpretation, and what happens when assumptions break (multicollinearity, heteroskedasticity).",
@@ -140,6 +146,7 @@ export const topicGuides: TopicGuide[] = [
         ],
       },
       {
+        id: "stat-timeseries",
         title: "Time Series",
         content:
           "Financial data is time-indexed. AR, MA, ARMA, and GARCH models capture the dynamics of returns, volatility clustering, and mean reversion. Stationarity is the fundamental requirement for most time series analysis.",
@@ -156,6 +163,7 @@ export const topicGuides: TopicGuide[] = [
         ],
       },
       {
+        id: "stat-bayesian",
         title: "Bayesian Methods",
         content:
           "Bayesian statistics treats parameters as random. The prior encodes beliefs before data; the posterior combines prior and likelihood. Conjugate priors keep things tractable.",
@@ -207,6 +215,7 @@ export const topicGuides: TopicGuide[] = [
       "The mathematical language of continuous-time finance. Brownian motion, Itô's lemma, and measure changes form the toolkit for pricing derivatives and modeling asset dynamics.",
     sections: [
       {
+        id: "stoch-brownian",
         title: "Brownian Motion",
         content:
           "Standard Brownian motion W(t) is the continuous-time limit of a random walk. Its key properties: starts at 0, independent increments, Gaussian increments with variance = time elapsed, continuous but nowhere differentiable paths.",
@@ -223,6 +232,7 @@ export const topicGuides: TopicGuide[] = [
         ],
       },
       {
+        id: "stoch-ito",
         title: "Itô's Lemma",
         content:
           "Itô's lemma is the chain rule of stochastic calculus — with an extra second-order term because (dW)² = dt ≠ 0. This is the single most important formula in mathematical finance.",
@@ -238,6 +248,7 @@ export const topicGuides: TopicGuide[] = [
         ],
       },
       {
+        id: "stoch-girsanov",
         title: "Girsanov & Measure Change",
         content:
           "Girsanov's theorem allows you to change probability measures so that a process with drift becomes a martingale under the new measure. This is the theoretical foundation for risk-neutral pricing.",
@@ -253,6 +264,7 @@ export const topicGuides: TopicGuide[] = [
         ],
       },
       {
+        id: "stoch-sde",
         title: "SDEs & Solutions",
         content:
           "Stochastic differential equations describe continuous-time dynamics. GBM, Ornstein-Uhlenbeck, and CIR are the workhorses. Know their solutions and steady-state properties.",
@@ -305,6 +317,7 @@ export const topicGuides: TopicGuide[] = [
       "From Black-Scholes to volatility surfaces and exotic Greeks — options pricing combines stochastic calculus, PDE theory, and market intuition. This is the heart of quantitative finance.",
     sections: [
       {
+        id: "opt-bs",
         title: "Black-Scholes Framework",
         content:
           "The BS model assumes GBM for the underlying, constant vol, constant rates, and continuous trading. Despite its limitations, it remains the lingua franca of options markets and the foundation for more complex models.",
@@ -321,6 +334,7 @@ export const topicGuides: TopicGuide[] = [
         ],
       },
       {
+        id: "opt-greeks",
         title: "The Greeks",
         content:
           "Greeks measure option sensitivities. Delta (price), Gamma (convexity), Theta (time decay), Vega (volatility), and Rho (rates). Understanding their interactions is crucial for risk management.",
@@ -338,6 +352,7 @@ export const topicGuides: TopicGuide[] = [
         ],
       },
       {
+        id: "opt-parity",
         title: "Put-Call Parity & Bounds",
         content:
           "Put-call parity is model-free — it holds by no-arbitrage alone. It's the first thing to check on any options question. Know the arbitrage bounds on European and American options.",
@@ -354,6 +369,7 @@ export const topicGuides: TopicGuide[] = [
         ],
       },
       {
+        id: "opt-volatility",
         title: "Volatility",
         content:
           "Implied volatility is what the market charges for options. The smile/skew reveals that BS's constant-vol assumption is wrong. Understanding vol surfaces, term structure, and dynamics is key to options trading.",
@@ -406,6 +422,7 @@ export const topicGuides: TopicGuide[] = [
       "Quant interviews love brain teasers — they test your ability to think clearly under pressure. Mental math speed, estimation skills, and logical reasoning are all fair game.",
     sections: [
       {
+        id: "brain-mental-math",
         title: "Mental Math Tricks",
         content:
           "Speed matters in quant interviews. Know your squares up to 25², common fractions as decimals, and shortcuts for multiplication. Practice until these are instant.",
@@ -422,6 +439,7 @@ export const topicGuides: TopicGuide[] = [
         ],
       },
       {
+        id: "brain-fermi",
         title: "Fermi Estimation",
         content:
           "Fermi problems test your ability to make reasonable assumptions and break big questions into smaller, estimable pieces. The process matters more than the exact answer.",
@@ -439,6 +457,7 @@ export const topicGuides: TopicGuide[] = [
         ],
       },
       {
+        id: "brain-logic",
         title: "Classic Logic Puzzles",
         content:
           "Monty Hall, the two-envelopes paradox, prisoner lightbulb problems — know the canonical solutions and, more importantly, the reasoning. Interviewers want to see your thought process.",
@@ -450,6 +469,7 @@ export const topicGuides: TopicGuide[] = [
         ],
       },
       {
+        id: "brain-ev-games",
         title: "Expected Value Games",
         content:
           "Many brain teasers reduce to computing expected values with optimal strategy. The key is knowing when to stop: compare EV of continuing vs. current value.",
@@ -502,6 +522,7 @@ export const topicGuides: TopicGuide[] = [
       "Linear algebra is the backbone of portfolio theory, PCA, risk models, and numerical methods. Eigenvalues, decompositions, and positive definiteness come up constantly in quant practice.",
     sections: [
       {
+        id: "la-eigen",
         title: "Eigenvalues & Eigenvectors",
         content:
           "Eigenvalues capture the fundamental behavior of linear operators. In finance, they reveal principal risk factors (PCA), stability of dynamic systems, and the conditioning of numerical problems.",
@@ -518,6 +539,7 @@ export const topicGuides: TopicGuide[] = [
         ],
       },
       {
+        id: "la-decomposition",
         title: "Matrix Decompositions",
         content:
           "Know SVD, Cholesky, eigendecomposition, and QR. Each serves different purposes: Cholesky for correlated normal simulation, SVD for dimensionality reduction, eigen for PCA.",
@@ -534,6 +556,7 @@ export const topicGuides: TopicGuide[] = [
         ],
       },
       {
+        id: "la-pd",
         title: "Positive Definiteness",
         content:
           "Covariance matrices must be positive semi-definite. Understanding PD/PSD is critical for portfolio optimization, risk models, and ensuring numerical stability.",
@@ -550,6 +573,7 @@ export const topicGuides: TopicGuide[] = [
         ],
       },
       {
+        id: "la-numerical",
         title: "Numerical Considerations",
         content:
           "In practice, you work with approximate arithmetic. Condition numbers measure sensitivity to perturbation. Ill-conditioned systems amplify rounding errors.",

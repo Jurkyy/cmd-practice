@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { View, Text, Pressable, StyleSheet, ScrollView, Linking } from "react-native";
+import { useRouter } from "expo-router";
 import { Question, DIFFICULTY_CONFIG, DURATION_CONFIG, TAG_LABELS, RESOURCE_TYPE_CONFIG } from "../types";
 import { colors, spacing, borderRadius, fontSize } from "../utils/theme";
 
@@ -18,6 +19,7 @@ export function QuestionCard({
   onSelect,
   onSubmit,
 }: Props) {
+  const router = useRouter();
   const [hintVisible, setHintVisible] = useState(false);
   const diff = DIFFICULTY_CONFIG[question.difficulty];
   const dur = DURATION_CONFIG[question.duration];
@@ -171,6 +173,50 @@ export function QuestionCard({
             </Text>
           </View>
           <Text style={styles.explanationText}>{question.explanation}</Text>
+
+          {/* Detailed explanation (step-by-step) */}
+          {question.detailedExplanation && (
+            <View style={styles.detailedBox}>
+              <Text style={styles.detailedLabel}>{"\u{1F4CB}"} Step-by-Step</Text>
+              <Text style={styles.detailedText}>{question.detailedExplanation}</Text>
+            </View>
+          )}
+
+          {/* Common mistakes */}
+          {selectedIndex !== question.correctIndex &&
+            question.commonMistakes &&
+            question.commonMistakes.length > 0 && (
+              <View style={styles.mistakesBox}>
+                <Text style={styles.mistakesLabel}>{"\u26A0\uFE0F"} Common Mistakes</Text>
+                {question.commonMistakes.map((m, i) => (
+                  <View key={i} style={styles.mistakeRow}>
+                    <Text style={styles.mistakeBullet}>{"\u2022"}</Text>
+                    <Text style={styles.mistakeText}>{m}</Text>
+                  </View>
+                ))}
+              </View>
+            )}
+
+          {/* Concept link to guide */}
+          {question.guideSection && (
+            <Pressable
+              style={({ pressed }) => [
+                styles.conceptLink,
+                pressed && styles.conceptLinkPressed,
+              ]}
+              onPress={() =>
+                router.push({
+                  pathname: "/learn/[category]",
+                  params: { category: question.category },
+                })
+              }
+            >
+              <Text style={styles.conceptLinkText}>
+                {"\uD83D\uDCD6"} Study this concept in the guide
+              </Text>
+              <Text style={styles.conceptArrow}>{"\u203A"}</Text>
+            </Pressable>
+          )}
 
           {/* Per-question resources */}
           {question.resources && question.resources.length > 0 && (
@@ -379,6 +425,84 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     fontSize: fontSize.sm,
     lineHeight: 22,
+  },
+  detailedBox: {
+    marginTop: spacing.md,
+    backgroundColor: colors.glass,
+    borderRadius: borderRadius.md,
+    padding: spacing.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  detailedLabel: {
+    color: colors.primaryLight,
+    fontSize: fontSize.xs,
+    fontWeight: "800",
+    textTransform: "uppercase" as const,
+    letterSpacing: 1,
+    marginBottom: spacing.sm,
+  },
+  detailedText: {
+    color: colors.textSecondary,
+    fontSize: fontSize.sm,
+    lineHeight: 22,
+  },
+  mistakesBox: {
+    marginTop: spacing.md,
+    backgroundColor: colors.errorBg,
+    borderRadius: borderRadius.md,
+    padding: spacing.md,
+    borderWidth: 1,
+    borderColor: "rgba(248,113,113,0.15)",
+  },
+  mistakesLabel: {
+    color: colors.error,
+    fontSize: fontSize.xs,
+    fontWeight: "800",
+    textTransform: "uppercase" as const,
+    letterSpacing: 1,
+    marginBottom: spacing.sm,
+  },
+  mistakeRow: {
+    flexDirection: "row" as const,
+    marginBottom: 4,
+    paddingLeft: 4,
+  },
+  mistakeBullet: {
+    color: colors.error,
+    fontSize: fontSize.sm,
+    marginRight: spacing.sm,
+    lineHeight: 22,
+  },
+  mistakeText: {
+    color: colors.textSecondary,
+    fontSize: fontSize.sm,
+    flex: 1,
+    lineHeight: 22,
+  },
+  conceptLink: {
+    marginTop: spacing.md,
+    flexDirection: "row" as const,
+    alignItems: "center" as const,
+    backgroundColor: colors.primaryGlow,
+    borderRadius: borderRadius.md,
+    padding: spacing.md,
+    borderWidth: 1,
+    borderColor: colors.borderAccent,
+  },
+  conceptLinkPressed: {
+    opacity: 0.7,
+  },
+  conceptLinkText: {
+    flex: 1,
+    color: colors.primaryLight,
+    fontSize: fontSize.sm,
+    fontWeight: "700",
+  },
+  conceptArrow: {
+    color: colors.primaryLight,
+    fontSize: 20,
+    fontWeight: "300",
   },
   hintToggle: {
     alignSelf: "flex-start",
